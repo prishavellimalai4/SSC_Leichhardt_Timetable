@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LISS Timetable - Current Period</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; connect-src 'self' file:;">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f8fc; margin:0; }
+        h2 { text-align: center; }
+        .year-section { margin: 32px auto 0 auto; max-width: 1200px; }
+        .year-label {
+            display: block;
+            font-weight: bold;
+            font-size: 1.25em;
+            margin-bottom: 10px;
+            text-align: left;
+            color: #35436b;
+            padding-left: 12px;
+        }
+        .tiles {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            gap: 10px;
+            margin-bottom: 18px;
+            overflow-x: auto;
+        }
+        .tile {
+            background: #f2f2ff;
+            border: 1px solid #555;
+            border-radius: 11px;
+            min-width: 100px;
+            max-width: 120px;
+            min-height: 56px;
+            padding: 7px 5px;
+            box-shadow: 2px 2px 6px #e6e6ee;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            transition: box-shadow 0.2s;
+        }
+        .tile:hover {
+            box-shadow: 2px 6px 16px #dbe2fa;
+        }
+        .classcode { font-weight: bold; font-size: 1em; color: #2e3b6c; margin-bottom: 2px; }
+        .room { font-size: 0.95em; color: #333; margin-bottom: 2px; }
+        .teacher { font-size: 0.95em; color: #333; }
+        .empty-row {
+            color: #bbb;
+            font-style: italic;
+            text-align: center;
+            padding: 14px 0;
+        }
+        #current-time {
+            text-align: right;
+            font-size: 0.9em;
+            color: #666;
+            margin: 20px 12px 10px 0;
+        }
+        @media (max-width: 1700px) {
+            .tiles { gap: 8px;}
+        }
+        @media (max-width: 1280px) {
+            .tiles { gap: 6px;}
+        }
+        @media (max-width: 700px) {
+            .year-section { max-width: 99vw; }
+            .tiles { gap: 4px;}
+            .tile { min-width: 90px; max-width: 100px;}
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div id="timetable"></div>
+    <div id="current-time"></div>
+    <script>
+        // --- UTILS ---
+        const pad2 = n => n < 10 ? '0' + n : n;
+        const auDate = date => `${pad2(date.getDate())}/${pad2(date.getMonth() + 1)}/${date.getFullYear()}`;
+        const longDay = date => date.toLocaleDateString('en-AU', { weekday: 'long' });
+
+        // Given a date, return the next school day (skips Saturday/Sunday)
+        function getNextSchoolDay(date) {
+            // 0 = Sunday, 1 = Monday, ... 5 = Friday, 6 = Saturday
+            let nextDate = new Date(date);
+            let dow = nextDate.getDay();
+            
+            if (dow === 5) { // Friday -> Monday
+                nextDate.setDate(nextDate.getDate() + 3);
+            } else if (dow === 6) { // Saturday -> Monday  
+                nextDate.setDate(nextDate.getDate() + 2);
+            } else if (dow === 0) { // Sunday -> Monday
+                nextDate.setDate(nextDate.getDate() + 1);
+            } else { // Monday-Thursday -> next day
+                nextDate.setDate(nextDate.getDate() + 1);
+            }
+            return nextDate;
+        }
+
+        // --- XML LOADING ---
+        function loadXML(path) {
+            return fetch(path)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(str => {
+                    const parser = new window.DOMParser();
+                    const xml = parser.parseFromString(str, "text/xml");
+                    
+                    // Check for XML parsing errors
+                    const parseError = xml.getElementsByTagName("parsererror")[0];
+                    if (parseError) {
+                        throw new Error(`XML Parse Error: ${parseError.textContent}`);
+                    }
+                    
+                    return xml;
+                })
+                .catch(error => {
+                    console.error("Error loading XML:", error);
+                    
+                    // Provide helpful error message for CORS issues
+                    if (error.message.includes('CORS') || error.message.includes('fetch')) {
+                        throw new Error(`CORS Error: Cannot load local files. Please run this application using a local web server. See instructions below.`);
+                    }
+                    
+                    throw error;
+                });
+        }
+
+        // --- DATA PARSING ---
+        // Helper function to extract member values from XML
+        function extractMemberValue(members, memberName) {
+            for(let j = 0; j < members.length; j++) {
+                const member = members[j];
+                const nameEl = member.getElementsByTagName("name")[0];
+                const valueEl = member.getElementsByTagName("value")[0];
+                
+                if(nameEl && valueEl && nameEl.textContent === memberName) {
+                    return valueEl.textContent;
+                }
+            }
+            return null;
+        }
+
+        function parseBellTimes(xml) {
+            const periods = [];
+            const nodes = xml.getElementsByTagName("struct");
+            
+            for(let i = 0; i < nodes.length; i++) {
+                const members = nodes[i].getElementsByTagName("member");
+                
+                const periodName = extractMemberValue(members, "Period");
+                const startTime = extractMemberValue(members, "StartTime");
+                const endTime = extractMemberValue(members, "EndTime");
+                
+                if(periodName && startTime && endTime) {
+                    periods.push({
+                        period: periodName,
+                        start: parseTime(startTime),
+                        end: parseTime(endTime)
+                    });
+                }
+            }
+            return periods;
+        }
+        function parseTime(timeStr) {
+            if(!timeStr) return 0;
+            const [hours, minutes] = timeStr.split(":").map(Number);
+            return hours * 60 + minutes;
+        }
+        
+        function parseCalendar(xml) {
+            const calendar = [];
+            const nodes = xml.getElementsByTagName("struct");
+            
+            for(let i = 0; i < nodes.length; i++) {
+                const members = nodes[i].getElementsByTagName("member");
+                
+                const dateStr = extractMemberValue(members, "Date");
+                const dayName = extractMemberValue(members, "DayName");
+                const dayNumber = extractMemberValue(members, "DayNumber");
+                
+                if(dateStr && dayName && dayNumber) {
+                    // Parse ISO date format: 20250811T00:00:00
+                    const dateMatch = dateStr.match(/(\d{4})(\d{2})(\d{2})T/);
+                    if(dateMatch) {
+                        calendar.push({
+                            date: new Date(dateMatch[1], dateMatch[2] - 1, dateMatch[3]),
+                            dayName: dayName,
+                            dayNumber: parseInt(dayNumber)
+                        });
+                    }
+                }
+            }
+            return calendar;
+        }
+
+        function getDayNumber(calendarData, targetDate) {
+            const entry = calendarData.find(entry => {
+                const entryDate = new Date(entry.date);
+                return entryDate.toDateString() === targetDate.toDateString();
+            });
+            
+            return entry ? entry.dayNumber : null;
+        }
+
+        function parseLessons(xml, currentPeriod, calendarData, targetDate) {
+            const lessonsByYear = {};
+            const nodes = xml.getElementsByTagName("struct");
+            
+            // Get the day number for the current date from calendar
+            const dayNumber = getDayNumber(calendarData, targetDate);
+            
+            for(let i = 0; i < nodes.length; i++) {
+                const members = nodes[i].getElementsByTagName("member");
+                
+                const lessonDayNumber = parseInt(extractMemberValue(members, "DayNumber"));
+                const period = extractMemberValue(members, "Period");
+                const classCode = extractMemberValue(members, "ClassCode");
+                const teacherCode = extractMemberValue(members, "TeacherCode");
+                const roomCode = extractMemberValue(members, "RoomCode");
+                
+                // Only include lessons for the current day number AND current period
+                if(classCode && period === currentPeriod && lessonDayNumber === dayNumber) {
+                    // Extract year from class code (assuming format like "7MAT", "8ENG", etc.)
+                    const classMatch = classCode.match(/^(\d+)/);
+                    if(classMatch) {
+                        const year = classMatch[1];
+                        if (!lessonsByYear[year]) lessonsByYear[year] = [];
+                        lessonsByYear[year].push({
+                            ClassCode: classCode,
+                            TeacherCode: teacherCode,
+                            RoomCode: roomCode
+                        });
+                    }
+                }
+            }
+            return lessonsByYear;
+        }
+
+        // --- PERIOD LOGIC ---
+        // Show periods 10 minutes before start time, with special cases for P0 and P1
+        function getCurrentPeriodOrNext(bellTimes, now) {
+            const currentMinutes = now.getHours()*60 + now.getMinutes();
+            const currentDay = now.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+            let period = null;
+            let foundPeriod = false;
+            
+            // Skip weekends - if it's Saturday or Sunday, show Monday's first period
+            if (currentDay === 0 || currentDay === 6) { // Sunday or Saturday
+                let nextMonday = new Date(now);
+                nextMonday.setDate(nextMonday.getDate() + (currentDay === 0 ? 1 : 2)); // Next Monday
+                const firstPeriod = bellTimes.length ? bellTimes[0].period : "P0";
+                return {period: firstPeriod, date: nextMonday, forceNextDay: true};
+            }
+            
+            // Sort bell times by start time to ensure proper order
+            const sortedBellTimes = bellTimes.slice().sort((a, b) => a.start - b.start);
+            
+            for (let i = 0; i < sortedBellTimes.length; i++) {
+                const p = sortedBellTimes[i];
+                let showFromTime;
+                
+                // Special cases for P0 and P1
+                if (p.period === "P0") {
+                    // P0 shows from 3:05 PM Friday until its start time Monday
+                    if (currentDay === 5) { // Friday
+                        showFromTime = 15 * 60 + 5; // 3:05 PM in minutes
+                        if (currentMinutes >= showFromTime) {
+                            // Show Monday's P0 starting Friday 3:05 PM
+                            let nextMonday = new Date(now);
+                            nextMonday.setDate(nextMonday.getDate() + 3); // Next Monday
+                            return {period: p.period, date: nextMonday, forceNextDay: true};
+                        }
+                    } else if (currentDay === 1) { // Monday
+                        // On Monday, show P0 until it starts
+                        if (currentMinutes < p.start) {
+                            period = p.period;
+                            foundPeriod = true;
+                            break;
+                        }
+                    }
+                } else if (p.period === "P1") {
+                    // P1 shows from 8:20 AM
+                    showFromTime = 8 * 60 + 20; // 8:20 AM in minutes
+                    if (currentMinutes >= showFromTime && currentMinutes < p.end) {
+                        period = p.period;
+                        foundPeriod = true;
+                        break;
+                    }
+                } else {
+                    // All other periods show 10 minutes before their start time
+                    showFromTime = p.start - 10;
+                    if (currentMinutes >= showFromTime && currentMinutes < p.end) {
+                        period = p.period;
+                        foundPeriod = true;
+                        break;
+                    }
+                }
+            }
+            
+            // If no current period found, determine what to show
+            if (!foundPeriod) {
+                // Find the last period end time
+                const lastPeriodEnd = Math.max(...sortedBellTimes.map(p => p.end));
+                
+                if (currentMinutes >= lastPeriodEnd) {
+                    // After last period: show first period for next school day
+                    let nextDate = getNextSchoolDay(now);
+                    const firstPeriod = sortedBellTimes.length ? sortedBellTimes[0].period : "P0";
+                    return {period: firstPeriod, date: nextDate, forceNextDay: true};
+                } else {
+                    // Before any period starts: show first period
+                    period = sortedBellTimes.length ? sortedBellTimes[0].period : "No Period";
+                }
+            }
+            
+            return {period, date: now, forceNextDay: false};
+        }
+
+        // Check if lessons contain any classes for years 7-12
+        function hasClassesForYears7to12(lessonsByYear) {
+            return ['7', '8', '9', '10', '11', '12'].some(year => 
+                lessonsByYear[year] && lessonsByYear[year].length > 0
+            );
+        }
+
+        // Get the next period in sequence
+        function getNextPeriod(bellTimes, currentPeriod, currentDate) {
+            const sortedBellTimes = bellTimes.slice().sort((a, b) => a.start - b.start);
+            
+            // Find current period index
+            let currentIndex = sortedBellTimes.findIndex(p => p.period === currentPeriod);
+            
+            if (currentIndex === -1) {
+                // Period not found, return first period of next day
+                let nextDate = getNextSchoolDay(currentDate);
+                return {
+                    period: sortedBellTimes[0].period,
+                    date: nextDate,
+                    forceNextDay: true
+                };
+            }
+            
+            // Find the next period with a DIFFERENT name
+            for (let i = currentIndex + 1; i < sortedBellTimes.length; i++) {
+                if (sortedBellTimes[i].period !== currentPeriod) {
+                    return {
+                        period: sortedBellTimes[i].period,
+                        date: currentDate,
+                        forceNextDay: false
+                    };
+                }
+            }
+            
+            // If we reach here, we're at the end or all remaining periods are the same
+            // Go to next day's first period
+            let nextDate = getNextSchoolDay(currentDate);
+            return {
+                period: sortedBellTimes[0].period,
+                date: nextDate,
+                forceNextDay: true
+            };
+        }
+
+        // --- RENDER ---
+        function renderHeader(period, dateObj, forceNextDay) {
+            const periodLabel = period || "No Period";
+            const currentDay = dateObj.getDay();
+            
+            let datePrefix = "";
+            if (forceNextDay) {
+                datePrefix = currentDay === 5 ? "Next Monday: " : "Next: ";
+            }
+            
+            const dateLabel = datePrefix + longDay(dateObj) + " " + auDate(dateObj);
+            
+            document.getElementById('header').innerHTML = `<h2>${periodLabel} - ${dateLabel}</h2>`;
+            
+            // Update current time display
+            const now = new Date();
+            const currentTime = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+            document.getElementById('current-time').innerHTML = `Current time: ${currentTime}`;
+        }
+        function renderTimetable(lessonsByYear) {
+            let html = "";
+            for (const year in lessonsByYear) {
+                html += `<div class="year-section">
+                    <span class="year-label">Year ${year}</span>
+                    <div class="tiles">`;
+                const lessons = lessonsByYear[year];
+                if (lessons && lessons.length > 0) {
+                    for (const lesson of lessons) {
+                        html += `<div class="tile">
+                            <div class="classcode">${(lesson.ClassCode||"").substring(0,7)}</div>
+                            <div class="room">${lesson.RoomCode||""}</div>
+                            <div class="teacher">${lesson.TeacherCode||""}</div>
+                        </div>`;
+                    }
+                } else {
+                    html += `<span class="empty-row">No classes</span>`;
+                }
+                html += `</div></div>`;
+            }
+            document.getElementById('timetable').innerHTML = html;
+        }
+
+        // --- MAIN ---
+        let bellTimes = [];
+        let lessonsXML = null;
+        let calendarData = [];
+        
+        function main() {
+            const now = new Date();
+
+            if (bellTimes.length && lessonsXML && calendarData.length) {
+                let periodObj = getCurrentPeriodOrNext(bellTimes, now);
+
+                // Try to find a period with actual classes
+                let lessonsByYear = parseLessons(lessonsXML, periodObj.period, calendarData, periodObj.date);
+                let attempts = 0;
+                const maxAttempts = bellTimes.length;
+                
+                // Check if current period has any classes for years 7-12
+                while (attempts < maxAttempts && !hasClassesForYears7to12(lessonsByYear)) {
+                    // Get the next period
+                    periodObj = getNextPeriod(bellTimes, periodObj.period, periodObj.date);
+                    lessonsByYear = parseLessons(lessonsXML, periodObj.period, calendarData, periodObj.date);
+                    attempts++;
+                }
+                
+                renderHeader(periodObj.period, periodObj.date, periodObj.forceNextDay);
+                renderTimetable(lessonsByYear);
+            } else {
+                document.getElementById('header').innerHTML = "<h2>Loading data...</h2>";
+                
+                // First try to load from files
+                Promise.all([
+                    loadXML("bell_times.xml"),
+                    loadXML("liss_info.xml"),
+                    loadXML("calendar.xml")
+                ]).then(([bellXML, lessonsXMLData, calendarXML]) => {
+                    bellTimes = parseBellTimes(bellXML);
+                    lessonsXML = lessonsXMLData;
+                    calendarData = parseCalendar(calendarXML);
+                    
+                    if(bellTimes.length === 0) {
+                        document.getElementById('header').innerHTML = "<h2>Error: No bell times found</h2>";
+                        return;
+                    }
+                    
+                    if(calendarData.length === 0) {
+                        document.getElementById('header').innerHTML = "<h2>Error: No calendar data found</h2>";
+                        return;
+                    }
+                    
+                    main();
+                }).catch(e=>{
+                    console.error("Error loading data:", e);
+                    
+                    let errorMessage = "<h2>Error loading XML files</h2>";
+                    let helpText = "";
+                    
+                    if (e.message.includes('CORS')) {
+                        helpText = `
+                            <div style="text-align: center; padding: 20px; color: #666; max-width: 600px; margin: 0 auto;">
+                                <p><strong>CORS Policy Error:</strong> Modern browsers block local file access for security reasons.</p>
+                                <p><strong>To run this application locally, you need to use a web server:</strong></p>
+                                <div style="text-align: left; background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                                    <p><strong>Option 1 - Python (if installed):</strong></p>
+                                    <code>python -m http.server 8000</code><br>
+                                    <small>Then open: http://localhost:8000</small>
+                                    
+                                    <p style="margin-top: 15px;"><strong>Option 2 - Node.js (if installed):</strong></p>
+                                    <code>npx http-server</code><br>
+                                    <small>Then open the provided URL</small>
+                                    
+                                    <p style="margin-top: 15px;"><strong>Option 3 - PHP (if installed):</strong></p>
+                                    <code>php -S localhost:8000</code><br>
+                                    <small>Then open: http://localhost:8000</small>
+                                    
+                                    <p style="margin-top: 15px;"><strong>Option 4 - VS Code Live Server:</strong></p>
+                                    <small>Install "Live Server" extension and right-click index.html → "Open with Live Server"</small>
+                                </div>
+                                <p>Make sure bell_times.xml, liss_info.xml, and calendar.xml are in the same folder as index.html</p>
+                            </div>`;
+                    } else {
+                        helpText = `
+                            <div style="text-align: center; padding: 20px; color: #666;">
+                                <p>Unable to load timetable data.</p>
+                                <p>Please ensure bell_times.xml, liss_info.xml, and calendar.xml are in the same folder.</p>
+                                <p>Error: ${e.message}</p>
+                            </div>`;
+                    }
+                    
+                    document.getElementById('header').innerHTML = errorMessage;
+                    document.getElementById('timetable').innerHTML = helpText;
+                });
+            }
+        }
+
+        // ---- AUTO-RELOAD ----
+        // Refresh page every minute to keep data current
+        setInterval(() => location.replace(location.href), 60000);
+
+        main();
+    </script>
+</body>
+</html>
