@@ -176,7 +176,11 @@
 
         // --- XML LOADING ---
         function loadXML(path) {
-            return fetch(path)
+            // Add cache busting timestamp to ensure fresh data
+            const cacheBuster = `?t=${Date.now()}`;
+            const urlWithCacheBuster = path + cacheBuster;
+            
+            return fetch(urlWithCacheBuster)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
