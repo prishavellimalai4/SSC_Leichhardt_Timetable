@@ -1,118 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tempe High School</title>
+    <title id="page-title">Loading...</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; connect-src 'self' file:; img-src 'self' https://tempe-h.schools.nsw.gov.au data:;">
+    <style id="dynamic-styles">
+        /* Styles will be loaded dynamically from config */
+    </style>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            background: #f7f8fc;
-            margin: 0;
-            position: relative;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('https://tempe-h.schools.nsw.gov.au/content/dam/doe/sws/schools/t/tempe-h/logo.png');
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: auto 100vh;
-            opacity: 0.15;
-            z-index: -1;
-            pointer-events: none;
-        }
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(247, 248, 252, 0.3);
-            z-index: -1;
-            pointer-events: none;
-        }
-        h2 { text-align: center; font-size:2.5rem }
-        .year-section { margin: 32px 20px 20px 32px; }
-        .year-label {
-            display: block;
-            font-weight: bold;
-            font-size: 1.25em;
-            margin-bottom: 10px;
-            text-align: left;
-            color: #AC0000;
-            padding-left: 12px;
-        }
-        .tiles {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            gap: 10px;
-            margin-bottom: 18px;
-            overflow-x: auto;
-        }
-        .tiles.multi-row {
-            flex-wrap: wrap;
-            overflow-x: visible;
-            max-height: none;
-        }
-        .tile {
-            background: #EDEDEE;
-            border: 1px solid #555;
-            border-radius: 11px;
-            min-width: 100px;
-            max-width: 120px;
-            min-height: 56px;
-            padding: 7px 5px;
-            box-shadow: 2px 2px 6px #b5b7b9;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-            transition: box-shadow 0.2s;
-        }
-        .tile:hover {
-            box-shadow: 2px 6px 16px #EDEDEE;
-        }
-        .classcode { font-weight: bold; font-size: 1em; color: #AC0000; margin-bottom: 2px; }
-        .room { font-size: 0.95em; color: #1a2325; margin-bottom: 2px; }
-        .teacher { font-size: 0.95em; color: #1a2325; }
-        .empty-row {
-            color: #b5b7b9;
-            font-style: italic;
-            text-align: center;
-            padding: 14px 0;
-        }
-        #current-time {
-            text-align: right;
-            font-size: 0.9em;
-            color: #1a2325;
-            margin: 20px 12px 10px 0;
-        }
-        #current-time.manual-override {
-            color: #d73502;
-            font-weight: bold;
-            background: #fff3cd;
-            padding: 5px 10px;
-            border-radius: 4px;
-            border: 1px solid #ffeaa7;
-        }
-        @media (max-width: 1700px) {
-            .tiles { gap: 8px;}
-        }
-        @media (max-width: 1280px) {
-            .tiles { gap: 6px;}
-        }
-        @media (max-width: 700px) {
-            .year-section { max-width: 99vw; }
-            .tiles { gap: 4px;}
-            .tile { min-width: 90px; max-width: 100px;}
-        }
+        /* Base styles that don't depend on config */
     </style>
 </head>
 <body>
@@ -120,6 +16,238 @@
     <div id="timetable"></div>
     <div id="current-time"></div>
     <script>
+        // Global configuration object
+        let CONFIG = null;
+        
+        // --- CONFIGURATION LOADING ---
+        async function loadConfig() {
+            try {
+                const response = await fetch('config.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                CONFIG = await response.json();
+                
+                // Apply configuration to page
+                applyConfiguration();
+                
+                return CONFIG;
+            } catch (error) {
+                console.error('Error loading configuration:', error);
+                // Fall back to default Tempe HS configuration
+                CONFIG = getDefaultConfig();
+                applyConfiguration();
+                return CONFIG;
+            }
+        }
+        
+        function getDefaultConfig() {
+            // Default configuration for Tempe HS (fallback)
+            return {
+                "school": {
+                    "name": "Tempe High School",
+                    "logo": {
+                        "url": "https://tempe-h.schools.nsw.gov.au/content/dam/doe/sws/schools/t/tempe-h/logo.png",
+                        "opacity": 0.15,
+                        "size": "auto 100vh"
+                    }
+                },
+                "colors": {
+                    "primary": "#AC0000",
+                    "background": "#f7f8fc",
+                    "overlay": "rgba(247, 248, 252, 0.3)",
+                    "tile": {
+                        "background": "#EDEDEE",
+                        "border": "#555",
+                        "shadow": "#b5b7b9",
+                        "hover": "#EDEDEE"
+                    },
+                    "text": {
+                        "primary": "#1a2325",
+                        "secondary": "#b5b7b9",
+                        "classCode": "#AC0000"
+                    }
+                },
+                "schedule": {
+                    "ignoredDays": [0, 6],
+                    "schoolDays": [1, 2, 3, 4, 5],
+                    "defaultShowMinutesBefore": 10,
+                    "periods": {
+                        "P0": {
+                            "showFromDay": 5,
+                            "showFromTime": "15:05",
+                            "showUntilStart": true,
+                            "description": "Period 0"
+                        },
+                        "P1": {
+                            "showFromTime": "08:20",
+                            "description": "Period 1"
+                        }
+                    }
+                },
+                "sportPeriods": {
+                    "tuesday": {
+                        "periods": ["P5", "P6"],
+                        "yearGroups": {
+                            "7": {
+                                "label": "Year 7 & 8 Sport",
+                                "includesYears": [7, 8],
+                                "excludeYears": [8]
+                            },
+                            "9": {
+                                "label": "Year 9 & 10 Sport", 
+                                "includesYears": [9, 10],
+                                "excludeYears": [10]
+                            }
+                        }
+                    }
+                },
+                "yearGroups": {
+                    "multiRowYears": [7, 9],
+                    "displayYears": [7, 8, 9, 10, 11, 12],
+                    "classCodePattern": "^(\\d+)"
+                },
+                "ui": {
+                    "refreshInterval": 60000,
+                    "cacheBusting": true
+                },
+                "files": {
+                    "bellTimes": "bell_times.xml",
+                    "lessons": "liss_info.xml",
+                    "calendar": "calendar.xml"
+                }
+            };
+        }
+        
+        function applyConfiguration() {
+            if (!CONFIG) return;
+            
+            // Set page title
+            document.getElementById('page-title').textContent = CONFIG.school.name;
+            
+            // Generate dynamic CSS
+            const css = generateDynamicCSS();
+            document.getElementById('dynamic-styles').innerHTML = css;
+        }
+        
+        function generateDynamicCSS() {
+            const c = CONFIG.colors;
+            const logo = CONFIG.school.logo;
+            
+            return `
+                body { 
+                    font-family: Arial, sans-serif; 
+                    background: ${c.background};
+                    margin: 0;
+                    position: relative;
+                }
+                body::before {
+                    content: '';
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-image: url('${logo.url}');
+                    background-repeat: no-repeat;
+                    background-position: center center;
+                    background-size: ${logo.size};
+                    opacity: ${logo.opacity};
+                    z-index: -1;
+                    pointer-events: none;
+                }
+                body::after {
+                    content: '';
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: ${c.overlay};
+                    z-index: -1;
+                    pointer-events: none;
+                }
+                h2 { text-align: center; font-size:2.5rem }
+                .year-section { margin: 32px 20px 20px 32px; }
+                .year-label {
+                    display: block;
+                    font-weight: bold;
+                    font-size: 1.25em;
+                    margin-bottom: 10px;
+                    text-align: left;
+                    color: ${c.primary};
+                    padding-left: 12px;
+                }
+                .tiles {
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: nowrap;
+                    gap: 10px;
+                    margin-bottom: 18px;
+                    overflow-x: auto;
+                }
+                .tiles.multi-row {
+                    flex-wrap: wrap;
+                    overflow-x: visible;
+                    max-height: none;
+                }
+                .tile {
+                    background: ${c.tile.background};
+                    border: 1px solid ${c.tile.border};
+                    border-radius: 11px;
+                    min-width: 100px;
+                    max-width: 120px;
+                    min-height: 56px;
+                    padding: 7px 5px;
+                    box-shadow: 2px 2px 6px ${c.tile.shadow};
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    justify-content: center;
+                    transition: box-shadow 0.2s;
+                }
+                .tile:hover {
+                    box-shadow: 2px 6px 16px ${c.tile.hover};
+                }
+                .classcode { font-weight: bold; font-size: 1em; color: ${c.text.classCode}; margin-bottom: 2px; }
+                .room { font-size: 0.95em; color: ${c.text.primary}; margin-bottom: 2px; }
+                .teacher { font-size: 0.95em; color: ${c.text.primary}; }
+                .empty-row {
+                    color: ${c.text.secondary};
+                    font-style: italic;
+                    text-align: center;
+                    padding: 14px 0;
+                }
+                #current-time {
+                    text-align: right;
+                    font-size: 0.9em;
+                    color: ${c.text.primary};
+                    margin: 20px 12px 10px 0;
+                }
+                #current-time.manual-override {
+                    color: #d73502;
+                    font-weight: bold;
+                    background: #fff3cd;
+                    padding: 5px 10px;
+                    border-radius: 4px;
+                    border: 1px solid #ffeaa7;
+                }
+                
+                /* Responsive breakpoints - will be overridden by config if specified */
+                @media (max-width: 1700px) {
+                    .tiles { gap: 8px;}
+                }
+                @media (max-width: 1280px) {
+                    .tiles { gap: 6px;}
+                }
+                @media (max-width: 700px) {
+                    .year-section { max-width: 99vw; }
+                    .tiles { gap: 4px;}
+                    .tile { min-width: 90px; max-width: 100px;}
+                }
+            `;
+        }
+
         // --- MANUAL OVERRIDE FOR TESTING ---
         // 
         // INSTRUCTIONS FOR TESTING:
@@ -138,7 +266,7 @@
         
         // Manual date/time settings (only used when USE_MANUAL_OVERRIDE is true)
         const MANUAL_DATE = new Date(2025, 7, 12); // August 12, 2025 (month is 0-indexed)
-        const MANUAL_TIME_HOURS = 10; // 1 PM
+        const MANUAL_TIME_HOURS = 8; // 1 PM
         const MANUAL_TIME_MINUTES = 20; // 25 minutes
         
         // Function to get current time (real or overridden)
@@ -156,29 +284,42 @@
         const auDate = date => `${pad2(date.getDate())}/${pad2(date.getMonth() + 1)}/${date.getFullYear()}`;
         const longDay = date => date.toLocaleDateString('en-AU', { weekday: 'long' });
 
-        // Given a date, return the next school day (skips Saturday/Sunday)
+        // Given a date, return the next school day (skips ignored days from config)
         function getNextSchoolDay(date) {
-            // 0 = Sunday, 1 = Monday, ... 5 = Friday, 6 = Saturday
+            if (!CONFIG) return date;
+            
             let nextDate = new Date(date);
             let dow = nextDate.getDay();
             
-            if (dow === 5) { // Friday -> Monday
-                nextDate.setDate(nextDate.getDate() + 3);
-            } else if (dow === 6) { // Saturday -> Monday  
-                nextDate.setDate(nextDate.getDate() + 2);
-            } else if (dow === 0) { // Sunday -> Monday
+            // Keep incrementing until we find a school day
+            while (CONFIG.schedule.ignoredDays.includes(dow)) {
                 nextDate.setDate(nextDate.getDate() + 1);
-            } else { // Monday-Thursday -> next day
-                nextDate.setDate(nextDate.getDate() + 1);
+                dow = nextDate.getDay();
             }
+            
+            // If we're already on a school day, move to the next school day
+            if (CONFIG.schedule.schoolDays.includes(dow) && nextDate.toDateString() === date.toDateString()) {
+                nextDate.setDate(nextDate.getDate() + 1);
+                dow = nextDate.getDay();
+                
+                // Skip any ignored days again
+                while (CONFIG.schedule.ignoredDays.includes(dow)) {
+                    nextDate.setDate(nextDate.getDate() + 1);
+                    dow = nextDate.getDay();
+                }
+            }
+            
             return nextDate;
         }
 
         // --- XML LOADING ---
         function loadXML(path) {
-            // Add cache busting timestamp to ensure fresh data
-            const cacheBuster = `?t=${Date.now()}`;
-            const urlWithCacheBuster = path + cacheBuster;
+            // Add cache busting timestamp if enabled in config
+            let urlWithCacheBuster = path;
+            if (CONFIG && CONFIG.ui.cacheBusting) {
+                const cacheBuster = `?t=${Date.now()}`;
+                urlWithCacheBuster = path + cacheBuster;
+            }
             
             return fetch(urlWithCacheBuster)
                 .then(response => {
@@ -295,15 +436,8 @@
             // Get the day number for the current date from calendar
             const dayNumber = getDayNumber(calendarData, targetDate);
             
-            // Check if this is Tuesday P5 or P6 - get the day name from calendar
-            const calendarEntry = calendarData.find(entry => {
-                const entryDate = new Date(entry.date);
-                return entryDate.toDateString() === targetDate.toDateString();
-            });
-            
-            const isTuesdayP5OrP6 = calendarEntry && 
-                                   calendarEntry.dayName.includes('Tue') && 
-                                   (currentPeriod === 'P5' || currentPeriod === 'P6');
+            // Check if this is a sport period based on config
+            const isSportPeriod = isConfiguredSportPeriod(calendarData, targetDate, currentPeriod);
             
             for(let i = 0; i < nodes.length; i++) {
                 const members = nodes[i].getElementsByTagName("member");
@@ -316,13 +450,13 @@
                 
                 // Only include lessons for the current day number AND current period
                 if(classCode && period === currentPeriod && lessonDayNumber === dayNumber) {
-                    // Extract year from class code (assuming format like "7MAT", "8ENG", etc.)
-                    const classMatch = classCode.match(/^(\d+)/);
+                    // Extract year from class code using config pattern
+                    const classMatch = classCode.match(new RegExp(CONFIG.yearGroups.classCodePattern));
                     if(classMatch) {
                         const year = classMatch[1];
                         
-                        // Skip Year 8 and Year 10 on Tuesday P5 & P6
-                        if(isTuesdayP5OrP6 && (year === '8' || year === '10')) {
+                        // Skip years excluded during sport periods
+                        if(isSportPeriod && shouldExcludeYearFromSport(year, calendarData, targetDate, currentPeriod)) {
                             continue;
                         }
                         
@@ -337,21 +471,73 @@
             }
             return lessonsByYear;
         }
+        
+        // Check if current period is configured as a sport period
+        function isConfiguredSportPeriod(calendarData, targetDate, currentPeriod) {
+            if (!CONFIG || !CONFIG.sportPeriods) return false;
+            
+            const calendarEntry = calendarData.find(entry => {
+                const entryDate = new Date(entry.date);
+                return entryDate.toDateString() === targetDate.toDateString();
+            });
+            
+            if (!calendarEntry) return false;
+            
+            // Check each configured sport day
+            for (const [dayKey, sportConfig] of Object.entries(CONFIG.sportPeriods)) {
+                // Check if the calendar day name starts with the configured day key (e.g., 'TueB' starts with 'tue')
+                if (calendarEntry.dayName.toLowerCase().startsWith(dayKey.toLowerCase().substring(0, 3)) && 
+                    sportConfig.periods.includes(currentPeriod)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        // Check if a year should be excluded from sport periods
+        function shouldExcludeYearFromSport(year, calendarData, targetDate, currentPeriod) {
+            if (!CONFIG || !CONFIG.sportPeriods) return false;
+            
+            const calendarEntry = calendarData.find(entry => {
+                const entryDate = new Date(entry.date);
+                return entryDate.toDateString() === targetDate.toDateString();
+            });
+            
+            if (!calendarEntry) return false;
+            
+            // Check each configured sport day
+            for (const [dayKey, sportConfig] of Object.entries(CONFIG.sportPeriods)) {
+                if (calendarEntry.dayName.toLowerCase().startsWith(dayKey.toLowerCase().substring(0, 3)) && 
+                    sportConfig.periods.includes(currentPeriod)) {
+                    
+                    // Check if this year should be excluded
+                    for (const [groupYear, groupConfig] of Object.entries(sportConfig.yearGroups)) {
+                        if (groupConfig.excludeYears && groupConfig.excludeYears.includes(parseInt(year))) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
 
         // --- PERIOD LOGIC ---
-        // Show periods 10 minutes before start time, with special cases for P0 and P1
+        // Show periods based on configuration
         function getCurrentPeriodOrNext(bellTimes, now) {
+            if (!CONFIG) return {period: "P0", date: now, forceNextDay: false};
+            
             const currentMinutes = now.getHours()*60 + now.getMinutes();
-            const currentDay = now.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+            const currentDay = now.getDay();
             let period = null;
             let foundPeriod = false;
             
-            // Skip weekends - if it's Saturday or Sunday, show Monday's first period
-            if (currentDay === 0 || currentDay === 6) { // Sunday or Saturday
-                let nextMonday = new Date(now);
-                nextMonday.setDate(nextMonday.getDate() + (currentDay === 0 ? 1 : 2)); // Next Monday
+            // Skip ignored days from config
+            if (CONFIG.schedule.ignoredDays.includes(currentDay)) {
+                let nextSchoolDay = getNextSchoolDay(now);
                 const firstPeriod = bellTimes.length ? bellTimes[0].period : "P0";
-                return {period: firstPeriod, date: nextMonday, forceNextDay: true};
+                return {period: firstPeriod, date: nextSchoolDay, forceNextDay: true};
             }
             
             // Sort bell times by start time to ensure proper order
@@ -361,36 +547,41 @@
                 const p = sortedBellTimes[i];
                 let showFromTime;
                 
-                // Special cases for P0 and P1
-                if (p.period === "P0") {
-                    // P0 shows from 3:05 PM Friday until its start time Monday
-                    if (currentDay === 5) { // Friday
-                        showFromTime = 15 * 60 + 5; // 3:05 PM in minutes
-                        if (currentMinutes >= showFromTime) {
-                            // Show Monday's P0 starting Friday 3:05 PM
-                            let nextMonday = new Date(now);
-                            nextMonday.setDate(nextMonday.getDate() + 3); // Next Monday
-                            return {period: p.period, date: nextMonday, forceNextDay: true};
+                // Check if this period has special configuration
+                const periodConfig = CONFIG.schedule.periods[p.period];
+                
+                if (periodConfig) {
+                    if (periodConfig.showFromDay !== undefined && periodConfig.showFromTime) {
+                        // Special cross-day showing (like P0 showing from Friday)
+                        if (currentDay === periodConfig.showFromDay) {
+                            const [hours, minutes] = periodConfig.showFromTime.split(':').map(Number);
+                            showFromTime = hours * 60 + minutes;
+                            if (currentMinutes >= showFromTime) {
+                                // Show next school day's period
+                                let nextDate = getNextSchoolDay(now);
+                                return {period: p.period, date: nextDate, forceNextDay: true};
+                            }
+                        } else if (periodConfig.showUntilStart && CONFIG.schedule.schoolDays.includes(currentDay)) {
+                            // Show until the period starts on its actual day
+                            if (currentMinutes < p.start) {
+                                period = p.period;
+                                foundPeriod = true;
+                                break;
+                            }
                         }
-                    } else if (currentDay === 1) { // Monday
-                        // On Monday, show P0 until it starts
-                        if (currentMinutes < p.start) {
+                    } else if (periodConfig.showFromTime) {
+                        // Period shows from a specific time on the same day
+                        const [hours, minutes] = periodConfig.showFromTime.split(':').map(Number);
+                        showFromTime = hours * 60 + minutes;
+                        if (currentMinutes >= showFromTime && currentMinutes < p.end) {
                             period = p.period;
                             foundPeriod = true;
                             break;
                         }
                     }
-                } else if (p.period === "P1") {
-                    // P1 shows from 8:20 AM
-                    showFromTime = 8 * 60 + 20; // 8:20 AM in minutes
-                    if (currentMinutes >= showFromTime && currentMinutes < p.end) {
-                        period = p.period;
-                        foundPeriod = true;
-                        break;
-                    }
                 } else {
-                    // All other periods show 10 minutes before their start time
-                    showFromTime = p.start - 10;
+                    // Default behavior: show period X minutes before start time
+                    showFromTime = p.start - CONFIG.schedule.defaultShowMinutesBefore;
                     if (currentMinutes >= showFromTime && currentMinutes < p.end) {
                         period = p.period;
                         foundPeriod = true;
@@ -418,10 +609,16 @@
             return {period, date: now, forceNextDay: false};
         }
 
-        // Check if lessons contain any classes for years 7-12
+        // Check if lessons contain any classes for configured display years
         function hasClassesForYears7to12(lessonsByYear) {
-            return ['7', '8', '9', '10', '11', '12'].some(year => 
-                lessonsByYear[year] && lessonsByYear[year].length > 0
+            if (!CONFIG || !CONFIG.yearGroups.displayYears) {
+                return ['7', '8', '9', '10', '11', '12'].some(year => 
+                    lessonsByYear[year] && lessonsByYear[year].length > 0
+                );
+            }
+            
+            return CONFIG.yearGroups.displayYears.some(year => 
+                lessonsByYear[year.toString()] && lessonsByYear[year.toString()].length > 0
             );
         }
 
@@ -465,9 +662,11 @@
 
         // --- RENDER ---
         function renderHeader(period, dateObj, forceNextDay) {
-            // Convert P1, P2, etc. to Period 1, Period 2, etc.
+            // Convert period to display name using config
             let periodLabel = period || "No Period";
-            if (period && period.match(/^P\d+$/)) {
+            if (CONFIG && CONFIG.schedule.periods[period] && CONFIG.schedule.periods[period].description) {
+                periodLabel = CONFIG.schedule.periods[period].description;
+            } else if (period && period.match(/^P\d+$/)) {
                 const periodNumber = period.substring(1); // Remove 'P' prefix
                 periodLabel = `Period ${periodNumber}`;
             }
@@ -476,7 +675,12 @@
             
             let datePrefix = "";
             if (forceNextDay) {
-                datePrefix = currentDay === 5 ? "Next Monday: " : "Next: ";
+                // Use config to determine appropriate prefix
+                if (CONFIG && CONFIG.schedule.ignoredDays.includes(currentDay - 1)) {
+                    datePrefix = "Next: ";
+                } else {
+                    datePrefix = "Next: ";
+                }
             }
             
             const dateLabel = datePrefix + longDay(dateObj) + " " + auDate(dateObj);
@@ -492,39 +696,58 @@
             timeElement.innerHTML = timeLabel;
             timeElement.className = USE_MANUAL_OVERRIDE ? 'manual-override' : '';
         }
+        
         function renderTimetable(lessonsByYear, currentPeriod, targetDate, calendarData) {
-            // Check if this is Tuesday P5 or P6
-            const calendarEntry = calendarData.find(entry => {
-                const entryDate = new Date(entry.date);
-                return entryDate.toDateString() === targetDate.toDateString();
-            });
+            if (!CONFIG) return;
             
-            const isTuesdayP5OrP6 = calendarEntry && 
-                                   calendarEntry.dayName.includes('Tue') && 
-                                   (currentPeriod === 'P5' || currentPeriod === 'P6');
+            // Check if this is a sport period using config
+            const isSportPeriod = isConfiguredSportPeriod(calendarData, targetDate, currentPeriod);
             
             let html = "";
-            for (const year in lessonsByYear) {
-                const isMultiRowYear = (year === '7' || year === '9');
+            
+            // Iterate through configured display years
+            for (const yearNum of CONFIG.yearGroups.displayYears) {
+                const year = yearNum.toString();
+                
+                if (!lessonsByYear[year]) continue;
+                
+                // Check if this year should be hidden during sport periods
+                if (isSportPeriod && shouldExcludeYearFromSport(year, calendarData, targetDate, currentPeriod)) {
+                    continue;
+                }
+                
+                const isMultiRowYear = CONFIG.yearGroups.multiRowYears.includes(yearNum);
                 const tilesClass = isMultiRowYear ? 'tiles multi-row' : 'tiles';
                 
                 // Determine the year label based on context
-                let yearLabel;
-                if (isTuesdayP5OrP6) {
-                    if (year === '7') {
-                        yearLabel = "Year 7 & 8 Sport";
-                    } else if (year === '9') {
-                        yearLabel = "Year 9 & 10 Sport";
-                    } else {
-                        yearLabel = `Year ${year}`;
+                let yearLabel = `Year ${year}`;
+                
+                if (isSportPeriod) {
+                    // Check for sport period configurations
+                    const calendarEntry = calendarData.find(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate.toDateString() === targetDate.toDateString();
+                    });
+                    
+                    if (calendarEntry) {
+                        for (const [dayKey, sportConfig] of Object.entries(CONFIG.sportPeriods)) {
+                            if (calendarEntry.dayName.toLowerCase().includes(dayKey) && 
+                                sportConfig.periods.includes(currentPeriod)) {
+                                
+                                // Check if this year has a special sport label
+                                const sportGroup = sportConfig.yearGroups[year];
+                                if (sportGroup && sportGroup.label) {
+                                    yearLabel = sportGroup.label;
+                                }
+                            }
+                        }
                     }
-                } else {
-                    yearLabel = `Year ${year}`;
                 }
                 
                 html += `<div class="year-section">
                     <span class="year-label">${yearLabel}</span>
                     <div class="${tilesClass}">`;
+                    
                 const lessons = lessonsByYear[year];
                 if (lessons && lessons.length > 0) {
                     for (const lesson of lessons) {
@@ -547,7 +770,12 @@
         let lessonsXML = null;
         let calendarData = [];
         
-        function main() {
+        async function main() {
+            // Load configuration first
+            if (!CONFIG) {
+                await loadConfig();
+            }
+            
             const now = getCurrentTime();
 
             if (bellTimes.length && lessonsXML && calendarData.length) {
@@ -558,7 +786,7 @@
                 let attempts = 0;
                 const maxAttempts = bellTimes.length;
                 
-                // Check if current period has any classes for years 7-12
+                // Check if current period has any classes for configured display years
                 while (attempts < maxAttempts && !hasClassesForYears7to12(lessonsByYear)) {
                     // Get the next period
                     periodObj = getNextPeriod(bellTimes, periodObj.period, periodObj.date);
@@ -571,11 +799,21 @@
             } else {
                 document.getElementById('header').innerHTML = "<h2>Loading data...</h2>";
                 
-                // First try to load from files
+                // Load configuration if not already loaded
+                if (!CONFIG) {
+                    await loadConfig();
+                }
+                
+                // Get file paths from config
+                const bellTimesFile = CONFIG.files.bellTimes;
+                const lessonsFile = CONFIG.files.lessons;
+                const calendarFile = CONFIG.files.calendar;
+                
+                // Load XML files
                 Promise.all([
-                    loadXML("bell_times.xml"),
-                    loadXML("liss_info.xml"),
-                    loadXML("calendar.xml")
+                    loadXML(bellTimesFile),
+                    loadXML(lessonsFile),
+                    loadXML(calendarFile)
                 ]).then(([bellXML, lessonsXMLData, calendarXML]) => {
                     bellTimes = parseBellTimes(bellXML);
                     lessonsXML = lessonsXMLData;
@@ -619,13 +857,13 @@
                                     <p style="margin-top: 15px;"><strong>Option 4 - VS Code Live Server:</strong></p>
                                     <small>Install "Live Server" extension and right-click index.html → "Open with Live Server"</small>
                                 </div>
-                                <p>Make sure bell_times.xml, liss_info.xml, and calendar.xml are in the same folder as index.html</p>
+                                <p>Make sure config.json and XML files are in the same folder as index.html</p>
                             </div>`;
                     } else {
                         helpText = `
                             <div style="text-align: center; padding: 20px; color: #666;">
                                 <p>Unable to load timetable data.</p>
-                                <p>Please ensure bell_times.xml, liss_info.xml, and calendar.xml are in the same folder.</p>
+                                <p>Please ensure config.json and XML files are in the same folder.</p>
                                 <p>Error: ${e.message}</p>
                             </div>`;
                     }
@@ -637,10 +875,24 @@
         }
 
         // ---- AUTO-RELOAD ----
-        // Refresh page every minute to keep data current
-        setInterval(() => location.replace(location.href), 60000);
+        // Refresh page based on config interval
+        function setupAutoReload() {
+            if (CONFIG && CONFIG.ui.refreshInterval) {
+                setInterval(() => location.replace(location.href), CONFIG.ui.refreshInterval);
+            } else {
+                // Default fallback
+                setInterval(() => location.replace(location.href), 60000);
+            }
+        }
 
-        main();
+        // Initialize the application
+        async function init() {
+            await loadConfig();
+            setupAutoReload();
+            main();
+        }
+
+        init();
     </script>
 </body>
 </html>

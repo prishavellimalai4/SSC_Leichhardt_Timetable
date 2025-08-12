@@ -1,0 +1,81 @@
+{
+  "school": {
+    "name": "Tempe High School",
+    "logo": {
+      "url": "https://tempe-h.schools.nsw.gov.au/content/dam/doe/sws/schools/t/tempe-h/logo.png",
+      "opacity": 0.15,
+      "size": "auto 100vh"
+    }
+  },
+  "colors": {
+    "primary": "#AC0000",
+    "background": "#f7f8fc",
+    "overlay": "rgba(247, 248, 252, 0.3)",
+    "tile": {
+      "background": "#EDEDEE",
+      "border": "#555",
+      "shadow": "#b5b7b9",
+      "hover": "#EDEDEE"
+    },
+    "text": {
+      "primary": "#1a2325",
+      "secondary": "#b5b7b9",
+      "classCode": "#AC0000"
+    }
+  },
+  "schedule": {
+    "ignoredDays": [0, 6],
+    "schoolDays": [1, 2, 3, 4, 5],
+    "defaultShowMinutesBefore": 10,
+    "periods": {
+      "P0": {
+        "showFromDay": 5,
+        "showFromTime": "15:05",
+        "showUntilStart": true,
+        "description": "Period 0"
+      },
+      "P1": {
+        "showFromTime": "08:20",
+        "description": "Period 1"
+      }
+    }
+  },
+  "sportPeriods": {
+    "tuesday": {
+      "periods": ["P5", "P6"],
+      "yearGroups": {
+        "7": {
+          "label": "Year 7 & 8 Sport",
+          "includesYears": [7, 8],
+          "excludeYears": [8]
+        },
+        "9": {
+          "label": "Year 9 & 10 Sport", 
+          "includesYears": [9, 10],
+          "excludeYears": [10]
+        }
+      }
+    }
+  },
+  "yearGroups": {
+    "multiRowYears": [7, 9],
+    "displayYears": [7, 8, 9, 10, 11, 12],
+    "classCodePattern": "^(\\d+)"
+  },
+  "ui": {
+    "refreshInterval": 60000,
+    "cacheBusting": false,
+    "responsive": {
+      "breakpoints": {
+        "large": 1700,
+        "medium": 1280,
+        "small": 700
+      }
+    }
+  },
+  "files": {
+    "bellTimes": "bell_times.xml",
+    "lessons": "liss_info.xml",
+    "calendar": "calendar.xml"
+  }
+}
