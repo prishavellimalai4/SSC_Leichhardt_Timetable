@@ -2,7 +2,29 @@
 
 This guide explains how to configure the Tempe High School Timetable Kiosk for use by other schools.
 
-## Configuration File
+## Setup Instructions
+
+### For GitHub Pages Deployment (Recommended):
+
+1. **Fork or create a repository** with the timetable files
+2. **Customize `config.json`** with your school's settings (see options below)
+3. **Add your XML data files** (`bell_times.xml`, `liss_info.xml`, `calendar.xml`)
+4. **Enable GitHub Pages**:
+   - Go to repository Settings → Pages
+   - Source: "Deploy from a branch"
+   - Branch: "main", Folder: "/ (root)"
+   - Save and wait for deployment
+5. **Access your timetable** at: `https://yourusername.github.io/repository-name`
+
+### For Local Development:
+
+1. **Copy the base files**: `index.html`, `config.json`, and your XML data files
+2. **Customize config.json**: Update all settings for your school  
+3. **Update XML files**: Ensure your bell times, lessons, and calendar data are in the correct format
+4. **Test locally**: Use a local web server to test the configuration
+5. **Deploy**: Upload all files to your web server or use GitHub Pages
+
+## Configuration File Structure
 
 The app uses a `config.json` file to store all school-specific settings. This file must be placed in the same directory as `index.html`.
 
@@ -249,6 +271,12 @@ Configure special periods like sport where year groups are combined:
 
 The app includes a manual override feature for testing different times and dates. Set `USE_MANUAL_OVERRIDE = true` in the JavaScript section and configure the test date/time.
 
+**For GitHub Pages testing:**
+- Make changes to your repository
+- Commit and push changes
+- GitHub Pages will automatically update (may take a few minutes)
+- Use browser developer tools (F12) to check console for errors
+
 ## Fallback Behavior
 
 If `config.json` cannot be loaded, the app will fall back to the default Tempe High School configuration to ensure it still functions.
@@ -262,9 +290,37 @@ school-timetable/
 ├── bell_times.xml
 ├── liss_info.xml
 ├── calendar.xml
-└── README.md
+└── docs/
+    ├── README.md
+    ├── CONFIGURATION.md
+    └── GITHUB_PAGES_DEPLOYMENT.md
 ```
+
+## GitHub Pages Considerations
+
+**File Access:**
+- All files must be in the repository
+- File names are case-sensitive
+- No special server configuration needed
+- Automatic HTTPS and global CDN
+
+**Updates:**
+- Changes take effect after Git commit/push
+- Usually updates within 1-5 minutes
+- Check GitHub Pages deployment status in repository Actions tab
+
+**Security:**
+- All files are publicly accessible
+- Don't include sensitive information in configuration files
+- Consider using environment variables for sensitive data if needed
 
 ## Support
 
 The configuration system is designed to be flexible and support various school structures. If you need additional configuration options, you can extend the `config.json` file and modify the JavaScript code accordingly.
+
+**Common Customizations:**
+- Additional sport periods for different days
+- More complex year group arrangements  
+- Custom period naming schemes
+- Different timing rules for various periods
+- School-specific color schemes and branding
