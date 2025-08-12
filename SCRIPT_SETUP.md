@@ -37,10 +37,18 @@ To use the automated timetable update script, you need to configure the followin
 
 ### Manual Script Execution
 
-You can also run the script manually, but you **must** set the environment variables:
+You have several options for running the script manually:
 
+#### Option 1: Local Testing Mode (Development Only)
 ```bash
-# Set environment variables (REQUIRED)
+# Quick test with hardcoded URLs (for development/testing only)
+python update_timetable.py --local-test
+```
+⚠️ **Warning**: This mode uses hardcoded URLs and should only be used for development/testing.
+
+#### Option 2: With Environment Variables
+```bash
+# Set environment variables (REQUIRED for production)
 export BELTIMESURL="your-bell-times-url"
 export CALURL="your-calendar-url"
 export TTURL="your-timetable-url"
@@ -49,7 +57,13 @@ export TTURL="your-timetable-url"
 python update_timetable.py
 ```
 
-**Note:** The script will exit with an error if any of the required environment variables are not set.
+#### Option 3: One-line with Environment Variables
+```bash
+# Run with environment variables in one command
+BELTIMESURL="url1" CALURL="url2" TTURL="url3" python update_timetable.py
+```
+
+**Note:** For production use, the script requires environment variables to be set. Repository secrets are automatically available when running via GitHub Actions.
 
 ### Automated Updates
 
