@@ -15,6 +15,7 @@ Key configurable features:
 - Sport period handling
 - Year group configurations
 - Ignored days (weekends, holidays)
+- Responsive layout breakpoints (including height-based compact mode)
 - File names and paths
 
 ## CORS Policy and Local File Access
@@ -94,24 +95,26 @@ Make sure these files are in the same directory:
 - [`README.md`](README.md) - Main documentation (this file)
 - [`CONFIGURATION.md`](CONFIGURATION.md) - Complete configuration guide
 - [`GITHUB_PAGES_DEPLOYMENT.md`](GITHUB_PAGES_DEPLOYMENT.md) - GitHub Pages deployment guide
-- [`../config-example-riverside.json`](../config-example-riverside.json) - Example configuration for another school
+- [`../SCRIPT_SETUP.md`](../SCRIPT_SETUP.md) - Python scripts and development tools
+- [`config-example-riverside.json`](docs/config-example-riverside.json) - Example configuration for another school
 
 ## How It Works
 
 The application automatically:
 1. Loads the school configuration from `config.json`
 2. Applies school-specific styling, colors, and logic
-3. Loads the current period based on time and bell schedule
-4. Checks if the current period has classes for configured year levels
-5. If no classes are found, advances to the next period with classes
-6. Displays the timetable with classes organized by year level
-7. Handles special cases like sport periods with combined year groups
+3. Adapts the layout based on screen dimensions (height-responsive compact mode)
+4. Loads the current period based on time and bell schedule
+5. Checks if the current period has classes for configured year levels
+6. If no classes are found, advances to the next period with classes
+7. Displays the timetable with classes organized by year level
+8. Handles special cases like sport periods with combined year groups
 
 ## Configuration Examples
 
 The repository includes example configurations:
-- `../config.json` - Default Tempe High School configuration
-- [`../config-example-riverside.json`](../config-example-riverside.json) - Example for a different school
+- `config.json` - Default Tempe High School configuration
+- [`docs/config-example-riverside.json`](docs/config-example-riverside.json) - Example for a different school
 
 ## For Other Schools
 
@@ -143,6 +146,7 @@ The repository includes example configurations:
 - **Sport periods**: Combined year groups, exclusions
 - **Year groups**: Display years, multi-row layouts
 - **Schedule logic**: Ignored days, special periods
+- **Responsive design**: Screen size breakpoints including height-based compact layout
 
 The app will fall back to default settings if the configuration file cannot be loaded, ensuring it always functions.
 5. Refreshes every minute to stay current

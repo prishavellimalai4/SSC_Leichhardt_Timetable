@@ -246,8 +246,8 @@
                     .tile { min-width: 90px; max-width: 100px;}
                 }
                 
-                /* Fluid grid for short screens - year label to the left */
-                @media (max-height: 960px) {
+                /* Responsive height breakpoint - compact layout for short screens */
+                @media (max-height: ${CONFIG.ui.responsive.breakpoints.compactHeight}px) {
                     .year-section {
                         display: flex;
                         flex-direction: row;
@@ -277,6 +277,27 @@
                         max-height: 200px;
                         overflow-y: auto;
                         overflow-x: visible;
+                    }
+                }
+                
+                /* Original layout for tall screens */
+                @media (min-height: ${CONFIG.ui.responsive.breakpoints.compactHeight + 1}px) {
+                    .year-section {
+                        display: block;
+                        margin: 20px 20px 20px 32px;
+                    }
+                    
+                    .year-label {
+                        display: block;
+                        margin-bottom: 10px;
+                        writing-mode: horizontal-tb;
+                        text-align: left;
+                        padding-left: 12px;
+                        padding-right: 0;
+                    }
+                    
+                    .tiles {
+                        margin-bottom: 18px;
                     }
                 }
             `;

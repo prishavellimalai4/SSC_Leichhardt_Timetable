@@ -69,7 +69,8 @@
       "breakpoints": {
         "large": 1700,
         "medium": 1280,
-        "small": 700
+        "small": 700,
+        "compactHeight": 800
       }
     }
   },

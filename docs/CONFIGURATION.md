@@ -171,7 +171,8 @@ Configure special periods like sport where year groups are combined:
       "breakpoints": {
         "large": 1700,
         "medium": 1280,
-        "small": 700
+        "small": 700,
+        "compactHeight": 800
       }
     }
   }
@@ -181,6 +182,42 @@ Configure special periods like sport where year groups are combined:
 - **refreshInterval**: How often to refresh the page (milliseconds)
 - **cacheBusting**: Whether to add timestamps to prevent caching
 - **responsive.breakpoints**: Screen size breakpoints for responsive design
+  - **large**, **medium**, **small**: Width breakpoints for general responsive design
+  - **compactHeight**: Height breakpoint for compact layout mode (pixels)
+
+#### Responsive Layout Behavior
+
+The timetable automatically adapts to different screen heights using the `compactHeight` breakpoint:
+
+**Tall Screens (above compactHeight):**
+- Traditional layout with year labels positioned above the class tiles
+- More spacious margins and padding
+- Suitable for desktop displays and large screens
+
+**Short Screens (at or below compactHeight):**
+- Compact layout with year labels positioned to the left of class tiles
+- Reduced margins and tighter spacing
+- Optimized for tablets, laptops, and shorter displays
+- Year labels become right-aligned next to the tiles
+
+**Configuration Example:**
+```json
+{
+  "ui": {
+    "responsive": {
+      "breakpoints": {
+        "compactHeight": 800
+      }
+    }
+  }
+}
+```
+
+With `compactHeight: 800`:
+- Screens with height > 800px: Traditional layout (labels above)
+- Screens with height ≤ 800px: Compact layout (labels left)
+
+This ensures optimal viewing experience across different display types commonly used in schools.
 
 ### Data Files
 
@@ -232,6 +269,13 @@ Configure special periods like sport where year groups are combined:
   "yearGroups": {
     "displayYears": [8, 9, 10, 11, 12],
     "multiRowYears": [8, 10]
+  },
+  "ui": {
+    "responsive": {
+      "breakpoints": {
+        "compactHeight": 750
+      }
+    }
   }
 }
 ```
@@ -255,6 +299,13 @@ Configure special periods like sport where year groups are combined:
     "displayYears": [1, 2, 3, 4, 5, 6],
     "multiRowYears": [1, 3, 5],
     "classCodePattern": "^(\\d+)"
+  },
+  "ui": {
+    "responsive": {
+      "breakpoints": {
+        "compactHeight": 700
+      }
+    }
   }
 }
 ```

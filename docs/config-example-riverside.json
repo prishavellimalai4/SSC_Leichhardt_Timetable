@@ -87,7 +87,7 @@
   },
   "files": {
     "bellTimes": "bell_times.xml",
-    "lessons": "class_data.xml",
-    "calendar": "school_calendar.xml"
+    "lessons": "liss_info.xml",
+    "calendar": "calendar.xml"
   }
 }
