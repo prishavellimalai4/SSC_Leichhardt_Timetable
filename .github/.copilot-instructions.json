@@ -1,0 +1,129 @@
+{
+  "project_context": {
+    "name": "Tempe HS Timetable Kiosk",
+    "description": "A web-based timetable display system for Tempe High School",
+    "type": "web_application",
+    "deployment": "github_pages",
+    "license": "GNU GPL v3.0",
+    "primary_files": {
+      "entry_point": "index.html",
+      "server": "server.py",
+      "api_client": "sentral_rest_client.py",
+      "main_config": "config.json",
+      "api_config": "sentral_config.json"
+    }
+  },
+  "github_copilot_instructions": {
+    "coding_guidelines": [
+      {
+        "rule": "Configuration Management",
+        "instruction": "Always use .json config files for any configuration settings. Never use .yaml, .ini, or other formats. Store all configuration in JSON format with proper schema validation.",
+        "format": "json_only",
+        "examples": [
+          "config.json for main application settings",
+          "sentral_config.json for API configurations",
+          "devcontainer.json for development environment"
+        ]
+      },
+      {
+        "rule": "Data Files",
+        "instruction": "XML data files (bell_times.xml, calendar.xml, liss_info.xml) and timetable_data.json contain school-specific data and should not be committed to the repository. These files are ignored by .gitignore and should be provided by each school implementing the system. Use example files or documentation to show the expected format.",
+        "examples": [
+          "bell_times.xml - School bell timing data",
+          "calendar.xml - School calendar events", 
+          "liss_info.xml - Timetable information from LISS system",
+          "timetable_data.json - Processed timetable data"
+        ]
+      },
+      {
+        "rule": "Documentation Location",
+        "instruction": "All markdown documentation must be placed in the /docs folder. This includes README files, configuration guides, API documentation, and any other markdown content.",
+        "location": "/docs",
+        "examples": [
+          "/docs/README.md for main project documentation",
+          "/docs/CONFIGURATION.md for setup instructions",
+          "/docs/GITHUB_PAGES_DEPLOYMENT.md for deployment guide"
+        ],
+        "file_types": [
+          "README.md",
+          "CONFIGURATION.md",
+          "API documentation",
+          "Deployment guides",
+          "License information"
+        ]
+      },
+      {
+        "rule": "GitHub Pages Integration",
+        "instruction": "The index.html file will be accessed through GitHub Pages. Ensure all relative paths work correctly for GitHub Pages deployment. Use relative URLs for assets and avoid absolute local paths.",
+        "entry_point": "index.html",
+        "requirements": [
+          "Use relative paths for all assets",
+          "Ensure compatibility with GitHub Pages URL structure",
+          "Test both local and GitHub Pages deployment",
+          "Avoid absolute local file paths",
+          "Consider using Jekyll-compatible structure if needed"
+        ]
+      },
+      {
+        "rule": "License Compliance",
+        "instruction": "This project is licensed under GNU GPL v3.0. Ensure all code contributions comply with GPL requirements and reference the license appropriately in documentation.",
+        "requirements": [
+          "Include license header in significant code files",
+          "Reference LICENSE file in documentation",
+          "Ensure compatibility with GPL for any dependencies"
+        ]
+      }
+    ],
+    "file_structure_guidelines": {
+      "root_files": [
+        "index.html - Main application entry point (GitHub Pages compatible)",
+        "server.py - Local development server",
+        "LICENSE - GNU GPL v3.0 license file",
+        "requirements.txt - Python dependencies",
+        "*.json - Configuration files"
+      ],
+      "docs_folder": [
+        "All .md files",
+        "Documentation images and assets",
+        "Configuration examples",
+        "API documentation",
+        "License and legal information"
+      ],
+      "config_files": [
+        "Use .json format exclusively",
+        "Include schema validation where possible",
+        "Provide example configurations in /docs folder"
+      ]
+    },
+    "development_practices": {
+      "local_development": "Use server.py for local testing to avoid CORS issues",
+      "github_pages": "Ensure index.html works directly when served from GitHub Pages",
+      "configuration": "Always validate JSON configuration files and provide clear error messages for invalid configs",
+      "documentation": "Keep documentation up-to-date in /docs folder when making changes",
+      "licensing": "Maintain GPL compliance and proper attribution",
+      "git_configuration": "This repository requires proper git configuration to be set up. Ensure git user.name and user.email are configured before making commits. Use 'git config --global user.name \"Your Name\"' and 'git config --global user.email \"your.email@example.com\"' to set up git configuration. Note: .gitconfig should not be included in the repository as it contains user-specific settings.",
+      "line_endings": "Line endings are managed through .gitattributes file which ensures consistent LF line endings for text files across all platforms. This handles cross-platform development without requiring user-specific git configuration."
+    },
+    "code_patterns": {
+      "python": {
+        "style": "PEP 8",
+        "type_hints": "required",
+        "docstrings": "required",
+        "license_header": "Include GPL header for significant files"
+      },
+      "javascript": {
+        "style": "ES6+",
+        "comments": "JSDoc format",
+        "license_header": "Include GPL header for significant files"
+      },
+      "html": {
+        "style": "semantic HTML5",
+        "accessibility": "WCAG compliant"
+      },
+      "json": {
+        "style": "consistent indentation (2 spaces)",
+        "validation": "include schema validation where possible"
+      }
+    }
+  }
+}

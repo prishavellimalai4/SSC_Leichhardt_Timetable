@@ -1,0 +1,11 @@
+# Core HTTP library for API requests
+requests>=2.31.0
+
+# Built-in modules (included with Python)
+# http.server
+# socketserver
+# webbrowser
+# os
+# sys
+# json
+# typing
