@@ -1,0 +1,20 @@
+{
+  "liss": {
+    "endpoint": "https://tempehs-nsw.edval.education/liss",
+    "school": "TEMPE",
+    "username_env": "LISS_USERNAME",
+    "password_env": "LISS_PASSWORD",
+    "liss_version": 10002,
+    "user_agent": "https://github.com",
+    "tt_structure": "main"
+  },
+  "output": {
+    "format": "json",
+    "file": "current_bell_times.json",
+    "pretty_print": true
+  },
+  "logging": {
+    "enabled": true,
+    "level": "INFO"
+  }
+}
