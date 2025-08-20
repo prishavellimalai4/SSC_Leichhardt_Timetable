@@ -15,10 +15,10 @@ The workflow requires LISS credentials to be stored as GitHub repository secrets
 
    ```
    Name: LISS_USERNAME
-   Value: tt_kiosk_sync
+   Value: your_username
 
    Name: LISS_PASSWORD
-   Value: 2025_Mr_Jones
+   Value: your_password
    ```
 
 ### 2. Enable GitHub Actions
@@ -117,8 +117,8 @@ Test the workflow locally:
 
 ```bash
 # Set environment variables
-export LISS_USERNAME=tt_kiosk_sync
-export LISS_PASSWORD=2025_Mr_Jones
+export LISS_USERNAME=your_username
+export LISS_PASSWORD=your_password
 
 # Test connection
 python3 liss_bell_times.py --test-only
