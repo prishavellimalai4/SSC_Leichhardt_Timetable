@@ -1,0 +1,163 @@
+name: Update Bell Times from LISS
+
+on:
+  # Schedule to run daily at 6:00 AM Sydney time
+  # Note: GitHub Actions uses UTC, so we need to convert Sydney time to UTC
+  # Sydney time (AEDT/AEST) is UTC+10/UTC+11, so 6:00 AM Sydney = 8:00 PM UTC (previous day)
+  schedule:
+    - cron: '0 20 * * *'  # 20:00 UTC = 6:00 AM Sydney (AEST)
+    - cron: '0 19 * * *'  # 19:00 UTC = 6:00 AM Sydney (AEDT) - daylight saving
+  
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      test_only:
+        description: 'Run connection test only'
+        required: false
+        default: 'false'
+        type: boolean
+
+# Set environment variables for the workflow
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  update-bell-times:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Set LISS credentials from secrets
+      env:
+        LISS_USERNAME: ${{ secrets.LISS_USERNAME }}
+        LISS_PASSWORD: ${{ secrets.LISS_PASSWORD }}
+      run: |
+        # Verify environment variables are set
+        if [ -z "$LISS_USERNAME" ]; then
+          echo "❌ LISS_USERNAME secret is not set"
+          exit 1
+        fi
+        if [ -z "$LISS_PASSWORD" ]; then
+          echo "❌ LISS_PASSWORD secret is not set"
+          exit 1
+        fi
+        echo "✅ LISS credentials loaded from secrets"
+        
+    - name: Test LISS connection
+      env:
+        LISS_USERNAME: ${{ secrets.LISS_USERNAME }}
+        LISS_PASSWORD: ${{ secrets.LISS_PASSWORD }}
+      run: |
+        echo "🔍 Testing LISS connection..."
+        python3 liss_bell_times.py --test-only
+        
+    - name: Fetch bell times
+      if: ${{ !inputs.test_only }}
+      env:
+        LISS_USERNAME: ${{ secrets.LISS_USERNAME }}
+        LISS_PASSWORD: ${{ secrets.LISS_PASSWORD }}
+      run: |
+        echo "🔔 Fetching bell times from LISS..."
+        python3 liss_bell_times.py
+        
+    - name: Check for changes
+      if: ${{ !inputs.test_only }}
+      id: changes
+      run: |
+        # Check if bell times file was created/updated
+        if [ -f "current_bell_times.json" ]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+          echo "✅ Bell times file updated"
+          
+          # Show file size and modification time
+          ls -la current_bell_times.json
+          
+          # Show summary of the data
+          echo "📊 Bell times summary:"
+          python3 -c "
+import json
+try:
+    with open('current_bell_times.json', 'r') as f:
+        data = json.load(f)
+    metadata = data.get('metadata', {})
+    bell_times = data.get('bell_times', [])
+    print(f'  📅 Fetched at: {metadata.get(\"fetched_at\", \"Unknown\")}')
+    print(f'  🏫 School: {metadata.get(\"school\", \"Unknown\")}')
+    print(f'  📚 Structure: {metadata.get(\"tt_structure\", \"Unknown\")}')
+    print(f'  📋 Total entries: {len(bell_times)}')
+except Exception as e:
+    print(f'  ❌ Error reading bell times: {e}')
+"
+        else
+          echo "changes=false" >> $GITHUB_OUTPUT
+          echo "⚠️ No bell times file generated"
+        fi
+        
+    - name: Commit and push changes
+      if: steps.changes.outputs.changes == 'true' && !inputs.test_only
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: '🔔 Update bell times from LISS API'
+        file_pattern: 'current_bell_times.json'
+        commit_user_name: 'GitHub Action'
+        commit_user_email: 'action@github.com'
+        commit_author: 'LISS Bell Times Bot <action@github.com>'
+        
+    - name: Create summary
+      if: always()
+      run: |
+        echo "## 🔔 LISS Bell Times Update Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ inputs.test_only }}" == "true" ]; then
+          echo "🧪 **Test Mode:** Connection test only" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "🔄 **Full Update:** Fetched and committed bell times" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Workflow Details:**" >> $GITHUB_STEP_SUMMARY
+        echo "- 🕐 Scheduled time: 6:00 AM Sydney time" >> $GITHUB_STEP_SUMMARY
+        echo "- 🐍 Python version: ${{ env.PYTHON_VERSION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- 🌏 Timezone: Australia/Sydney" >> $GITHUB_STEP_SUMMARY
+        echo "- 📁 Repository: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+        echo "- 🌿 Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        
+        # Add current Sydney time
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Current Time:**" >> $GITHUB_STEP_SUMMARY
+        echo "- 🌍 UTC: $(date -u)" >> $GITHUB_STEP_SUMMARY
+        echo "- 🇦🇺 Sydney: $(TZ='Australia/Sydney' date)" >> $GITHUB_STEP_SUMMARY
+        
+    - name: Upload bell times as artifact
+      if: steps.changes.outputs.changes == 'true' && !inputs.test_only
+      uses: actions/upload-artifact@v4
+      with:
+        name: bell-times-${{ github.run_number }}
+        path: current_bell_times.json
+        retention-days: 30
+        
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "❌ LISS bell times update failed!"
+        echo "Check the logs above for details."
+        echo "Common issues:"
+        echo "  - LISS credentials may have expired"
+        echo "  - LISS server may be unreachable"
+        echo "  - Academic year data may not be available"
+        echo ""
+        echo "Contact IT support if the issue persists."
