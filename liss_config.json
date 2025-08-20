@@ -5,7 +5,7 @@
     "username_env": "LISS_USERNAME",
     "password_env": "LISS_PASSWORD",
     "liss_version": 10002,
-    "user_agent": "https://github.com",
+    "user_agent": "web.edval",
     "tt_structure": "main"
   },
   "output": {

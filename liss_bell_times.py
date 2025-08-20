@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-LISS Bell Times Fetcher
-A script to fetch bell times from LISS API
+LISS Bell Times Fetcher - Simplified
+A script to fetch bell times from LISS API using only the getBellTimes method
 
 Usage:
     python3 liss_bell_times.py [--config config_file.json]
@@ -41,7 +41,7 @@ class LissBellTimesFetcher:
                 raise FileNotFoundError(
                     f"Configuration file not found: {config_file}")
 
-            with open(config_path, 'r') as f:
+            with open(config_path, 'r', encoding='utf-8') as f:
                 config = json.load(f)
 
             # Validate required configuration
@@ -77,7 +77,7 @@ class LissBellTimesFetcher:
 
             return config
 
-        except Exception as e:
+        except (FileNotFoundError, KeyError, json.JSONDecodeError) as e:
             print(f"Error loading configuration: {e}")
             sys.exit(1)
 
@@ -129,93 +129,8 @@ class LissBellTimesFetcher:
 
         return auth_object
 
-    def test_connection(self):
-        """Test basic LISS connection"""
-        self.logger.info("Testing LISS connection...")
-
-        url = self.config['liss']['endpoint']
-        headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-
-        # Test with hello method
-        request = {
-            "jsonrpc": "2.0",
-            "method": "liss.hello",
-            "params": [],
-            "id": 1
-        }
-
-        try:
-            response = requests.post(
-                url, headers=headers, json=request, timeout=10)
-
-            if response.status_code == 200:
-                data = response.json()
-                if "result" in data:
-                    result = data["result"]
-                    self.logger.info(f"LISS connection successful: {result}")
-                    return True
-                else:
-                    self.logger.error(
-                        f"LISS hello failed: {data.get('error', {}).get('faultString', 'Unknown error')}")
-                    return False
-            else:
-                self.logger.error(
-                    f"HTTP error {response.status_code}: {response.text}")
-                return False
-
-        except Exception as e:
-            self.logger.error(f"Connection test failed: {e}")
-            return False
-
-    def get_timetable_structures(self):
-        """Get available timetable structures"""
-        self.logger.info("Fetching available timetable structures...")
-
-        url = self.config['liss']['endpoint']
-        headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-
-        auth_object = self.create_auth_object()
-
-        request = {
-            "jsonrpc": "2.0",
-            "method": "liss.getTimetableStructures",
-            "params": [auth_object],
-            "id": 1
-        }
-
-        try:
-            response = requests.post(
-                url, headers=headers, json=request, timeout=10)
-
-            if response.status_code == 200:
-                data = response.json()
-                if "result" in data:
-                    structures = data["result"]
-                    self.logger.info(
-                        f"Available timetable structures: {structures}")
-                    return structures
-                else:
-                    error = data.get('error', {}).get(
-                        'faultString', 'Unknown error')
-                    self.logger.warning(
-                        f"Could not get timetable structures: {error}")
-                    return None
-            else:
-                self.logger.error(f"HTTP error {response.status_code}")
-                return None
-
-        except Exception as e:
-            self.logger.error(f"Error getting timetable structures: {e}")
-            return None
-
     def get_bell_times(self):
-        """Fetch bell times from LISS API"""
+        """Fetch bell times from LISS API using getBellTimes method"""
         self.logger.info("Fetching bell times from LISS API...")
 
         url = self.config['liss']['endpoint']
@@ -225,17 +140,26 @@ class LissBellTimesFetcher:
         }
 
         auth_object = self.create_auth_object()
-        tt_structure = self.config['liss'].get('tt_structure', 'main')
 
-        # Create the LISS request
+        # According to LISS documentation, getBellTimes can accept:
+        # - Just the auth object (returns all bell times)
+        # - Auth object + timetable structure name
+        tt_structure = self.config['liss'].get('tt_structure', '')
+
+        # Create the LISS request according to documentation
+        if tt_structure:
+            params = [auth_object, tt_structure]
+        else:
+            params = [auth_object]
+
         request = {
             "jsonrpc": "2.0",
             "method": "liss.getBellTimes",
-            "params": [auth_object, tt_structure],
+            "params": params,
             "id": 1
         }
 
-        self.logger.debug(f"LISS request: {json.dumps(request, indent=2)}")
+        self.logger.debug("LISS request: %s", json.dumps(request, indent=2))
 
         try:
             response = requests.post(
@@ -247,13 +171,13 @@ class LissBellTimesFetcher:
                 if "result" in data:
                     bell_times = data["result"]
                     self.logger.info(
-                        f"Successfully fetched {len(bell_times)} bell time entries")
+                        "Successfully fetched %d bell time entries", len(bell_times))
                     return bell_times
 
                 elif "error" in data:
                     error = data["error"]
                     fault_string = error.get("faultString", "Unknown error")
-                    self.logger.error(f"LISS API error: {fault_string}")
+                    self.logger.error("LISS API error: %s", fault_string)
 
                     # Provide helpful error analysis
                     if "does not exist" in fault_string and "academic year" in fault_string:
@@ -268,11 +192,9 @@ class LissBellTimesFetcher:
                             "💡 Contact IT for current year credentials")
                     elif "TtStructure" in fault_string:
                         self.logger.info(
-                            f"💡 TimetableStructure '{tt_structure}' may not be valid")
-                        structures = self.get_timetable_structures()
-                        if structures:
-                            self.logger.info(
-                                f"💡 Try one of these structures: {structures}")
+                            "💡 TimetableStructure '%s' may not be valid", tt_structure)
+                        self.logger.info(
+                            "💡 Try removing tt_structure from config or use an empty string")
 
                     return None
                 else:
@@ -281,12 +203,15 @@ class LissBellTimesFetcher:
                     return None
 
             else:
-                self.logger.error(
-                    f"HTTP error {response.status_code}: {response.text}")
+                self.logger.error("HTTP error %d: %s",
+                                  response.status_code, response.text)
                 return None
 
-        except Exception as e:
-            self.logger.error(f"Error fetching bell times: {e}")
+        except requests.RequestException as e:
+            self.logger.error("Network error fetching bell times: %s", e)
+            return None
+        except json.JSONDecodeError as e:
+            self.logger.error("JSON decode error: %s", e)
             return None
 
     def save_bell_times(self, bell_times):
@@ -306,33 +231,33 @@ class LissBellTimesFetcher:
                     "fetched_at": datetime.now().isoformat(),
                     "source": "LISS API",
                     "school": self.config['liss']['school'],
-                    "tt_structure": self.config['liss'].get('tt_structure', 'main'),
+                    "tt_structure": self.config['liss'].get('tt_structure', ''),
                     "total_entries": len(bell_times)
                 },
                 "bell_times": bell_times
             }
 
-            with open(output_file, 'w') as f:
+            with open(output_file, 'w', encoding='utf-8') as f:
                 if pretty_print:
                     json.dump(output_data, f, indent=2, ensure_ascii=False)
                 else:
                     json.dump(output_data, f, ensure_ascii=False)
 
-            self.logger.info(f"Bell times saved to: {output_file}")
+            self.logger.info("Bell times saved to: %s", output_file)
 
             # Print summary
             self.print_summary(bell_times)
 
             return True
 
-        except Exception as e:
-            self.logger.error(f"Error saving bell times: {e}")
+        except (IOError, json.JSONEncodeError) as e:
+            self.logger.error("Error saving bell times: %s", e)
             return False
 
     def print_summary(self, bell_times):
         """Print a summary of the bell times"""
-        print(f"\n📊 Bell Times Summary")
-        print(f"=" * 40)
+        print("\n📊 Bell Times Summary")
+        print("=" * 40)
         print(f"Total entries: {len(bell_times)}")
 
         # Group by day
@@ -343,39 +268,33 @@ class LissBellTimesFetcher:
                 days[day_name] = []
             days[day_name].append(entry.get('Period', 'Unknown'))
 
-        print(f"\nPeriods by day:")
+        print("\nPeriods by day:")
         for day, periods in days.items():
             print(f"  {day}: {', '.join(periods)}")
 
         # Show sample entry
         if bell_times:
-            print(f"\nSample entry:")
+            print("\nSample entry:")
             sample = bell_times[0]
             for key, value in sample.items():
                 print(f"  {key}: {value}")
 
     def run(self):
         """Main execution method"""
-        print(f"🔔 LISS Bell Times Fetcher")
+        print("🔔 LISS Bell Times Fetcher")
         print(f"School: {self.config['liss']['school']}")
         print(f"Endpoint: {self.config['liss']['endpoint']}")
-        print(f"=" * 50)
+        print("=" * 50)
 
-        # Test connection first
-        if not self.test_connection():
-            print(
-                f"❌ Connection test failed. Check configuration and network connectivity.")
-            return False
-
-        # Fetch bell times
+        # Fetch bell times directly
         bell_times = self.get_bell_times()
 
         if bell_times:
-            print(f"✅ Successfully fetched bell times!")
+            print("✅ Successfully fetched bell times!")
             self.save_bell_times(bell_times)
             return True
         else:
-            print(f"❌ Failed to fetch bell times. Check logs for details.")
+            print("❌ Failed to fetch bell times. Check logs for details.")
             return False
 
 
@@ -385,33 +304,19 @@ def main():
         description='Fetch bell times from LISS API')
     parser.add_argument('--config', '-c', default='liss_config.json',
                         help='Configuration file path (default: liss_config.json)')
-    parser.add_argument('--test-only', action='store_true',
-                        help='Only test connection, do not fetch bell times')
 
     args = parser.parse_args()
 
     try:
         fetcher = LissBellTimesFetcher(args.config)
-
-        if args.test_only:
-            success = fetcher.test_connection()
-            if success:
-                structures = fetcher.get_timetable_structures()
-                print(f"✅ Connection test successful!")
-                if structures:
-                    print(f"📋 Available timetable structures: {structures}")
-            else:
-                print(f"❌ Connection test failed!")
-            return 0 if success else 1
-        else:
-            success = fetcher.run()
-            return 0 if success else 1
+        success = fetcher.run()
+        return 0 if success else 1
 
     except KeyboardInterrupt:
-        print(f"\n⚠️  Operation cancelled by user")
+        print("\n⚠️  Operation cancelled by user")
         return 1
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+    except ValueError as e:
+        print(f"❌ Configuration error: {e}")
         return 1
 
 
