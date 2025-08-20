@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 LISS Bell Times Fetcher
-A production-ready script to fetch bell times from LISS API
+A script to fetch bell times from LISS API
 
 Usage:
     python3 liss_bell_times.py [--config config_file.json]
