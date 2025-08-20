@@ -1,0 +1,15 @@
+{
+  "sentral_api": {
+    "base_url": "https://tempe-h.sentral.com.au/s-mDQd7r",
+    "tenant": "mDQd7r",
+    "api_key": "${REST_API_KEY}",
+    "api_path": "/api/v1"
+  },
+  "endpoints": {
+    "students": "enrolments/student",
+    "timetable": "timetables/timetable-calendar-date",
+    "staff": "staff",
+    "activities": "activities/activity",
+    "activity_vehicles": "activities/activity-vehicle"
+  }
+}

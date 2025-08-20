@@ -173,13 +173,6 @@ Thumbs.db
 *.temp
 *.bak
 *.backup
-
-# Configuration files with sensitive data
-*_config.json
-!liss_config.json
-sentral_config.json
-config.json
-
 # Log files
 *.log
 
