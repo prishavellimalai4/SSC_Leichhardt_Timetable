@@ -1,4 +1,4 @@
-name: Generate and Commit Files
+name: Manually Test API
 
 on:
   workflow_dispatch:
@@ -91,15 +91,23 @@ jobs:
 
           echo "Checking for files to commit..."
 
-          # Add all JSON and log files (use find to handle cases where files don't exist)
+          # List available files
           find . -maxdepth 1 -name "*.json" -o -name "*.log" | head -20
 
-          # Add files if they exist
-          if ls *.json *.log 1> /dev/null 2>&1; then
-            git add *.json *.log
-            echo "Added JSON and log files to staging"
+          # Add JSON files (not ignored)
+          if ls *.json 1> /dev/null 2>&1; then
+            git add *.json
+            echo "Added JSON files to staging"
           else
-            echo "No JSON or log files found to add"
+            echo "No JSON files found to add"
+          fi
+
+          # Add log files (now allowed in git)
+          if ls *.log 1> /dev/null 2>&1; then
+            git add *.log
+            echo "Added log files to staging"
+          else
+            echo "No log files found to add"
           fi
 
           # Check if there are changes to commit
@@ -108,7 +116,7 @@ jobs:
           else
             echo "Committing changes..."
             # Commit with action name and timestamp
-            git commit -m "Generate and Commit Files - $DATETIME"
+            git commit -m "API Manual Test - $DATETIME"
             git push
             echo "Changes committed and pushed successfully"
           fi
