@@ -17,7 +17,7 @@ env:
 jobs:
   update-daily-data:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
             exit 1
           fi
           echo "✅ Sentral API credentials loaded from secrets"
-          
+
           # Replace placeholder in sentral_config.json with actual API key
           sed -i "s/\${REST_API_KEY}/$REST_API_KEY/g" sentral_config.json
           echo "✅ Updated sentral_config.json with API key"
@@ -51,7 +51,7 @@ jobs:
         run: |
           echo "🔔 Generating bell times data..."
           python3 generate_bell_times.py
-          
+
           if [ -f "bell_times.json" ]; then
             echo "✅ Bell times generated successfully"
             ls -la bell_times.json
@@ -64,7 +64,7 @@ jobs:
         run: |
           echo "📅 Generating calendar data..."
           python3 generate_calendar.py
-          
+
           if [ -f "calendar.json" ]; then
             echo "✅ Calendar generated successfully"
             ls -la calendar.json
@@ -102,19 +102,19 @@ jobs:
           echo "## 📊 Daily Data Update Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Generated Files:**" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ -f "bell_times.json" ]; then
             echo "- ✅ Bell times data" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ❌ Bell times data (failed)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           if [ -f "calendar.json" ]; then
             echo "- ✅ Calendar data" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ❌ Calendar data (failed)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow Details:**" >> $GITHUB_STEP_SUMMARY
           echo "- 🕐 Scheduled: Weekdays at 8:00 AM Sydney time" >> $GITHUB_STEP_SUMMARY
@@ -122,7 +122,7 @@ jobs:
           echo "- 🌏 Timezone: Australia/Sydney" >> $GITHUB_STEP_SUMMARY
           echo "- 📁 Repository: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
           echo "- 🌿 Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Current Time:**" >> $GITHUB_STEP_SUMMARY
           echo "- 🌍 UTC: $(date -u)" >> $GITHUB_STEP_SUMMARY
