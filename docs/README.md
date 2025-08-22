@@ -44,24 +44,45 @@ Edit the `school` section in `config.json`:
 
 ### Connecting Live Data (Optional)
 
-To connect your Sentral API for live data updates:
+To connect your Sentral API for automated live data updates:
 
 1. **Get API Key**: Login to Sentral → Admin → Integrations → REST API → Configure
-2. **Update config.json**:
+2. **Update config.json with school details** (keep the placeholder for API key):
 
 ```json
 {
   "api": {
     "sentral": {
       "base_url": "https://your-school-sentral.com.au/",
-      "api_key": "your-api-key-here",
+      "api_key": "${REST_API_KEY}",
       "tenant": "your-tenant-id"
     }
   }
 }
 ```
 
-3. **Set up automated updates** (see GitHub Actions Setup guide)
+3. **Add Repository Secret** (Settings → Secrets and variables → Actions):
+   - Name: `REST_API_KEY`
+   - Value: Your actual Sentral API key
+
+4. **Enable automated updates** (see GitHub Actions Setup guide below)
+
+⚠️ **Security Note**: Never put your actual API key directly in config.json. Always use the `${REST_API_KEY}` placeholder and store the real key as a repository secret.
+
+## 🤖 Automated Data Updates
+
+For weekly automatic data updates using GitHub Actions:
+
+1. **Add Repository Secrets** (Settings → Secrets and variables → Actions):
+   - `REST_API_KEY`: Your Sentral API key  
+   - `LISS_PASSWORD`: Your LISS system password (if used)
+
+2. **Enable Workflows**:
+   - Go to Actions tab in your repository
+   - Enable workflows if prompted
+   - Data will automatically update every Monday at 5:00 AM
+
+3. **Manual Updates**: Use "Run workflow" button to update data anytime
 
 ## 📱 Usage
 
@@ -97,21 +118,6 @@ If you encounter issues:
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
-
-For weekly automatic data updates using GitHub Actions:
-
-1. **Add Repository Secrets** (Settings → Secrets and variables → Actions):
-
-   - `REST_API_KEY`: Your Sentral API key
-   - `LISS_PASSWORD`: Your LISS system password (if used)
-
-2. **Enable Workflows**:
-
-   - Go to Actions tab in your repository
-   - Enable workflows if prompted
-   - Data will automatically update every Monday at 5:00 AM
-
-3. **Manual Updates**: Use "Run workflow" button to update data anytime
 
 ## 📊 Using Your School's Data
 
