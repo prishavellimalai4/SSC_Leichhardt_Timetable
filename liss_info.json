@@ -1,11 +1,7 @@
 {
   "metadata": {
     "school": "TEMPE",
-<<<<<<< HEAD
-    "generated_at": "",
-=======
-    "generated_at": "2025-08-22T08:23:08.488150",
->>>>>>> bc3d6c7196387cfe7bfceb60db5c4e78dbb46374
+    "generated_at": "2025-08-22T08:29:12.092333",
     "source": "sentral_api",
     "total_lessons": 1692,
     "date_range": "2025-08-22 to 2025-08-29",
