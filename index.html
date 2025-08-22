@@ -270,8 +270,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     border-radius: 50%;
                     background: ${c.primary};
                     opacity: 0;
-                    animation: pulse 1s infinite;
                     z-index: 1000;
+                    transition: opacity 0.3s ease-in-out;
+                }
+                
+                /* Only animate when visible */
+                .loading-indicator.visible {
+                    animation: pulse 1s infinite;
                 }
                 
                 @keyframes pulse {
@@ -1484,6 +1489,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
         function showLoadingIndicator() {
             const indicator = document.getElementById('loading-indicator');
             if (indicator) {
+                indicator.classList.add('visible');
                 indicator.style.opacity = '1';
             }
         }
@@ -1491,6 +1497,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
         function hideLoadingIndicator() {
             const indicator = document.getElementById('loading-indicator');
             if (indicator) {
+                indicator.classList.remove('visible');
                 indicator.style.opacity = '0';
             }
         }
