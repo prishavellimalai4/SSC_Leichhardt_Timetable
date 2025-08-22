@@ -30,21 +30,50 @@ jobs:
 
       - name: Run all generate scripts
         run: |
+          # Set to continue on error
+          set +e
+
+          echo "Looking for generate scripts..."
+
           # Find and run all Python files that start with "generate"
+          PYTHON_FILES_FOUND=false
           for file in generate*.py; do
             if [ -f "$file" ]; then
+              PYTHON_FILES_FOUND=true
               echo "Running $file..."
               python "$file"
+              if [ $? -ne 0 ]; then
+                echo "Warning: $file failed with exit code $?"
+              else
+                echo "Successfully completed $file"
+              fi
             fi
           done
 
+          if [ "$PYTHON_FILES_FOUND" = false ]; then
+            echo "No Python generate files found matching pattern generate*.py"
+          fi
+
           # Find and run all shell scripts that start with "generate"
+          SHELL_FILES_FOUND=false
           for file in generate*.sh; do
             if [ -f "$file" ]; then
+              SHELL_FILES_FOUND=true
               echo "Running $file..."
               ./"$file"
+              if [ $? -ne 0 ]; then
+                echo "Warning: $file failed with exit code $?"
+              else
+                echo "Successfully completed $file"
+              fi
             fi
           done
+
+          if [ "$SHELL_FILES_FOUND" = false ]; then
+            echo "No shell generate files found matching pattern generate*.sh"
+          fi
+
+          echo "Finished running generate scripts"
 
       - name: Configure Git
         run: |
@@ -56,14 +85,26 @@ jobs:
           # Get current date and time
           DATETIME=$(date '+%Y-%m-%d %H:%M:%S')
 
-          # Add all JSON and log files
-          git add *.json *.log
+          echo "Checking for files to commit..."
+
+          # Add all JSON and log files (use find to handle cases where files don't exist)
+          find . -maxdepth 1 -name "*.json" -o -name "*.log" | head -20
+
+          # Add files if they exist
+          if ls *.json *.log 1> /dev/null 2>&1; then
+            git add *.json *.log
+            echo "Added JSON and log files to staging"
+          else
+            echo "No JSON or log files found to add"
+          fi
 
           # Check if there are changes to commit
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
+            echo "Committing changes..."
             # Commit with action name and timestamp
             git commit -m "Generate and Commit Files - $DATETIME"
             git push
+            echo "Changes committed and pushed successfully"
           fi
