@@ -198,11 +198,13 @@ Configure special periods like sport where year groups are combined:
 The kiosk has multiple reload strategies for optimal performance:
 
 1. **Data Refresh**: Every minute (configurable via `refreshInterval`)
+
    - Smooth data updates without page flash
    - Updates timetable content seamlessly
    - Controlled by `autoRefresh` setting
 
 2. **Hourly Reload**: Every hour (configurable via `hourlyReload`)
+
    - Full page reload to clear memory leaks
    - Can be disabled by setting `hourlyReload: false`
    - Helps maintain long-term stability

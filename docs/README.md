@@ -261,6 +261,7 @@ Control automatic refresh behavior:
 ```
 
 **Refresh Options:**
+
 - **refreshInterval**: Data refresh frequency in milliseconds (60000 = 1 minute)
 - **autoRefresh**: Enable/disable automatic data updates (true/false)
 - **hourlyReload**: Enable/disable hourly full page reload (true/false)

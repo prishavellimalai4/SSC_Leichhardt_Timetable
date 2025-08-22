@@ -92,9 +92,18 @@ Creates `liss_info.json` with LISS-compatible structure using Sentral REST API d
       "Period": "P1",
       "ClassCode": "9MU1",
       "EdvalClassCode": "9MU1",
-      "TeacherCode": "LADO",
+      "TeacherCode": "SMITH",
       "TeacherId": "12345",
       "RoomCode": "P5"
+    },
+    {
+      "DayNumber": 2,
+      "Period": "P3",
+      "ClassCode": "10ENG",
+      "EdvalClassCode": "10ENG",
+      "TeacherCode": "O'CONNOR",
+      "TeacherId": "12346",
+      "RoomCode": "A7"
     }
   ]
 }
@@ -104,8 +113,9 @@ Creates `liss_info.json` with LISS-compatible structure using Sentral REST API d
 
 - **Data Source**: Sentral REST API (https://development.sentral.com.au/)
 - **Format**: LISS-compatible JSON structure
+- **Teacher Codes**: Full surnames (up to 10 characters, supports hyphens, apostrophes, spaces)
 - **Performance**: Bulk API operations with include parameters
-- **Validation**: Automatic data integrity checks
+- **Validation**: Automatic data integrity checks with surname format validation
 - **Future-Ready**: Compatible with LISS when Edval integration is added
 
 ## 📊 Edval LISS Bell Times Integration
@@ -159,15 +169,52 @@ The generated `liss_info.json` follows LISS standard format:
       "Period": "P1",
       "ClassCode": "9MU1",
       "EdvalClassCode": "9MU1",
-      "TeacherCode": "LADO",
+      "TeacherCode": "SMITH",
       "TeacherId": "12345",
       "RoomCode": "P5"
+    },
+    {
+      "DayNumber": 2,
+      "Period": "P2",
+      "ClassCode": "11MATH",
+      "EdvalClassCode": "11MATH",
+      "TeacherCode": "GRAVES-BRO",
+      "TeacherId": "12347",
+      "RoomCode": "B3"
     }
   ]
 }
 ```
 
-## 🔧 Troubleshooting
+## �‍🏫 Teacher Code Format
+
+The `TeacherCode` field uses teacher surnames with the following specifications:
+
+### Format Rules
+- **Length**: 1-10 characters maximum
+- **Case**: Uppercase letters only
+- **Special Characters**: Supports hyphens (-), apostrophes ('), and spaces
+- **Source**: Teacher's surname from Sentral staff data
+
+### Examples
+- **Simple surnames**: `SMITH`, `JOHNSON`, `BROWN`
+- **Hyphenated names**: `GRAVES-BRO`, `SMITH-JONES` (if ≤10 chars)
+- **Names with apostrophes**: `O'CONNOR`, `D'ANGELO`, `MC'DONALD`
+- **Names with spaces**: `VAN DER BE`, `DE LA CRUZ` (truncated to 10 chars)
+
+### Validation
+The generator automatically validates teacher codes to ensure:
+- ✅ Starts with a letter
+- ✅ Contains only valid characters (A-Z, -, ', space)
+- ✅ Does not exceed 10 character limit
+- ❌ Rejects codes with numbers or invalid symbols
+
+### Privacy Considerations
+- Teacher codes show full surnames for easy staff identification
+- Consider your school's privacy policy regarding staff name display
+- Codes can be manually edited in the generated JSON if needed
+
+## �🔧 Troubleshooting
 
 ### No Data Generated
 
