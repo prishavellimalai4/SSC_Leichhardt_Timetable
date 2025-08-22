@@ -117,13 +117,13 @@ jobs:
         id: changes
         run: |
           # Check if any data files were updated
-          if git diff --quiet HEAD -- bell_times.json calendar.json logs/*.log; then
+          if git diff --quiet HEAD -- bell_times.json calendar.json .logs/*.log; then
             echo "changes=false" >> $GITHUB_OUTPUT
             echo "ℹ️ No changes detected in data files"
           else
             echo "changes=true" >> $GITHUB_OUTPUT
             echo "✅ Changes detected in data files"
-            git diff --name-only HEAD -- bell_times.json calendar.json logs/*.log
+            git diff --name-only HEAD -- bell_times.json calendar.json .logs/*.log
           fi
 
       - name: Commit and push changes
@@ -131,7 +131,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "📊 Weekly data update: bell times and calendar"
-          file_pattern: "bell_times.json calendar.json logs/*_generation.log"
+          file_pattern: "bell_times.json calendar.json .logs/*_generation.log"
           commit_user_name: "GitHub Action"
           commit_user_email: "action@github.com"
           commit_author: "Weekly Data Bot <action@github.com>"
@@ -176,7 +176,7 @@ jobs:
           path: |
             bell_times.json
             calendar.json
-            logs/*_generation.log
+            .logs/*_generation.log
           retention-days: 7
 
       - name: Notify on failure

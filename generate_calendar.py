@@ -19,7 +19,7 @@ from typing import Optional, Dict, Any, List
 from sentral_rest_client import SentralAPIClient, load_config
 
 
-def log_generation_run(response_code: int, start_date: str, end_date: str, validation_result: str, log_file: str = 'logs/calendar_generation.log'):
+def log_generation_run(response_code: int, start_date: str, end_date: str, validation_result: str, log_file: str = '.logs/calendar_generation.log'):
     """
     Log generation run details to a log file.
 

@@ -96,7 +96,7 @@ jobs:
           echo "Checking for files to commit..."
 
           # List available files
-          find . -maxdepth 1 -name "*.json" -o -path "./logs/*.log" | head -20
+          find . -maxdepth 1 -name "*.json" -o -path "./.logs/*.log" | head -20
 
           # Add JSON files (not ignored)
           if ls *.json 1> /dev/null 2>&1; then
@@ -106,9 +106,9 @@ jobs:
             echo "No JSON files found to add"
           fi
 
-          # Add log files from logs directory (now allowed in git)
-          if ls logs/*.log 1> /dev/null 2>&1; then
-            git add logs/*.log
+          # Add log files from .logs directory (now allowed in git)
+          if ls .logs/*.log 1> /dev/null 2>&1; then
+            git add .logs/*.log
             echo "Added log files to staging"
           else
             echo "No log files found to add"

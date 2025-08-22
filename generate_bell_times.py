@@ -13,7 +13,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from sentral_rest_client import SentralAPIClient
 
 
-def log_generation_run(response_code: int, start_date: str, end_date: str, validation_result: str, log_file: str = 'logs/bell_times_generation.log'):
+def log_generation_run(response_code: int, start_date: str, end_date: str, validation_result: str, log_file: str = '.logs/bell_times_generation.log'):
     """
     Log generation run details to a log file.
 

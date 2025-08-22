@@ -169,7 +169,7 @@ jobs:
           fi
 
           # Also check log file changes
-          if git diff --quiet HEAD -- logs/liss_info_generation.log; then
+          if git diff --quiet HEAD -- .logs/liss_info_generation.log; then
             echo "ℹ️ No changes in generation log"
           else
             echo "📝 Generation log updated"
@@ -180,7 +180,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "📚 Update LISS timetable data"
-          file_pattern: "liss_info.json logs/liss_info_generation.log"
+          file_pattern: "liss_info.json .logs/liss_info_generation.log"
           commit_user_name: "GitHub Action"
           commit_user_email: "action@github.com"
           commit_author: "LISS Timetable Bot <action@github.com>"
@@ -229,7 +229,7 @@ jobs:
           name: liss-data-${{ github.run_number }}
           path: |
             liss_info.json
-            logs/liss_info_generation.log
+            .logs/liss_info_generation.log
           retention-days: 3
 
       - name: Notify on failure
