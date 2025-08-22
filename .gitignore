@@ -173,8 +173,9 @@ Thumbs.db
 *.temp
 *.bak
 *.backup
-# Log files
-*.log
+
+# Generation logs (for development)
+*_generation.log
 
 # Node.js (if any frontend build tools are used)
 node_modules/
@@ -184,3 +185,23 @@ yarn-error.log*
 
 # Local server artifacts
 *.pid
+server.log
+
+# Development folder (contains test scripts and development tools)
+/dev/
+
+# Keep production-ready files for GitHub Pages:
+# - index.html (main application)
+# - config.json (configuration)
+# - sentral_config.json (API configuration)
+# - *.json, *.xml (data files)
+# - generate_*.py (API generators)
+# - requirements.txt (dependencies)
+# - docs/ (documentation)
+# - .env.example (environment template)
+
+# GitHub Pages deployment artifacts
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata

@@ -1,0 +1,207 @@
+name: LISS Timetable Updates
+
+on:
+  # Schedule to run every 15 minutes between 7:30 AM and 3:30 PM on weekdays (Sydney time)
+  # Converting to UTC: Sydney is UTC+10 (AEST) or UTC+11 (AEDT)
+  # 7:30 AM - 3:30 PM Sydney = 21:30 - 05:30 UTC (previous/next day)
+  schedule:
+    # AEST (Standard Time) - UTC+10
+    # 7:30 AM - 3:30 PM Sydney = 21:30 - 05:30 UTC
+    - cron: "30,45 21 * * 0-4"    # 21:30, 21:45 UTC = 7:30, 7:45 AM Sydney (Sunday-Thursday)
+    - cron: "0,15,30,45 22 * * 0-4" # 22:00-22:45 UTC = 8:00-8:45 AM Sydney
+    - cron: "0,15,30,45 23 * * 0-4" # 23:00-23:45 UTC = 9:00-9:45 AM Sydney
+    - cron: "0,15,30,45 0 * * 1-5"  # 00:00-00:45 UTC = 10:00-10:45 AM Sydney (Monday-Friday)
+    - cron: "0,15,30,45 1 * * 1-5"  # 01:00-01:45 UTC = 11:00-11:45 AM Sydney
+    - cron: "0,15,30,45 2 * * 1-5"  # 02:00-02:45 UTC = 12:00-12:45 PM Sydney
+    - cron: "0,15,30,45 3 * * 1-5"  # 03:00-03:45 UTC = 1:00-1:45 PM Sydney
+    - cron: "0,15,30,45 4 * * 1-5"  # 04:00-04:45 UTC = 2:00-2:45 PM Sydney
+    - cron: "0,15,30,45 5 * * 1-5"  # 05:00-05:45 UTC = 3:00-3:45 PM Sydney
+    
+    # AEDT (Daylight Saving Time) - UTC+11
+    # 7:30 AM - 3:30 PM Sydney = 20:30 - 04:30 UTC
+    - cron: "30,45 20 * * 0-4"    # 20:30, 20:45 UTC = 7:30, 7:45 AM Sydney (Sunday-Thursday)
+    - cron: "0,15,30,45 21 * * 0-4" # 21:00-21:45 UTC = 8:00-8:45 AM Sydney
+    - cron: "0,15,30,45 22 * * 0-4" # 22:00-22:45 UTC = 9:00-9:45 AM Sydney
+    - cron: "0,15,30,45 23 * * 0-4" # 23:00-23:45 UTC = 10:00-10:45 AM Sydney
+    - cron: "0,15,30,45 0 * * 1-5"  # 00:00-00:45 UTC = 11:00-11:45 AM Sydney (Monday-Friday)
+    - cron: "0,15,30,45 1 * * 1-5"  # 01:00-01:45 UTC = 12:00-12:45 PM Sydney
+    - cron: "0,15,30,45 2 * * 1-5"  # 02:00-02:45 UTC = 1:00-1:45 PM Sydney
+    - cron: "0,15,30,45 3 * * 1-5"  # 03:00-03:45 UTC = 2:00-2:45 PM Sydney
+    - cron: "0,15,30,45 4 * * 1-5"  # 04:00-04:45 UTC = 3:00-3:45 PM Sydney
+
+  # Allow manual triggering
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  update-liss-timetable:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check if within school hours
+        id: time_check
+        run: |
+          # Get current Sydney time
+          sydney_time=$(TZ='Australia/Sydney' date '+%H:%M')
+          sydney_hour=$(TZ='Australia/Sydney' date '+%H')
+          sydney_minute=$(TZ='Australia/Sydney' date '+%M')
+          sydney_day=$(TZ='Australia/Sydney' date '+%u') # 1=Monday, 7=Sunday
+          
+          echo "Sydney time: $sydney_time"
+          echo "Sydney day: $sydney_day (1=Mon, 7=Sun)"
+          
+          # Check if it's a weekday (1-5 = Monday-Friday)
+          if [ "$sydney_day" -ge 1 ] && [ "$sydney_day" -le 5 ]; then
+            # Check if time is between 7:30 AM and 3:30 PM
+            if ([ "$sydney_hour" -eq 7 ] && [ "$sydney_minute" -ge 30 ]) || \
+               ([ "$sydney_hour" -ge 8 ] && [ "$sydney_hour" -le 14 ]) || \
+               ([ "$sydney_hour" -eq 15 ] && [ "$sydney_minute" -le 30 ]); then
+              echo "within_hours=true" >> $GITHUB_OUTPUT
+              echo "✅ Within school hours - proceeding with LISS update"
+            else
+              echo "within_hours=false" >> $GITHUB_OUTPUT
+              echo "⏰ Outside school hours ($sydney_time) - skipping LISS update"
+            fi
+          else
+            echo "within_hours=false" >> $GITHUB_OUTPUT
+            echo "📅 Weekend - skipping LISS update"
+          fi
+
+      - name: Set up Sentral API credentials
+        if: steps.time_check.outputs.within_hours == 'true'
+        env:
+          REST_API_KEY: ${{ secrets.REST_API_KEY }}
+        run: |
+          if [ -z "$REST_API_KEY" ]; then
+            echo "❌ REST_API_KEY secret is not set"
+            exit 1
+          fi
+          echo "✅ Sentral API credentials loaded from secrets"
+          
+          # Replace placeholder in sentral_config.json with actual API key
+          sed -i "s/\${REST_API_KEY}/$REST_API_KEY/g" sentral_config.json
+          echo "✅ Updated sentral_config.json with API key"
+
+      - name: Generate LISS timetable data
+        if: steps.time_check.outputs.within_hours == 'true'
+        run: |
+          echo "📚 Generating LISS timetable data (optimized)..."
+          start_time=$(date +%s)
+          
+          python3 generate_liss_info.py
+          
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+          
+          if [ -f "liss_info.json" ]; then
+            echo "✅ LISS timetable generated successfully in ${duration}s"
+            ls -la liss_info.json
+            
+            # Show generation summary from log if available
+            if [ -f "liss_info_generation.log" ]; then
+              echo "📊 Generation summary:"
+              tail -5 liss_info_generation.log
+            fi
+          else
+            echo "❌ LISS timetable generation failed"
+            exit 1
+          fi
+
+      - name: Check for changes
+        if: steps.time_check.outputs.within_hours == 'true'
+        id: changes
+        run: |
+          # Check if LISS data file was updated
+          if git diff --quiet HEAD -- liss_info.json liss_info_generation.log; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No changes detected in LISS data"
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected in LISS data"
+            git diff --name-only HEAD -- liss_info.json liss_info_generation.log
+          fi
+
+      - name: Commit and push changes
+        if: steps.time_check.outputs.within_hours == 'true' && steps.changes.outputs.changes == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📚 Update LISS timetable data"
+          file_pattern: "liss_info.json liss_info_generation.log"
+          commit_user_name: "GitHub Action"
+          commit_user_email: "action@github.com"
+          commit_author: "LISS Timetable Bot <action@github.com>"
+
+      - name: Create summary
+        if: always()
+        run: |
+          echo "## 📚 LISS Timetable Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          sydney_time=$(TZ='Australia/Sydney' date '+%H:%M')
+          sydney_day=$(TZ='Australia/Sydney' date '+%u')
+          
+          if [ "${{ steps.time_check.outputs.within_hours }}" == "true" ]; then
+            echo "✅ **Status:** Within school hours - update executed" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "${{ steps.changes.outputs.changes }}" == "true" ]; then
+              echo "✅ **Result:** LISS data updated and committed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "ℹ️ **Result:** No changes detected in LISS data" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "⏰ **Status:** Outside school hours - update skipped" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ **Result:** No action taken" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Time Information:**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🇦🇺 Sydney time: $sydney_time" >> $GITHUB_STEP_SUMMARY
+          echo "- 📅 Day of week: $sydney_day (1=Mon, 7=Sun)" >> $GITHUB_STEP_SUMMARY
+          echo "- ⏰ School hours: 7:30 AM - 3:30 PM (weekdays)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔄 Update frequency: Every 15 minutes during school hours" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Details:**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🐍 Python version: ${{ env.PYTHON_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌏 Timezone: Australia/Sydney" >> $GITHUB_STEP_SUMMARY
+          echo "- 📁 Repository: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌿 Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload artifacts
+        if: steps.time_check.outputs.within_hours == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: liss-data-${{ github.run_number }}
+          path: |
+            liss_info.json
+            liss_info_generation.log
+          retention-days: 3
+
+      - name: Notify on failure
+        if: failure() && steps.time_check.outputs.within_hours == 'true'
+        run: |
+          echo "❌ LISS timetable update failed!"
+          echo "Check the logs above for details."
+          echo "Common issues:"
+          echo "  - API credentials may have expired"
+          echo "  - Sentral server may be unreachable"
+          echo "  - Network connectivity issues"
+          echo "  - LISS data structure changes"
+          echo ""
+          echo "Contact IT support if the issue persists."

@@ -316,6 +316,30 @@ class SentralAPIClient:
             'GET', 'timetable/periods', params=params)
         return response.get('data', []) if response else None
 
+    def get_timetable_calendar_dates(self, **filters) -> Optional[List[Dict[str, Any]]]:
+        """
+        Get timetable calendar dates.
+
+        This endpoint retrieves calendar information including dates, day types,
+        and associated timetable structure information.
+
+        Args:
+            **filters: Optional filters such as:
+                - date_from (str): Start date (YYYY-MM-DD format)
+                - date_to (str): End date (YYYY-MM-DD format)
+                - calendar_id (int): Specific calendar ID
+                - day_type (str): Filter by day type
+                - include_holidays (bool): Include holiday dates
+                - academic_year (int): Filter by academic year
+
+        Returns:
+            List of calendar date records with timetable information
+        """
+        params = {k: v for k, v in filters.items() if v is not None}
+        response = self._make_request(
+            'GET', 'timetables/timetable-calendar-date', params=params)
+        return response.get('data', []) if response else None
+
     # Student Endpoints
     def get_students(self, **filters) -> Optional[List[Dict[str, Any]]]:
         """
@@ -426,6 +450,7 @@ def main():
         print("\nExample usage:")
         print("vehicles = client.get_activity_vehicles()")
         print("timetable = client.get_timetable()")
+        print("calendar_dates = client.get_timetable_calendar_dates()")
         print("students = client.get_students()")
 
     else:

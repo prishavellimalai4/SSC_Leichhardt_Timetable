@@ -439,9 +439,127 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
             return null;
         }
 
-        function parseBellTimes(xml) {
+        // Load bell times data from JSON or XML based on configuration
+        async function loadBellTimesData() {
+            debugLog('🔧 BELL TIMES DEBUG: Starting bell times data loading...');
+            
+            if (!CONFIG) {
+                debugError('❌ BELL TIMES DEBUG: No CONFIG available');
+                return null;
+            }
+            
+            const bellTimesConfig = CONFIG.bell_times || {};
+            const useAPI = bellTimesConfig.use_api !== false; // Default to true
+            const fallbackToXML = bellTimesConfig.fallback_to_xml !== false; // Default to true
+            const apiFile = bellTimesConfig.api_file || 'bell_times.json';
+            const xmlFile = bellTimesConfig.xml_file || CONFIG.files.bellTimes || 'bell_times.xml';
+            
+            // Debug configuration
+            debugLog('🔧 BELL TIMES DEBUG: Configuration:', {
+                'use_api': useAPI,
+                'fallback_to_xml': fallbackToXML,
+                'api_file': apiFile,
+                'xml_file': xmlFile,
+                'cache_busting': CONFIG.ui.cacheBusting
+            });
+            
+            // Try JSON API source first if enabled
+            if (useAPI) {
+                try {
+                    debugLog('⏰ BELL TIMES DEBUG: Attempting to load bell times from JSON API source...');
+                    debugLog(`📁 BELL TIMES DEBUG: Trying to fetch: ${apiFile}`);
+                    
+                    let urlWithCacheBuster = apiFile;
+                    if (CONFIG.ui.cacheBusting) {
+                        urlWithCacheBuster += `?t=${Date.now()}`;
+                        debugLog(`🔄 BELL TIMES DEBUG: Cache busting enabled, URL: ${urlWithCacheBuster}`);
+                    }
+                    
+                    const response = await fetch(urlWithCacheBuster);
+                    debugLog(`📊 BELL TIMES DEBUG: JSON fetch response status: ${response.status}`);
+                    
+                    if (response.ok) {
+                        const jsonData = await response.json();
+                        debugLog('✅ BELL TIMES DEBUG: Successfully loaded bell times from JSON API source');
+                        debugLog(`📈 BELL TIMES DEBUG: JSON contains ${jsonData.bell_times?.length || 0} bell time entries`);
+                        const result = parseBellTimesJSON(jsonData);
+                        debugLog('🎯 BELL TIMES DEBUG: Final decision - USING JSON BELL TIMES');
+                        return result;
+                    } else {
+                        debugWarn(`⚠️  BELL TIMES DEBUG: JSON bell times file ${apiFile} not found (${response.status})`);
+                    }
+                } catch (error) {
+                    debugWarn('⚠️  BELL TIMES DEBUG: Error loading JSON bell times:', error.message);
+                }
+            } else {
+                debugLog('🚫 BELL TIMES DEBUG: JSON API loading disabled in configuration');
+            }
+            
+            // Fallback to XML if enabled and JSON failed or wasn't tried
+            if (fallbackToXML) {
+                try {
+                    debugLog('⏰ BELL TIMES DEBUG: Falling back to XML bell times source...');
+                    debugLog(`📁 BELL TIMES DEBUG: Trying to fetch XML: ${xmlFile}`);
+                    
+                    const bellTimesXML = await loadXML(xmlFile);
+                    debugLog('✅ BELL TIMES DEBUG: Successfully loaded bell times from XML fallback source');
+                    const result = parseBellTimesXML(bellTimesXML);
+                    debugLog('🎯 BELL TIMES DEBUG: Final decision - USING XML BELL TIMES');
+                    return result;
+                } catch (error) {
+                    debugError('❌ BELL TIMES DEBUG: Error loading XML bell times:', error.message);
+                    throw error;
+                }
+            } else {
+                debugLog('🚫 BELL TIMES DEBUG: XML fallback disabled in configuration');
+            }
+            
+            debugError('❌ BELL TIMES DEBUG: No bell times sources available or enabled');
+            throw new Error('No bell times sources available or enabled');
+        }
+        
+        // Parse JSON bell times format (from Sentral API)
+        function parseBellTimesJSON(jsonData) {
+            debugLog('🔧 BELL TIMES DEBUG: Starting JSON bell times parsing...');
+            
+            if (!jsonData || !jsonData.bell_times) {
+                debugError('❌ BELL TIMES DEBUG: Invalid JSON bell times format - missing bell_times array');
+                debugLog('🔍 BELL TIMES DEBUG: JSON data structure:', jsonData);
+                return [];
+            }
+            
+            debugLog(`📊 BELL TIMES DEBUG: JSON metadata:`, jsonData.metadata);
+            debugLog(`📋 BELL TIMES DEBUG: Processing ${jsonData.bell_times.length} JSON bell time entries`);
+            
+            const periods = [];
+            for (const entry of jsonData.bell_times) {
+                if (entry.Period && entry.StartTime && entry.EndTime) {
+                    periods.push({
+                        period: entry.Period,
+                        start: parseTime(entry.StartTime),
+                        end: parseTime(entry.EndTime),
+                        dayName: entry.DayName,
+                        dayNumber: entry.DayNumber,
+                        type: entry.Type,
+                        source: 'api'
+                    });
+                } else {
+                    debugWarn('⚠️  BELL TIMES DEBUG: Skipping invalid JSON entry:', entry);
+                }
+            }
+            
+            debugLog(`✅ BELL TIMES DEBUG: Successfully parsed ${periods.length} JSON bell time entries`);
+            debugLog('📋 BELL TIMES DEBUG: Sample entries:', periods.slice(0, 3));
+            return periods;
+        }
+        
+        // Parse XML bell times format (existing format)
+        function parseBellTimesXML(xml) {
+            debugLog('🔧 BELL TIMES DEBUG: Starting XML bell times parsing...');
+            
             const periods = [];
             const nodes = xml.getElementsByTagName("struct");
+            debugLog(`📋 BELL TIMES DEBUG: Found ${nodes.length} XML struct nodes to process`);
             
             for(let i = 0; i < nodes.length; i++) {
                 const members = nodes[i].getElementsByTagName("member");
@@ -449,26 +567,182 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                 const periodName = extractMemberValue(members, "Period");
                 const startTime = extractMemberValue(members, "StartTime");
                 const endTime = extractMemberValue(members, "EndTime");
+                const dayName = extractMemberValue(members, "DayName");
+                const dayNumber = extractMemberValue(members, "DayNumber");
+                const type = extractMemberValue(members, "Type");
                 
                 if(periodName && startTime && endTime) {
                     periods.push({
                         period: periodName,
                         start: parseTime(startTime),
-                        end: parseTime(endTime)
+                        end: parseTime(endTime),
+                        dayName: dayName,
+                        dayNumber: dayNumber ? parseInt(dayNumber) : null,
+                        type: type,
+                        source: 'xml'
                     });
+                } else {
+                    debugWarn('⚠️  BELL TIMES DEBUG: Missing XML fields in entry:', {periodName, startTime, endTime});
                 }
             }
+            
+            debugLog(`✅ BELL TIMES DEBUG: Successfully parsed ${periods.length} XML bell time entries`);
+            debugLog('📋 BELL TIMES DEBUG: Sample entries:', periods.slice(0, 3));
             return periods;
         }
+
+        // Legacy function for backward compatibility - now uses new loader
+        function parseBellTimes(xml) {
+            return parseBellTimesXML(xml);
+        }
+        
         function parseTime(timeStr) {
             if(!timeStr) return 0;
             const [hours, minutes] = timeStr.split(":").map(Number);
             return hours * 60 + minutes;
         }
         
-        function parseCalendar(xml) {
+        // --- CALENDAR DATA LOADING ---
+        // Debug logging function - only logs if debug is enabled in config
+        function debugLog(message, ...args) {
+            if (CONFIG && CONFIG.ui && CONFIG.ui.debug) {
+                console.log(message, ...args);
+            }
+        }
+        
+        function debugWarn(message, ...args) {
+            if (CONFIG && CONFIG.ui && CONFIG.ui.debug) {
+                console.warn(message, ...args);
+            }
+        }
+        
+        function debugError(message, ...args) {
+            if (CONFIG && CONFIG.ui && CONFIG.ui.debug) {
+                console.error(message, ...args);
+            }
+        }
+        
+        // Load calendar data from JSON or XML based on configuration
+        async function loadCalendarData() {
+            debugLog('🔧 CALENDAR DEBUG: Starting calendar data loading...');
+            
+            if (!CONFIG) {
+                debugError('❌ CALENDAR DEBUG: No CONFIG available');
+                return null;
+            }
+            
+            const calendarConfig = CONFIG.calendar || {};
+            const useAPI = calendarConfig.use_api !== false; // Default to true
+            const fallbackToXML = calendarConfig.fallback_to_xml !== false; // Default to true
+            const apiFile = calendarConfig.api_file || 'calendar.json';
+            const xmlFile = calendarConfig.xml_file || CONFIG.files.calendar || 'calendar.xml';
+            
+            // Debug configuration
+            debugLog('🔧 CALENDAR DEBUG: Configuration:', {
+                'use_api': useAPI,
+                'fallback_to_xml': fallbackToXML,
+                'api_file': apiFile,
+                'xml_file': xmlFile,
+                'cache_busting': CONFIG.ui.cacheBusting
+            });
+            
+            // Try JSON API source first if enabled
+            if (useAPI) {
+                try {
+                    debugLog('🗓️  CALENDAR DEBUG: Attempting to load calendar from JSON API source...');
+                    debugLog(`📁 CALENDAR DEBUG: Trying to fetch: ${apiFile}`);
+                    
+                    let urlWithCacheBuster = apiFile;
+                    if (CONFIG.ui.cacheBusting) {
+                        urlWithCacheBuster += `?t=${Date.now()}`;
+                        debugLog(`🔄 CALENDAR DEBUG: Cache busting enabled, URL: ${urlWithCacheBuster}`);
+                    }
+                    
+                    const response = await fetch(urlWithCacheBuster);
+                    debugLog(`📊 CALENDAR DEBUG: JSON fetch response status: ${response.status}`);
+                    
+                    if (response.ok) {
+                        const jsonData = await response.json();
+                        debugLog('✅ CALENDAR DEBUG: Successfully loaded calendar from JSON API source');
+                        debugLog(`📈 CALENDAR DEBUG: JSON contains ${jsonData.calendar?.length || 0} calendar entries`);
+                        const result = parseCalendarJSON(jsonData);
+                        debugLog('🎯 CALENDAR DEBUG: Final decision - USING JSON CALENDAR');
+                        return result;
+                    } else {
+                        debugWarn(`⚠️  CALENDAR DEBUG: JSON calendar file ${apiFile} not found (${response.status})`);
+                    }
+                } catch (error) {
+                    debugWarn('⚠️  CALENDAR DEBUG: Error loading JSON calendar:', error.message);
+                }
+            } else {
+                debugLog('🚫 CALENDAR DEBUG: JSON API loading disabled in configuration');
+            }
+            
+            // Fallback to XML if enabled and JSON failed or wasn't tried
+            if (fallbackToXML) {
+                try {
+                    debugLog('🗓️  CALENDAR DEBUG: Falling back to XML calendar source...');
+                    debugLog(`📁 CALENDAR DEBUG: Trying to fetch XML: ${xmlFile}`);
+                    
+                    const calendarXML = await loadXML(xmlFile);
+                    debugLog('✅ CALENDAR DEBUG: Successfully loaded calendar from XML fallback source');
+                    const result = parseCalendarXML(calendarXML);
+                    debugLog('🎯 CALENDAR DEBUG: Final decision - USING XML CALENDAR');
+                    return result;
+                } catch (error) {
+                    debugError('❌ CALENDAR DEBUG: Error loading XML calendar:', error.message);
+                    throw error;
+                }
+            } else {
+                debugLog('🚫 CALENDAR DEBUG: XML fallback disabled in configuration');
+            }
+            
+            debugError('❌ CALENDAR DEBUG: No calendar sources available or enabled');
+            throw new Error('No calendar sources available or enabled');
+        }
+        
+        // Parse JSON calendar format (from Sentral API)
+        function parseCalendarJSON(jsonData) {
+            debugLog('🔧 CALENDAR DEBUG: Starting JSON calendar parsing...');
+            
+            if (!jsonData || !jsonData.calendar) {
+                debugError('❌ CALENDAR DEBUG: Invalid JSON calendar format - missing calendar array');
+                debugLog('🔍 CALENDAR DEBUG: JSON data structure:', jsonData);
+                return [];
+            }
+            
+            debugLog(`📊 CALENDAR DEBUG: JSON metadata:`, jsonData.metadata);
+            debugLog(`📋 CALENDAR DEBUG: Processing ${jsonData.calendar.length} JSON calendar entries`);
+            
+            const calendar = [];
+            for (const entry of jsonData.calendar) {
+                if (entry.date && entry.day_name && entry.day_number !== undefined) {
+                    calendar.push({
+                        date: new Date(entry.date + 'T00:00:00'), // Ensure proper date parsing
+                        dayName: entry.day_name,
+                        dayNumber: entry.day_number,
+                        isSchoolDay: entry.is_school_day,
+                        dayType: entry.day_type,
+                        cycle: entry.cycle,
+                        source: 'api'
+                    });
+                } else {
+                    debugWarn('⚠️  CALENDAR DEBUG: Skipping invalid JSON entry:', entry);
+                }
+            }
+            
+            debugLog(`✅ CALENDAR DEBUG: Successfully parsed ${calendar.length} JSON calendar entries`);
+            debugLog('📋 CALENDAR DEBUG: Sample entries:', calendar.slice(0, 3));
+            return calendar;
+        }
+        
+        // Parse XML calendar format (existing format)
+        function parseCalendarXML(xml) {
+            debugLog('🔧 CALENDAR DEBUG: Starting XML calendar parsing...');
+            
             const calendar = [];
             const nodes = xml.getElementsByTagName("struct");
+            debugLog(`📋 CALENDAR DEBUG: Found ${nodes.length} XML struct nodes to process`);
             
             for(let i = 0; i < nodes.length; i++) {
                 const members = nodes[i].getElementsByTagName("member");
@@ -484,11 +758,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                         calendar.push({
                             date: new Date(dateMatch[1], dateMatch[2] - 1, dateMatch[3]),
                             dayName: dayName,
-                            dayNumber: parseInt(dayNumber)
+                            dayNumber: parseInt(dayNumber),
+                            isSchoolDay: dayName !== 'weekend' && dayName !== 'holiday',
+                            dayType: dayName,
+                            source: 'xml'
                         });
+                    } else {
+                        debugWarn('⚠️  CALENDAR DEBUG: Invalid XML date format:', dateStr);
                     }
+                } else {
+                    debugWarn('⚠️  CALENDAR DEBUG: Missing XML fields in entry:', {dateStr, dayName, dayNumber});
                 }
             }
+            
+            debugLog(`✅ CALENDAR DEBUG: Successfully parsed ${calendar.length} XML calendar entries`);
+            debugLog('📋 CALENDAR DEBUG: Sample entries:', calendar.slice(0, 3));
             return calendar;
         }
 
@@ -499,6 +783,143 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
             });
             
             return entry ? entry.dayNumber : null;
+        }
+        
+        // --- LISS DATA LOADING (JSON/XML DUAL SOURCE) ---
+        async function loadLissData() {
+            debugLog('🔧 LISS DEBUG: Starting LISS data loading...');
+            
+            if (!CONFIG) {
+                debugError('❌ LISS DEBUG: No CONFIG available');
+                return null;
+            }
+            
+            const lissConfig = CONFIG.liss_info || {};
+            const useAPI = lissConfig.use_api !== false; // Default to true
+            const fallbackToXML = lissConfig.fallback_to_xml !== false; // Default to true
+            const apiFile = lissConfig.api_file || 'liss_info.json';
+            const xmlFile = lissConfig.xml_file || CONFIG.files.lessons || 'liss_info.xml';
+            
+            // Debug configuration
+            debugLog('🔧 LISS DEBUG: Configuration:', {
+                'use_api': useAPI,
+                'fallback_to_xml': fallbackToXML,
+                'api_file': apiFile,
+                'xml_file': xmlFile,
+                'cache_busting': CONFIG.ui.cacheBusting
+            });
+            
+            // Try JSON API source first if enabled
+            if (useAPI) {
+                try {
+                    debugLog('📚 LISS DEBUG: Attempting to load LISS data from JSON API source...');
+                    debugLog(`📁 LISS DEBUG: Trying to fetch: ${apiFile}`);
+                    
+                    let urlWithCacheBuster = apiFile;
+                    if (CONFIG.ui.cacheBusting) {
+                        urlWithCacheBuster += `?t=${Date.now()}`;
+                        debugLog(`🔄 LISS DEBUG: Cache busting enabled, URL: ${urlWithCacheBuster}`);
+                    }
+                    
+                    const response = await fetch(urlWithCacheBuster);
+                    debugLog(`📊 LISS DEBUG: JSON fetch response status: ${response.status}`);
+                    
+                    if (response.ok) {
+                        const jsonData = await response.json();
+                        debugLog('✅ LISS DEBUG: Successfully loaded LISS data from JSON API source');
+                        debugLog(`📈 LISS DEBUG: JSON contains ${jsonData.timetable_data?.length || 0} LISS entries`);
+                        debugLog('📋 LISS DEBUG: JSON metadata:', jsonData.metadata);
+                        
+                        const result = await parseLissJSON(jsonData);
+                        debugLog('🎯 LISS DEBUG: Final decision - USING JSON LISS DATA');
+                        return result;
+                    } else {
+                        debugWarn(`⚠️  LISS DEBUG: JSON LISS file ${apiFile} not found (${response.status})`);
+                    }
+                } catch (error) {
+                    debugWarn('⚠️  LISS DEBUG: Error loading JSON LISS data:', error.message);
+                }
+            } else {
+                debugLog('🚫 LISS DEBUG: JSON API loading disabled in configuration');
+            }
+            
+            // Fallback to XML if enabled and JSON failed or wasn't tried
+            if (fallbackToXML) {
+                try {
+                    debugLog('📚 LISS DEBUG: Falling back to XML LISS source...');
+                    debugLog(`📁 LISS DEBUG: Trying to fetch XML: ${xmlFile}`);
+                    
+                    const lissXML = await loadXML(xmlFile);
+                    debugLog('✅ LISS DEBUG: Successfully loaded LISS data from XML fallback source');
+                    debugLog('🎯 LISS DEBUG: Final decision - USING XML LISS DATA');
+                    return lissXML;
+                } catch (error) {
+                    debugError('❌ LISS DEBUG: Error loading XML LISS data:', error.message);
+                    throw error;
+                }
+            } else {
+                debugLog('🚫 LISS DEBUG: XML fallback disabled in configuration');
+            }
+            
+            debugError('❌ LISS DEBUG: No LISS data sources available or enabled');
+            throw new Error('No LISS data sources available or enabled');
+        }
+        
+        // Parse JSON LISS format (optimized Sentral API format)
+        async function parseLissJSON(jsonData) {
+            debugLog('🔧 LISS DEBUG: Starting JSON LISS parsing...');
+            
+            if (!jsonData || !jsonData.timetable_data) {
+                debugError('❌ LISS DEBUG: Invalid JSON LISS format - missing timetable_data array');
+                debugLog('🔍 LISS DEBUG: JSON data structure:', jsonData);
+                return null;
+            }
+            
+            debugLog(`📊 LISS DEBUG: JSON metadata:`, jsonData.metadata);
+            debugLog(`📋 LISS DEBUG: Processing ${jsonData.timetable_data.length} JSON LISS entries`);
+            
+            // Convert JSON data to XML-like structure for compatibility with existing parseLessons function
+            const xmlDoc = document.implementation.createDocument(null, 'root', null);
+            const root = xmlDoc.documentElement;
+            
+            for (const entry of jsonData.timetable_data) {
+                const structElement = xmlDoc.createElement('struct');
+                
+                // Create member elements for each property
+                const members = [
+                    { name: 'DayNumber', value: entry.DayNumber, type: 'int' },
+                    { name: 'Period', value: entry.Period, type: 'string' },
+                    { name: 'ClassCode', value: entry.ClassCode, type: 'string' },
+                    { name: 'TeacherCode', value: entry.TeacherCode, type: 'string' },
+                    { name: 'RoomCode', value: entry.RoomCode, type: 'string' }
+                ];
+                
+                for (const member of members) {
+                    const memberElement = xmlDoc.createElement('member');
+                    const nameElement = xmlDoc.createElement('name');
+                    nameElement.textContent = member.name;
+                    
+                    const valueElement = xmlDoc.createElement('value');
+                    const typeElement = xmlDoc.createElement(member.type);
+                    typeElement.textContent = member.value;
+                    valueElement.appendChild(typeElement);
+                    
+                    memberElement.appendChild(nameElement);
+                    memberElement.appendChild(valueElement);
+                    structElement.appendChild(memberElement);
+                }
+                
+                root.appendChild(structElement);
+            }
+            
+            debugLog(`✅ LISS DEBUG: Successfully converted ${jsonData.timetable_data.length} JSON entries to XML structure`);
+            debugLog('📋 LISS DEBUG: Sample converted entries:', jsonData.timetable_data.slice(0, 3));
+            
+            // Add source metadata to the XML document
+            xmlDoc.lissSource = 'api';
+            xmlDoc.lissMetadata = jsonData.metadata;
+            
+            return xmlDoc;
         }
 
         function parseLessons(xml, currentPeriod, calendarData, targetDate) {
@@ -877,19 +1298,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                 }
                 
                 // Get file paths from config
-                const bellTimesFile = CONFIG.files.bellTimes;
                 const lessonsFile = CONFIG.files.lessons;
-                const calendarFile = CONFIG.files.calendar;
                 
-                // Load XML files
+                // Load data files
                 Promise.all([
-                    loadXML(bellTimesFile),
-                    loadXML(lessonsFile),
-                    loadXML(calendarFile)
-                ]).then(([bellXML, lessonsXMLData, calendarXML]) => {
-                    bellTimes = parseBellTimes(bellXML);
+                    loadBellTimesData(), // Use new dual-source bell times loader
+                    loadLissData(), // Use new dual-source LISS loader (JSON/XML)
+                    loadCalendarData() // Use dual-source calendar loader
+                ]).then(([bellTimesFromSource, lessonsXMLData, calendarDataFromSource]) => {
+                    debugLog('🔧 MAIN DEBUG: All data loading completed successfully');
+                    
+                    bellTimes = bellTimesFromSource;
                     lessonsXML = lessonsXMLData;
-                    calendarData = parseCalendar(calendarXML);
+                    calendarData = calendarDataFromSource;
+                    
+                    debugLog(`📊 MAIN DEBUG: Loaded ${bellTimes.length} bell time periods`);
+                    debugLog(`📊 MAIN DEBUG: Loaded ${calendarData.length} calendar entries`);
                     
                     if(bellTimes.length === 0) {
                         document.getElementById('header').innerHTML = "<h2>Error: No bell times found</h2>";
@@ -900,6 +1324,24 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                         document.getElementById('header').innerHTML = "<h2>Error: No calendar data found</h2>";
                         return;
                     }
+                    
+                    // Show source information with enhanced debugging
+                    const bellTimesSource = bellTimes[0]?.source || 'unknown';
+                    const bellTimesSourceLabel = bellTimesSource === 'api' ? 'JSON (Sentral API)' : bellTimesSource === 'xml' ? 'XML (bell_times.xml)' : bellTimesSource;
+                    
+                    const calendarSource = calendarData[0]?.source || 'unknown';
+                    const calendarSourceLabel = calendarSource === 'api' ? 'JSON (Sentral API)' : calendarSource === 'xml' ? 'XML (calendar.xml)' : calendarSource;
+                    
+                    const lissSource = lessonsXML?.lissSource || 'xml';
+                    const lissSourceLabel = lissSource === 'api' ? 'JSON (Sentral API)' : lissSource === 'xml' ? 'XML (liss_info.xml)' : lissSource;
+                    
+                    debugLog(`🎯 MAIN DEBUG: ===== DATA SOURCE DECISIONS =====`);
+                    debugLog(`⏰ MAIN DEBUG: Using bell times from: ${bellTimesSourceLabel}`);
+                    debugLog(`📅 MAIN DEBUG: Using calendar data from: ${calendarSourceLabel}`);
+                    debugLog(`📚 MAIN DEBUG: Using LISS data from: ${lissSourceLabel}`);
+                    debugLog(`📊 MAIN DEBUG: Bell times date range: First period - ${bellTimes[0]?.period}`);
+                    debugLog(`� MAIN DEBUG: Calendar date range: ${calendarData[0]?.date} to ${calendarData[calendarData.length-1]?.date}`);
+                    debugLog(`🎯 MAIN DEBUG: ===================================`);
                     
                     main();
                 }).catch(e=>{

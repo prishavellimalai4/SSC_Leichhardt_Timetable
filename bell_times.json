@@ -1,0 +1,810 @@
+{
+  "metadata": {
+    "source": "Sentral API",
+    "generated_at": "2024-01-01T00:00:00Z",
+    "total_periods": 100,
+    "note": "Generated from Sentral API timetable endpoints"
+  },
+  "bell_times": [
+    {
+      "DayNumber": 5,
+      "DayName": "FriA",
+      "Period": "P0",
+      "StartTime": "07:50",
+      "EndTime": "08:45",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 5,
+      "DayName": "FriA",
+      "Period": "P1",
+      "StartTime": "08:45",
+      "EndTime": "09:40",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 5,
+      "DayName": "FriA",
+      "Period": "P2",
+      "StartTime": "09:40",
+      "EndTime": "10:35",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 5,
+      "DayName": "FriA",
+      "Period": "Recess",
+      "StartTime": "10:35",
+      "EndTime": "11:00",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 5,
+      "DayName": "FriA",
+      "Period": "P3",
+      "StartTime": "11:00",
+      "EndTime": "11:55",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 5,
+      "DayName": "FriA",
+      "Period": "P4",
+      "StartTime": "11:55",
+      "EndTime": "12:50",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 5,
+      "DayName": "FriA",
+      "Period": "Lunch",
+      "StartTime": "12:50",
+      "EndTime": "13:20",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 5,
+      "DayName": "FriA",
+      "Period": "P5",
+      "StartTime": "13:20",
+      "EndTime": "14:15",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 5,
+      "DayName": "FriA",
+      "Period": "P6",
+      "StartTime": "14:15",
+      "EndTime": "15:05",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 5,
+      "DayName": "FriA",
+      "Period": "P7",
+      "StartTime": "15:05",
+      "EndTime": "16:00",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 10,
+      "DayName": "FriB",
+      "Period": "P0",
+      "StartTime": "07:50",
+      "EndTime": "08:45",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 10,
+      "DayName": "FriB",
+      "Period": "P1",
+      "StartTime": "08:45",
+      "EndTime": "09:40",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 10,
+      "DayName": "FriB",
+      "Period": "P2",
+      "StartTime": "09:40",
+      "EndTime": "10:35",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 10,
+      "DayName": "FriB",
+      "Period": "Recess",
+      "StartTime": "10:35",
+      "EndTime": "11:00",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 10,
+      "DayName": "FriB",
+      "Period": "P3",
+      "StartTime": "11:00",
+      "EndTime": "11:55",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 10,
+      "DayName": "FriB",
+      "Period": "P4",
+      "StartTime": "11:55",
+      "EndTime": "12:50",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 10,
+      "DayName": "FriB",
+      "Period": "Lunch",
+      "StartTime": "12:50",
+      "EndTime": "13:20",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 10,
+      "DayName": "FriB",
+      "Period": "P5",
+      "StartTime": "13:20",
+      "EndTime": "14:15",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 10,
+      "DayName": "FriB",
+      "Period": "P6",
+      "StartTime": "14:15",
+      "EndTime": "15:05",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 10,
+      "DayName": "FriB",
+      "Period": "P7",
+      "StartTime": "15:05",
+      "EndTime": "16:00",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 1,
+      "DayName": "MonA",
+      "Period": "P0",
+      "StartTime": "07:50",
+      "EndTime": "08:45",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 1,
+      "DayName": "MonA",
+      "Period": "P1",
+      "StartTime": "08:45",
+      "EndTime": "09:40",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 1,
+      "DayName": "MonA",
+      "Period": "P2",
+      "StartTime": "09:40",
+      "EndTime": "10:35",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 1,
+      "DayName": "MonA",
+      "Period": "Recess",
+      "StartTime": "10:35",
+      "EndTime": "11:00",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 1,
+      "DayName": "MonA",
+      "Period": "P3",
+      "StartTime": "11:00",
+      "EndTime": "11:55",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 1,
+      "DayName": "MonA",
+      "Period": "P4",
+      "StartTime": "11:55",
+      "EndTime": "12:50",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 1,
+      "DayName": "MonA",
+      "Period": "Lunch",
+      "StartTime": "12:50",
+      "EndTime": "13:20",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 1,
+      "DayName": "MonA",
+      "Period": "P5",
+      "StartTime": "13:20",
+      "EndTime": "14:15",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 1,
+      "DayName": "MonA",
+      "Period": "P6",
+      "StartTime": "14:15",
+      "EndTime": "15:05",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 1,
+      "DayName": "MonA",
+      "Period": "P7",
+      "StartTime": "15:05",
+      "EndTime": "16:00",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 6,
+      "DayName": "MonB",
+      "Period": "P0",
+      "StartTime": "07:50",
+      "EndTime": "08:45",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 6,
+      "DayName": "MonB",
+      "Period": "P1",
+      "StartTime": "08:45",
+      "EndTime": "09:40",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 6,
+      "DayName": "MonB",
+      "Period": "P2",
+      "StartTime": "09:40",
+      "EndTime": "10:35",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 6,
+      "DayName": "MonB",
+      "Period": "Recess",
+      "StartTime": "10:35",
+      "EndTime": "11:00",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 6,
+      "DayName": "MonB",
+      "Period": "P3",
+      "StartTime": "11:00",
+      "EndTime": "11:55",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 6,
+      "DayName": "MonB",
+      "Period": "P4",
+      "StartTime": "11:55",
+      "EndTime": "12:50",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 6,
+      "DayName": "MonB",
+      "Period": "Lunch",
+      "StartTime": "12:50",
+      "EndTime": "13:20",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 6,
+      "DayName": "MonB",
+      "Period": "P5",
+      "StartTime": "13:20",
+      "EndTime": "14:15",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 6,
+      "DayName": "MonB",
+      "Period": "P6",
+      "StartTime": "14:15",
+      "EndTime": "15:05",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 6,
+      "DayName": "MonB",
+      "Period": "P7",
+      "StartTime": "15:05",
+      "EndTime": "16:00",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 4,
+      "DayName": "ThuA",
+      "Period": "P0",
+      "StartTime": "07:50",
+      "EndTime": "08:45",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 4,
+      "DayName": "ThuA",
+      "Period": "P1",
+      "StartTime": "08:45",
+      "EndTime": "09:40",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 4,
+      "DayName": "ThuA",
+      "Period": "P2",
+      "StartTime": "09:40",
+      "EndTime": "10:35",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 4,
+      "DayName": "ThuA",
+      "Period": "Recess",
+      "StartTime": "10:35",
+      "EndTime": "11:00",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 4,
+      "DayName": "ThuA",
+      "Period": "P3",
+      "StartTime": "11:00",
+      "EndTime": "11:55",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 4,
+      "DayName": "ThuA",
+      "Period": "P4",
+      "StartTime": "11:55",
+      "EndTime": "12:50",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 4,
+      "DayName": "ThuA",
+      "Period": "Lunch",
+      "StartTime": "12:50",
+      "EndTime": "13:20",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 4,
+      "DayName": "ThuA",
+      "Period": "P5",
+      "StartTime": "13:20",
+      "EndTime": "14:15",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 4,
+      "DayName": "ThuA",
+      "Period": "P6",
+      "StartTime": "14:15",
+      "EndTime": "15:05",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 4,
+      "DayName": "ThuA",
+      "Period": "P7",
+      "StartTime": "15:05",
+      "EndTime": "16:00",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 9,
+      "DayName": "ThuB",
+      "Period": "P0",
+      "StartTime": "07:50",
+      "EndTime": "08:45",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 9,
+      "DayName": "ThuB",
+      "Period": "P1",
+      "StartTime": "08:45",
+      "EndTime": "09:40",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 9,
+      "DayName": "ThuB",
+      "Period": "P2",
+      "StartTime": "09:40",
+      "EndTime": "10:35",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 9,
+      "DayName": "ThuB",
+      "Period": "Recess",
+      "StartTime": "10:35",
+      "EndTime": "11:00",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 9,
+      "DayName": "ThuB",
+      "Period": "P3",
+      "StartTime": "11:00",
+      "EndTime": "11:55",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 9,
+      "DayName": "ThuB",
+      "Period": "P4",
+      "StartTime": "11:55",
+      "EndTime": "12:50",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 9,
+      "DayName": "ThuB",
+      "Period": "Lunch",
+      "StartTime": "12:50",
+      "EndTime": "13:20",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 9,
+      "DayName": "ThuB",
+      "Period": "P5",
+      "StartTime": "13:20",
+      "EndTime": "14:15",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 9,
+      "DayName": "ThuB",
+      "Period": "P6",
+      "StartTime": "14:15",
+      "EndTime": "15:05",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 9,
+      "DayName": "ThuB",
+      "Period": "P7",
+      "StartTime": "15:05",
+      "EndTime": "16:00",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 2,
+      "DayName": "TueA",
+      "Period": "P0",
+      "StartTime": "07:50",
+      "EndTime": "08:45",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 2,
+      "DayName": "TueA",
+      "Period": "P1",
+      "StartTime": "08:45",
+      "EndTime": "09:40",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 2,
+      "DayName": "TueA",
+      "Period": "P2",
+      "StartTime": "09:40",
+      "EndTime": "10:35",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 2,
+      "DayName": "TueA",
+      "Period": "Recess",
+      "StartTime": "10:35",
+      "EndTime": "11:00",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 2,
+      "DayName": "TueA",
+      "Period": "P3",
+      "StartTime": "11:00",
+      "EndTime": "11:55",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 2,
+      "DayName": "TueA",
+      "Period": "Lunch",
+      "StartTime": "11:55",
+      "EndTime": "12:25",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 2,
+      "DayName": "TueA",
+      "Period": "P4",
+      "StartTime": "12:25",
+      "EndTime": "13:20",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 2,
+      "DayName": "TueA",
+      "Period": "P5",
+      "StartTime": "13:20",
+      "EndTime": "14:15",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 2,
+      "DayName": "TueA",
+      "Period": "P6",
+      "StartTime": "14:15",
+      "EndTime": "15:05",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 2,
+      "DayName": "TueA",
+      "Period": "P7",
+      "StartTime": "15:05",
+      "EndTime": "16:00",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 7,
+      "DayName": "TueB",
+      "Period": "P0",
+      "StartTime": "07:50",
+      "EndTime": "08:45",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 7,
+      "DayName": "TueB",
+      "Period": "P1",
+      "StartTime": "08:45",
+      "EndTime": "09:40",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 7,
+      "DayName": "TueB",
+      "Period": "P2",
+      "StartTime": "09:40",
+      "EndTime": "10:35",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 7,
+      "DayName": "TueB",
+      "Period": "Recess",
+      "StartTime": "10:35",
+      "EndTime": "11:00",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 7,
+      "DayName": "TueB",
+      "Period": "P3",
+      "StartTime": "11:00",
+      "EndTime": "11:55",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 7,
+      "DayName": "TueB",
+      "Period": "Lunch",
+      "StartTime": "11:55",
+      "EndTime": "12:25",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 7,
+      "DayName": "TueB",
+      "Period": "P4",
+      "StartTime": "12:25",
+      "EndTime": "13:20",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 7,
+      "DayName": "TueB",
+      "Period": "P5",
+      "StartTime": "13:20",
+      "EndTime": "14:15",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 7,
+      "DayName": "TueB",
+      "Period": "P6",
+      "StartTime": "14:15",
+      "EndTime": "15:05",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 7,
+      "DayName": "TueB",
+      "Period": "P7",
+      "StartTime": "15:05",
+      "EndTime": "16:00",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 3,
+      "DayName": "WedA",
+      "Period": "P0",
+      "StartTime": "07:50",
+      "EndTime": "08:45",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 3,
+      "DayName": "WedA",
+      "Period": "P1",
+      "StartTime": "08:45",
+      "EndTime": "09:40",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 3,
+      "DayName": "WedA",
+      "Period": "P2",
+      "StartTime": "09:40",
+      "EndTime": "10:35",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 3,
+      "DayName": "WedA",
+      "Period": "Recess",
+      "StartTime": "10:35",
+      "EndTime": "11:00",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 3,
+      "DayName": "WedA",
+      "Period": "P3",
+      "StartTime": "11:00",
+      "EndTime": "11:55",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 3,
+      "DayName": "WedA",
+      "Period": "P4",
+      "StartTime": "11:55",
+      "EndTime": "12:50",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 3,
+      "DayName": "WedA",
+      "Period": "Lunch",
+      "StartTime": "12:50",
+      "EndTime": "13:20",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 3,
+      "DayName": "WedA",
+      "Period": "P5",
+      "StartTime": "13:20",
+      "EndTime": "14:15",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 3,
+      "DayName": "WedA",
+      "Period": "P6",
+      "StartTime": "14:15",
+      "EndTime": "15:05",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 3,
+      "DayName": "WedA",
+      "Period": "P7",
+      "StartTime": "15:05",
+      "EndTime": "16:00",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 8,
+      "DayName": "WedB",
+      "Period": "P0",
+      "StartTime": "07:50",
+      "EndTime": "08:45",
+      "Type": "O"
+    },
+    {
+      "DayNumber": 8,
+      "DayName": "WedB",
+      "Period": "P1",
+      "StartTime": "08:45",
+      "EndTime": "09:40",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 8,
+      "DayName": "WedB",
+      "Period": "P2",
+      "StartTime": "09:40",
+      "EndTime": "10:35",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 8,
+      "DayName": "WedB",
+      "Period": "Recess",
+      "StartTime": "10:35",
+      "EndTime": "11:00",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 8,
+      "DayName": "WedB",
+      "Period": "P3",
+      "StartTime": "11:00",
+      "EndTime": "11:55",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 8,
+      "DayName": "WedB",
+      "Period": "P4",
+      "StartTime": "11:55",
+      "EndTime": "12:50",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 8,
+      "DayName": "WedB",
+      "Period": "Lunch",
+      "StartTime": "12:50",
+      "EndTime": "13:20",
+      "Type": "R"
+    },
+    {
+      "DayNumber": 8,
+      "DayName": "WedB",
+      "Period": "P5",
+      "StartTime": "13:20",
+      "EndTime": "14:15",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 8,
+      "DayName": "WedB",
+      "Period": "P6",
+      "StartTime": "14:15",
+      "EndTime": "15:05",
+      "Type": "T"
+    },
+    {
+      "DayNumber": 8,
+      "DayName": "WedB",
+      "Period": "P7",
+      "StartTime": "15:05",
+      "EndTime": "16:00",
+      "Type": "O"
+    }
+  ]
+}

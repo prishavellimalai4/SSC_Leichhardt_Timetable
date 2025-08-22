@@ -1,0 +1,152 @@
+name: Daily Data Update
+
+on:
+  # Schedule to run weekdays at 8:00 AM Sydney time
+  # Sydney time (AEDT/AEST) is UTC+10/UTC+11
+  # 8:00 AM Sydney = 22:00 UTC (previous day) for AEST or 21:00 UTC for AEDT
+  schedule:
+    - cron: "0 22 * * 0-4" # 22:00 UTC Sunday-Thursday = 8:00 AM Monday-Friday Sydney (AEST)
+    - cron: "0 21 * * 0-4" # 21:00 UTC Sunday-Thursday = 8:00 AM Monday-Friday Sydney (AEDT)
+
+  # Allow manual triggering
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  update-daily-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set up Sentral API credentials
+        env:
+          REST_API_KEY: ${{ secrets.REST_API_KEY }}
+        run: |
+          if [ -z "$REST_API_KEY" ]; then
+            echo "❌ REST_API_KEY secret is not set"
+            exit 1
+          fi
+          echo "✅ Sentral API credentials loaded from secrets"
+          
+          # Replace placeholder in sentral_config.json with actual API key
+          sed -i "s/\${REST_API_KEY}/$REST_API_KEY/g" sentral_config.json
+          echo "✅ Updated sentral_config.json with API key"
+
+      - name: Generate bell times data
+        run: |
+          echo "🔔 Generating bell times data..."
+          python3 generate_bell_times.py
+          
+          if [ -f "bell_times.json" ]; then
+            echo "✅ Bell times generated successfully"
+            ls -la bell_times.json
+          else
+            echo "❌ Bell times generation failed"
+            exit 1
+          fi
+
+      - name: Generate calendar data
+        run: |
+          echo "📅 Generating calendar data..."
+          python3 generate_calendar.py
+          
+          if [ -f "calendar.json" ]; then
+            echo "✅ Calendar generated successfully"
+            ls -la calendar.json
+          else
+            echo "❌ Calendar generation failed"
+            exit 1
+          fi
+
+      - name: Check for changes
+        id: changes
+        run: |
+          # Check if any data files were updated
+          if git diff --quiet HEAD -- bell_times.json calendar.json *.log; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No changes detected in data files"
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected in data files"
+            git diff --name-only HEAD -- bell_times.json calendar.json *.log
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.changes == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📊 Daily data update: bell times and calendar"
+          file_pattern: "bell_times.json calendar.json *_generation.log"
+          commit_user_name: "GitHub Action"
+          commit_user_email: "action@github.com"
+          commit_author: "Daily Data Bot <action@github.com>"
+
+      - name: Create summary
+        if: always()
+        run: |
+          echo "## 📊 Daily Data Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Generated Files:**" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "bell_times.json" ]; then
+            echo "- ✅ Bell times data" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Bell times data (failed)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f "calendar.json" ]; then
+            echo "- ✅ Calendar data" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Calendar data (failed)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Details:**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🕐 Scheduled: Weekdays at 8:00 AM Sydney time" >> $GITHUB_STEP_SUMMARY
+          echo "- 🐍 Python version: ${{ env.PYTHON_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌏 Timezone: Australia/Sydney" >> $GITHUB_STEP_SUMMARY
+          echo "- 📁 Repository: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌿 Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Current Time:**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌍 UTC: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🇦🇺 Sydney: $(TZ='Australia/Sydney' date)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-data-${{ github.run_number }}
+          path: |
+            bell_times.json
+            calendar.json
+            *_generation.log
+          retention-days: 7
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Daily data update failed!"
+          echo "Check the logs above for details."
+          echo "Common issues:"
+          echo "  - API credentials may have expired"
+          echo "  - Sentral server may be unreachable"
+          echo "  - Network connectivity issues"
+          echo ""
+          echo "Contact IT support if the issue persists."
