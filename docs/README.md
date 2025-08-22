@@ -1,53 +1,102 @@
-# Timetable Kiosk - Implementation Guide
+# Timetable Kiosk - Setup Guide
 
-This guide provides step-by-step instructions for implementing the timetable kiosk at your school.
+This guide provides step-by-step instructions for setting up the timetable kiosk at your school.
 
-## 🚀 Quick Implementation
+## 🚀 Quick Setup Options
 
-### Option 1: Use As-Is (Immediate Setup)
+### Option 1: GitHub Pages (Recommended - Free Hosting)
+
+1. **Fork this repository** to your GitHub account
+2. **Edit `config.json`** with your school details (see Configuration section below)
+3. **Enable GitHub Pages**: Settings → Pages → Deploy from branch `main`
+4. **Access your kiosk**: `https://yourusername.github.io/Tempe_HS_Timetable_Kiosk/`
+
+### Option 2: Download and Host Locally
 
 1. **Download**: Clone or download this repository
-2. **Open**: Navigate to `index.html` in any web browser
-3. **Done**: The kiosk displays with sample data and is ready to use
+2. **Customize**: Edit `config.json` with your school settings
+3. **Upload**: Copy all files to your school's web server
+4. **Access**: Navigate to `index.html` in any web browser
 
-### Option 2: GitHub Pages Deployment (Free Hosting)
+## 🔧 Essential Configuration
 
-1. **Fork**: Fork this repository to your GitHub account
-2. **Enable Pages**: Go to Settings → Pages → Deploy from branch `main`
-3. **Access**: Your kiosk is available at `https://yourusername.github.io/Tempe_HS_Timetable_Kiosk/`
+### School Information
 
-### Option 3: School Website Integration
-
-1. **Upload**: Copy all files to your school's web server
-2. **Link**: Create links to `index.html` from your school website
-3. **Embed**: Use in iframes or as standalone kiosk displays
-
-## 🔧 Connecting Your School Data
-
-### Step 1: Get Your Sentral API Key
-
-1. Login to your Sentral portal: `https://<your-school-sentral>/`
-2. Navigate to: **Admin** → **Integrations** → **REST API** → **Configure**
-3. Generate or copy your API key
-
-### Step 2: Configure API Connection
-
-Edit the `api.sentral` section in `config.json`:
+Edit the `school` section in `config.json`:
 
 ```json
 {
-  "api": {
-    "sentral": {
-      "base_url": "https://<your-school-sentral>/",
-      "api_key": "your-api-key-here",
-      "tenant": "your-tenant-id",
-      "api_path": "/api/v1"
+  "school": {
+    "name": "Your School Name",
+    "term": "Term 1 2025",
+    "colours": {
+      "primary": "#1e3a8a",
+      "secondary": "#3b82f6",
+      "text": "#ffffff"
+    },
+    "logo": {
+      "url": "https://your-school.edu/logo.png",
+      "opacity": 0.15
     }
   }
 }
 ```
 
-### Step 3: Set Up Weekly Automated Updates (Optional)
+### Connecting Live Data (Optional)
+
+To connect your Sentral API for live data updates:
+
+1. **Get API Key**: Login to Sentral → Admin → Integrations → REST API → Configure
+2. **Update config.json**:
+
+```json
+{
+  "api": {
+    "sentral": {
+      "base_url": "https://your-school-sentral.com.au/",
+      "api_key": "your-api-key-here",
+      "tenant": "your-tenant-id"
+    }
+  }
+}
+```
+
+3. **Set up automated updates** (see GitHub Actions Setup guide)
+
+## 📱 Usage
+
+### For Kiosk Displays
+
+- Open in full-screen mode (F11)
+- Set browser to auto-refresh every hour
+- Use on tablets, monitors, or touch screens
+
+### For School Websites
+
+- Embed using iframe
+- Link directly from school portal
+- Works on all devices and browsers
+
+## 📚 Additional Guides
+
+- **[Configuration Reference](CONFIGURATION.md)** - Complete configuration options
+- **[GitHub Actions Setup](GITHUB_ACTIONS_SETUP.md)** - Automated data updates
+- **[GitHub Pages Deployment](GITHUB_PAGES_DEPLOYMENT.md)** - Detailed hosting setup
+- **[LISS Integration](LISS_README.md)** - Advanced timetable features
+- **[Troubleshooting](DEBUGGING_GUIDE.md)** - Common issues and solutions
+
+## 🆘 Support
+
+If you encounter issues:
+
+1. Check the [Troubleshooting Guide](DEBUGGING_GUIDE.md)
+2. Review your `config.json` settings
+3. Open browser console (F12) for error messages
+4. Ensure all required files are uploaded correctly
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
 
 For weekly automatic data updates using GitHub Actions:
 

@@ -1,22 +1,92 @@
-# Automatic Data Fallback System
+# Data Reliability System
 
-How the kiosk ensures reliable data display even when primary sources are outdated.
+How the kiosk ensures your timetable is always displayed, even when data sources have issues.
 
 ## 🎯 How It Works
 
-The kiosk uses a smart fallback system to always show relevant data:
+The kiosk uses multiple data sources to ensure reliability:
 
-1. **Primary**: JSON files from API (most current)
-2. **Fallback**: XML files when JSON is stale
-3. **Backup**: Sample data if nothing else works
+1. **Primary**: Fresh JSON data from your school's API
+2. **Backup**: Static XML files when API data is outdated
+3. **Fallback**: Sample data if no other sources work
 
-## ⚙️ Stale Data Detection
+This means your kiosk will always show a timetable, even during system maintenance or connectivity issues.
 
-### What Makes Data "Stale"
+## ⚙️ Data Freshness Settings
 
-Data is considered stale when it's older than the configured threshold:
+### What is "Stale" Data?
+
+Data becomes "stale" when it's older than your configured threshold.
 
 **Default**: 7 days (configurable in `config.json`)
+
+```json
+{
+  "api": {
+    "sync_days": 7
+  }
+}
+```
+
+### When Does Fallback Happen?
+
+- API data is older than 7 days → Use XML files
+- No API connection → Use XML files
+- XML files missing → Use sample data
+- All sources unavailable → Show error message
+
+## 🔧 Configuration
+
+### Change the Freshness Threshold
+
+Edit `config.json` to change when data is considered stale:
+
+```json
+{
+  "api": {
+    "sync_days": 3 // Use 3 days instead of 7
+  }
+}
+```
+
+### Disable Fallback (Not Recommended)
+
+```json
+{
+  "bell_times": {
+    "fallback_to_xml": false
+  },
+  "calendar": {
+    "fallback_to_xml": false
+  }
+}
+```
+
+⚠️ **Warning**: Disabling fallback may result in blank displays if API data becomes unavailable.
+
+## 📊 Status Indicators
+
+The kiosk shows data source status:
+
+- **🟢 Fresh**: Data is current (within sync_days threshold)
+- **🟡 Backup**: Using fallback XML data
+- **🔴 Sample**: Using sample data (no real data available)
+
+## 🆘 Troubleshooting
+
+### Kiosk Shows Sample Data
+
+1. Check your API connection in `config.json`
+2. Verify XML files exist (`bell_times.xml`, `calendar.xml`)
+3. Check network connectivity to your school's systems
+
+### Data Seems Outdated
+
+1. Check the last update timestamp on the display
+2. Verify automated updates are working (GitHub Actions)
+3. Manually run data generation scripts if needed
+
+This system ensures your school community always has access to timetable information, regardless of technical issues.
 
 ```json
 {
