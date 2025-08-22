@@ -1,39 +1,49 @@
-# LISS Integration Guide
+# LISS-Compatible Timetable Data
 
-Advanced timetable integration for schools using LISS (Learning Information Systems Standard) with Sentral.
+Advanced timetable integration using Sentral REST API with LISS-compatible output format.
 
-## 🎯 What Is LISS?
+## 🎯 What This Provides
 
-LISS provides detailed timetable data including:
+This implementation uses the **Sentral REST API** (documented at https://development.sentral.com.au/) to generate LISS-compatible JSON data including:
 
 - Individual student timetables
-- Teacher assignments
+- Teacher assignments  
 - Room allocations
 - Subject codes and periods
 - Year group organization
 
+## 🔄 LISS Compatibility
+
+While the current implementation uses Sentral's REST API, it generates data in **LISS-compatible JSON format** for:
+
+- **Cross-compatibility** with Learning Information Systems Standard (LISS)
+- **Future integration** with Edval when LISS support is added
+- **Standardized format** that works across different timetabling systems
+- **Easy migration** to native LISS when available
+
 ## ⚡ Quick Setup
 
-### Generate LISS Data
+### Generate LISS-Compatible Data
 
-Run the optimized LISS generator:
+Run the optimized timetable generator:
 
 ```bash
 python generate_liss_info.py
 ```
 
-This creates `liss_info.json` with complete timetable data for your school.
+This creates `liss_info.json` with complete timetable data using Sentral REST API in LISS format.
 
 ### Performance Features
 
 - **⚡ 20x faster**: ~1.3 seconds vs 26+ seconds
-- **📉 95% fewer API calls**: ~10 calls vs 700+ calls
-- **🔧 Bulk operations**: Uses Sentral API include parameters
+- **📉 95% fewer API calls**: ~10 calls vs 700+ calls  
+- **🔧 Bulk operations**: Uses Sentral REST API include parameters
 - **📊 Complete logging**: Generation and validation logs
+- **🎯 LISS format**: Compatible with LISS standard for future migration
 
 ## 🔧 Configuration
 
-### Basic Setup
+### Sentral REST API Setup
 
 Add your Sentral configuration to the `api.sentral` section in `config.json`:
 
@@ -42,7 +52,7 @@ Add your Sentral configuration to the `api.sentral` section in `config.json`:
   "api": {
     "sentral": {
       "base_url": "https://<your-school-sentral>/",
-      "api_key": "your-api-key-here",
+      "api_key": "${REST_API_KEY}",
       "tenant": "your-tenant-id",
       "api_path": "/api/v1"
     }
@@ -50,54 +60,53 @@ Add your Sentral configuration to the `api.sentral` section in `config.json`:
 }
 ```
 
+**API Documentation**: Full Sentral REST API documentation available at https://development.sentral.com.au/
+
 ### Advanced Options
 
 Edit `generate_liss_info.py` for customization:
 
 - **Days ahead**: How many days to fetch (default: 7)
-- **Year groups**: Which years to include (default: all)
+- **Year groups**: Which years to include (default: all)  
 - **Data filtering**: Exclude specific periods or subjects
-
-Requires `config.json` with:
-
-- Sentral API credentials in `api.sentral` section
-- School endpoint configuration
-- Data range settings in `api.calendar_source`
 
 ### Output Format
 
-Creates `liss_info.json` with optimized structure:
+Creates `liss_info.json` with LISS-compatible structure using Sentral REST API data:
 
 ```json
 {
   "metadata": {
-    "school": "TEMPE",
+    "school": "TEMPE", 
     "generated_at": "2025-08-22T04:43:26.856133",
-    "source": "sentral_api_optimized",
+    "source": "sentral_rest_api",
+    "format": "liss_compatible",
     "total_lessons": 350,
     "date_range": "2025-08-22 to 2025-08-29",
-    "optimization": "Used includes and bulk operations",
+    "optimization": "Bulk REST API operations",
     "api_calls_reduced": "From 700+ to 6 calls total"
   },
   "timetable_data": [
     {
       "DayNumber": 1,
-      "Period": "P1",
+      "Period": "P1", 
       "ClassCode": "9MU1",
       "EdvalClassCode": "9MU1",
       "TeacherCode": "LADO",
+      "TeacherId": "12345",
       "RoomCode": "P5"
     }
   ]
 }
 ```
 
-### Performance Features
+### Technical Implementation
 
-- **Bulk API Operations**: Single API call fetches lessons + teachers + classes + rooms
-- **Smart Caching**: Reduces redundant API calls
+- **Data Source**: Sentral REST API (https://development.sentral.com.au/)
+- **Format**: LISS-compatible JSON structure
+- **Performance**: Bulk API operations with include parameters
 - **Validation**: Automatic data integrity checks
-- **Comprehensive Logging**: Timestamped logs with response codes and validation results
+- **Future-Ready**: Compatible with LISS when Edval integration is added
 
 ## 📊 Edval LISS Bell Times Integration
 
@@ -108,134 +117,93 @@ Creates `liss_info.json` with optimized structure:
 python3 liss_bell_times.py
 
 # Test connection only
-python3 liss_bell_times.py --test-only
+## 🚀 Usage
 
-# Use custom config file
-python3 liss_bell_times.py --config my_config.json
+### Automated Generation (Recommended)
+
+Use GitHub Actions for automatic updates:
+
+1. **Repository Secrets**: Add `REST_API_KEY` to your repository
+2. **Enable Workflows**: LISS data updates during school hours (7:30 AM - 3:30 PM)
+3. **Manual Trigger**: Use "Run workflow" button for immediate updates
+
+### Manual Generation
+
+Run the script locally for testing or one-off generation:
+
+```bash
+# Generate 7 days of timetable data
+python3 generate_liss_info.py
+
+# Check output
+ls -la liss_info.json .logs/liss_info_generation.log
 ```
 
-### Configuration
+## 🔍 Output Format
 
-#### Method 1: Environment Variables (Recommended)
-
-For security, store credentials in environment variables:
-
-1. **Set environment variables:**
-
-   ```bash
-   export LISS_USERNAME=your_username
-   export LISS_PASSWORD=your_password
-   ```
-
-2. **Configure `liss_config.json` to use environment variables:**
-
-   ```json
-   {
-     "liss": {
-       "endpoint": "https://tempehs-nsw.edval.education/liss",
-       "school": "TEMPE",
-       "username_env": "LISS_USERNAME",
-       "password_env": "LISS_PASSWORD",
-       "liss_version": 10002,
-       "user_agent": "web.edval",
-       "tt_structure": "main"
-     },
-     "output": {
-       "format": "json",
-       "file": "current_bell_times.json",
-       "pretty_print": true
-     },
-     "logging": {
-       "enabled": true,
-       "level": "INFO"
-     }
-   }
-   ```
-
-3. **Or use a .env file** (copy `.env.example` to `.env` and edit):
-   ```bash
-   cp .env.example .env
-   # Edit .env with your credentials
-   source .env
-   ```
-
-#### Method 2: Direct Configuration (Less Secure)
-
-You can also store credentials directly in the config file (not recommended for production):
-
-```json
-{
-  "liss": {
-    "endpoint": "https://tempehs-nsw.edval.education/liss",
-    "school": "TEMPE",
-    "username": "your_username",
-    "password": "your_password",
-    "liss_version": 10002,
-    "user_agent": "web.edval",
-    "tt_structure": "main"
-  }
-}
-```
-
-## Requirements
-
-- Python 3.6+
-- `requests` library: `sudo apt install python3-requests`
-
-## Troubleshooting
-
-### Academic Year Issues
-
-If you get errors about "academic year" or "check the academic year of that file":
-
-1. **Verify credentials** - Your username/password may be scoped to a specific academic year
-2. **Contact IT** - Request credentials for the current academic year (2025)
-3. **Check data availability** - Ensure 2025 bell times have been imported into Edval
-
-### TimetableStructure Issues
-
-If you get errors about invalid TimetableStructure:
-
-1. **Run test mode** to see available structures:
-   ```bash
-   python3 liss_bell_times.py --test-only
-   ```
-2. **Update config** with a valid structure name
-3. **Common structures**: `main`, `Main`, `Secondary`, `Primary`, `Default`
-
-### Connection Issues
-
-- Check network connectivity to the Edval server
-- Verify the endpoint URL is correct
-- Ensure firewall allows HTTPS connections
-
-## Output Format
-
-The script saves bell times to a JSON file with this structure:
+The generated `liss_info.json` follows LISS standard format:
 
 ```json
 {
   "metadata": {
-    "fetched_at": "2025-08-20T03:55:03.123456",
-    "source": "LISS API",
     "school": "TEMPE",
-    "tt_structure": "main",
-    "total_entries": 50
+    "generated_at": "2025-08-22T04:43:26.856133", 
+    "source": "sentral_rest_api",
+    "format": "liss_compatible",
+    "total_lessons": 350,
+    "date_range": "2025-08-22 to 2025-08-29"
   },
-  "bell_times": [
+  "timetable_data": [
     {
       "DayNumber": 1,
-      "DayName": "MonA",
       "Period": "P1",
-      "StartTime": "08:45",
-      "EndTime": "09:40",
-      "Type": "T"
+      "ClassCode": "9MU1", 
+      "EdvalClassCode": "9MU1",
+      "TeacherCode": "LADO",
+      "TeacherId": "12345",
+      "RoomCode": "P5"
     }
   ]
 }
 ```
 
-## Integration with Timetable Kiosk
+## 🔧 Troubleshooting
+
+### No Data Generated
+
+1. **Check API credentials** in repository secrets
+2. **Verify Sentral API access** - test at `https://your-school-sentral.com.au/restapi/v1/ping`
+3. **Check logs** in `.logs/liss_info_generation.log`
+
+### Performance Issues
+
+1. **Reduce data range** - edit `generate_liss_info.py` to fetch fewer days
+2. **Check API rate limits** - Sentral may throttle high-frequency requests
+3. **Monitor API calls** - logs show optimization metrics
+
+### Integration with Kiosk
+
+The generated `liss_info.json` automatically integrates with the timetable kiosk:
+
+- **Automatic detection**: Kiosk loads LISS data when available
+- **Fallback support**: Falls back to standard data if LISS unavailable  
+- **Real-time updates**: GitHub Actions keep data fresh during school hours
+
+## 🎯 Future LISS Integration
+
+When Edval adds native LISS support:
+
+- **Easy migration**: Data format already LISS-compatible
+- **Minimal changes**: Same JSON structure will work
+- **Cross-compatibility**: Supports both Sentral API and native LISS
+- **Standardized**: Follows LISS specification for maximum compatibility
+
+## 📚 References
+
+- **Sentral REST API**: https://development.sentral.com.au/
+- **LISS Standard**: Learning Information Systems Standard
+- **GitHub Actions**: Automated updates during school hours
+- **Edval Integration**: Future native LISS support planned
 
 The bell times JSON can be used by your main timetable kiosk application to display current bell times and determine which period is currently active.
 
