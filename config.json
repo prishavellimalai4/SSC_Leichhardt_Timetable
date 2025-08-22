@@ -11,7 +11,18 @@
     "sync_days": 7,
     "auto_generate": true,
     "use_json": true,
-    "fallback_to_xml": true
+    "fallback_to_xml": true,
+    "sentral": {
+      "base_url": "https://tempe-h.sentral.com.au/",
+      "tenant": "mDQd7r",
+      "api_key": "${REST_API_KEY}",
+      "api_path": "/api/v1"
+    },
+    "calendar_source": {
+      "use_api": true,
+      "days_ahead": 7,
+      "fallback_to_xml": true
+    }
   },
   "colors": {
     "primary": "#AC0000",

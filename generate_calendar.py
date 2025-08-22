@@ -19,7 +19,7 @@ from typing import Optional, Dict, Any, List
 from sentral_rest_client import SentralAPIClient, load_config
 
 
-def log_generation_run(response_code: int, start_date: str, end_date: str, validation_result: str, log_file: str = 'calendar_generation.log'):
+def log_generation_run(response_code: int, start_date: str, end_date: str, validation_result: str, log_file: str = 'logs/calendar_generation.log'):
     """
     Log generation run details to a log file.
 
@@ -34,6 +34,9 @@ def log_generation_run(response_code: int, start_date: str, end_date: str, valid
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         log_entry = f"{timestamp} | Response: {response_code} | Range: {start_date} to {end_date} | Validation: {validation_result}\n"
 
+        # Ensure logs directory exists
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        
         with open(log_file, 'a', encoding='utf-8') as f:
             f.write(log_entry)
     except Exception as e:

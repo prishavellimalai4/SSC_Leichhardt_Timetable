@@ -98,32 +98,38 @@ jobs:
           fi
           echo "✅ Sentral API credentials loaded from secrets"
 
-          # Replace placeholder in sentral_config.json with actual API key
-          sed -i "s/\${REST_API_KEY}/$REST_API_KEY/g" sentral_config.json
-          echo "✅ Updated sentral_config.json with API key"
+          # Replace placeholder in config.json with actual API key
+          sed -i "s/\${REST_API_KEY}/$REST_API_KEY/g" config.json
+          echo "✅ Updated config.json with API key"
 
       - name: Generate LISS timetable data
-        if: steps.time_check.outputs.within_hours == 'true'
         run: |
-          echo "📚 Generating LISS timetable data (optimized)..."
-          start_time=$(date +%s)
+          echo "🏫 Generating LISS timetable data..."
 
-          python3 generate_liss_info.py
-
-          end_time=$(date +%s)
-          duration=$((end_time - start_time))
-
-          if [ -f "liss_info.json" ]; then
-            echo "✅ LISS timetable generated successfully in ${duration}s"
-            ls -la liss_info.json
+          # Run the generation script and capture exit code
+          if python3 generate_liss_info.py; then
+            echo "✅ LISS generation and validation passed"
             
-            # Show generation summary from log if available
-            if [ -f "liss_info_generation.log" ]; then
-              echo "📊 Generation summary:"
-              tail -5 liss_info_generation.log
+            if [ -f "liss_info.json" ]; then
+              echo "✅ LISS info file exists"
+              ls -la liss_info.json
+              
+              # Additional JSON structure validation
+              echo "🔍 Validating LISS info JSON structure..."
+              if python3 -c "import json; json.load(open('liss_info.json'))" 2>/dev/null; then
+                echo "✅ LISS info JSON structure validation passed"
+              else
+                echo "❌ LISS info JSON structure validation failed - invalid JSON format"
+                echo "Generated file content (first 500 chars):"
+                head -c 500 liss_info.json
+                exit 1
+              fi
+            else
+              echo "❌ LISS info file was not created"
+              exit 1
             fi
           else
-            echo "❌ LISS timetable generation failed"
+            echo "❌ LISS generation or validation failed"
             exit 1
           fi
 
@@ -131,14 +137,42 @@ jobs:
         if: steps.time_check.outputs.within_hours == 'true'
         id: changes
         run: |
-          # Check if LISS data file was updated
-          if git diff --quiet HEAD -- liss_info.json liss_info_generation.log; then
-            echo "changes=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No changes detected in LISS data"
+          echo "🔍 Checking for meaningful changes in LISS data..."
+
+          # Check if liss_info.json exists in git
+          if git cat-file -e HEAD:liss_info.json 2>/dev/null; then
+            echo "📋 Previous liss_info.json found, comparing content..."
+            
+            # Get the current version from git and remove the generated_at line
+            git show HEAD:liss_info.json | grep -v '"generated_at"' > /tmp/old_liss_content.json
+            
+            # Remove the generated_at line from the new file for comparison
+            grep -v '"generated_at"' liss_info.json > /tmp/new_liss_content.json
+            
+            # Compare the files without the timestamp
+            if diff -q /tmp/old_liss_content.json /tmp/new_liss_content.json >/dev/null; then
+              echo "changes=false" >> $GITHUB_OUTPUT
+              echo "ℹ️ No meaningful changes detected (only timestamp updated)"
+              echo "⏭️ Skipping commit as only generated_at timestamp changed"
+            else
+              echo "changes=true" >> $GITHUB_OUTPUT
+              echo "✅ Meaningful changes detected in LISS data"
+              echo "📊 Changes found (excluding timestamp):"
+              diff /tmp/old_liss_content.json /tmp/new_liss_content.json || true
+            fi
+            
+            # Clean up temp files
+            rm -f /tmp/old_liss_content.json /tmp/new_liss_content.json
           else
             echo "changes=true" >> $GITHUB_OUTPUT
-            echo "✅ Changes detected in LISS data"
-            git diff --name-only HEAD -- liss_info.json liss_info_generation.log
+            echo "✅ New liss_info.json file - will commit"
+          fi
+
+          # Also check log file changes
+          if git diff --quiet HEAD -- logs/liss_info_generation.log; then
+            echo "ℹ️ No changes in generation log"
+          else
+            echo "📝 Generation log updated"
           fi
 
       - name: Commit and push changes
@@ -146,7 +180,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "📚 Update LISS timetable data"
-          file_pattern: "liss_info.json liss_info_generation.log"
+          file_pattern: "liss_info.json logs/liss_info_generation.log"
           commit_user_name: "GitHub Action"
           commit_user_email: "action@github.com"
           commit_author: "LISS Timetable Bot <action@github.com>"
@@ -166,7 +200,8 @@ jobs:
             if [ "${{ steps.changes.outputs.changes }}" == "true" ]; then
               echo "✅ **Result:** LISS data updated and committed" >> $GITHUB_STEP_SUMMARY
             else
-              echo "ℹ️ **Result:** No changes detected in LISS data" >> $GITHUB_STEP_SUMMARY
+              echo "ℹ️ **Result:** No meaningful changes detected (only timestamp updated)" >> $GITHUB_STEP_SUMMARY
+              echo "⏭️ **Action:** Skipped commit to avoid unnecessary updates" >> $GITHUB_STEP_SUMMARY
             fi
           else
             echo "⏰ **Status:** Outside school hours - update skipped" >> $GITHUB_STEP_SUMMARY
@@ -194,7 +229,7 @@ jobs:
           name: liss-data-${{ github.run_number }}
           path: |
             liss_info.json
-            liss_info_generation.log
+            logs/liss_info_generation.log
           retention-days: 3
 
       - name: Notify on failure

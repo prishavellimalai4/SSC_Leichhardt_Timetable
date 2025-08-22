@@ -32,21 +32,24 @@ This guide provides step-by-step instructions for implementing the timetable kio
 
 ### Step 2: Configure API Connection
 
-Edit `sentral_config.json`:
+Edit the `api.sentral` section in `config.json`:
 
 ```json
 {
-  "base_url": "https://<your-school-sentral>/",
-  "api_key": "your-api-key-here",
-  "endpoints": {
-    "liss_info": "restapi/v1/liss/info"
+  "api": {
+    "sentral": {
+      "base_url": "https://<your-school-sentral>/",
+      "api_key": "your-api-key-here",
+      "tenant": "your-tenant-id",
+      "api_path": "/api/v1"
+    }
   }
 }
 ```
 
-### Step 3: Set Up Automated Updates (Optional)
+### Step 3: Set Up Weekly Automated Updates (Optional)
 
-For automatic data updates using GitHub Actions:
+For weekly automatic data updates using GitHub Actions:
 
 1. **Add Repository Secrets** (Settings → Secrets and variables → Actions):
 
@@ -57,6 +60,7 @@ For automatic data updates using GitHub Actions:
 
    - Go to Actions tab in your repository
    - Enable workflows if prompted
+   - Data will automatically update every Monday at 5:00 AM
 
 3. **Manual Updates**: Use "Run workflow" button to update data anytime
 
@@ -65,7 +69,7 @@ For automatic data updates using GitHub Actions:
 ### Automatic API Updates (Recommended)
 
 - Run the Python generation scripts to fetch live data
-- Data refreshes automatically via GitHub Actions
+- Data refreshes automatically every Monday via GitHub Actions
 - Falls back to XML files if API is unavailable
 
 ### Manual XML Files (Alternative)

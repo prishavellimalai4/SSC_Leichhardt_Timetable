@@ -33,14 +33,19 @@ This creates `liss_info.json` with complete timetable data for your school.
 
 ## 🔧 Configuration
 
-### Basic Setup (`sentral_config.json`)
+### Basic Setup
+
+Add your Sentral configuration to the `api.sentral` section in `config.json`:
 
 ```json
 {
-  "base_url": "https://<your-school-sentral>/",
-  "api_key": "your-api-key-here",
-  "endpoints": {
-    "liss_info": "restapi/v1/liss/info"
+  "api": {
+    "sentral": {
+      "base_url": "https://<your-school-sentral>/",
+      "api_key": "your-api-key-here",
+      "tenant": "your-tenant-id",
+      "api_path": "/api/v1"
+    }
   }
 }
 ```
@@ -53,11 +58,11 @@ Edit `generate_liss_info.py` for customization:
 - **Year groups**: Which years to include (default: all)
 - **Data filtering**: Exclude specific periods or subjects
 
-Requires `sentral_config.json` with:
+Requires `config.json` with:
 
-- Sentral API credentials
+- Sentral API credentials in `api.sentral` section
 - School endpoint configuration
-- Data range settings (days_ahead: 7)
+- Data range settings in `api.calendar_source`
 
 ### Output Format
 

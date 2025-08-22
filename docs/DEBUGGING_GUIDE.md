@@ -37,9 +37,8 @@ ls -la *.json *.xml
 
 **Update configuration**:
 
-1. Edit `config.json` for school name/settings
-2. Edit `sentral_config.json` for API connection
-3. Run data generation scripts to fetch fresh data
+1. Edit `config.json` for school name/settings and API connection
+2. Run data generation scripts to fetch fresh data
 
 ## 🔧 Enable Debug Mode
 
@@ -82,8 +81,13 @@ Debug output shows:
 
 ```json
 {
-  "base_url": "https://<your-school-sentral>/",
-  "api_key": "your-actual-api-key"
+  "api": {
+    "sentral": {
+      "base_url": "https://<your-school-sentral>/",
+      "api_key": "your-actual-api-key",
+      "tenant": "your-tenant-id"
+    }
+  }
 }
 ```
 
@@ -94,7 +98,7 @@ Debug output shows:
 **Solutions**:
 
 - Run `python generate_*.py` scripts to refresh data
-- Use GitHub Actions to automate updates
+- Use GitHub Actions for weekly automated updates
 - Download fresh XML files from Sentral portal
 
 ### Generation Script Errors

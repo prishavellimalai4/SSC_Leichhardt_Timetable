@@ -68,7 +68,7 @@ def load_env_file(env_file_path: str = ".env") -> None:
         print(f"Warning: Could not load .env file: {e}")
 
 
-def load_config(config_file: str = "sentral_config.json") -> Dict[str, Any]:
+def load_config(config_file: str = "config.json") -> Dict[str, Any]:
     """
     Load configuration from JSON file and resolve environment variables.
     Automatically loads .env file if it exists.
@@ -139,7 +139,7 @@ class SentralAPIClient:
         })
 
     @classmethod
-    def from_config(cls, config_file: str = "sentral_config.json"):
+    def from_config(cls, config_file: str = "config.json"):
         """
         Create SentralAPIClient from configuration file.
 
@@ -153,20 +153,21 @@ class SentralAPIClient:
         if not config:
             return None
 
-        api_config = config.get('sentral_api', {})
+        # Get sentral config from the merged config structure
+        api_config = config.get('api', {}).get('sentral', {})
         base_url = api_config.get('base_url')
         api_key = api_config.get('api_key')
         tenant = api_config.get('tenant')
 
         if not all([base_url, api_key, tenant]):
-            print("❌ Invalid configuration. Required: base_url, api_key, tenant")
+            print("❌ Invalid configuration. Required: api.sentral.base_url, api.sentral.api_key, api.sentral.tenant")
             missing = []
             if not base_url:
-                missing.append("base_url")
+                missing.append("api.sentral.base_url")
             if not api_key:
-                missing.append("api_key (LISS_PASSWORD environment variable)")
+                missing.append("api.sentral.api_key (REST_API_KEY environment variable)")
             if not tenant:
-                missing.append("tenant")
+                missing.append("api.sentral.tenant")
             print(f"❌ Missing configuration: {', '.join(missing)}")
             return None
 
@@ -439,7 +440,6 @@ def main():
 
     print(f"Base URL: {client.base_url}")
     print(f"Tenant: {client.tenant}")
-    print(f"API Key: {client.api_key[:8]}...")
 
     # Test connection
     if client.test_connection():
@@ -455,7 +455,7 @@ def main():
 
     else:
         print("❌ API connection failed!")
-        print("Please check your API key and credentials in sentral_config.json")
+        print("Please check your API key and credentials in config.json under api.sentral section")
 
 
 if __name__ == "__main__":

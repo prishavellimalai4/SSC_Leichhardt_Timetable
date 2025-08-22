@@ -183,6 +183,11 @@ yarn-error.log*
 *.pid
 server.log
 
+# Allow logs directory and generation logs (now organized in /logs)
+# This overrides the general *.log ignore patterns above for our specific generation logs
+!/logs/
+!/logs/*_generation.log
+
 # Development folder (contains test scripts and development tools)
 /dev/
 /dev_backup/

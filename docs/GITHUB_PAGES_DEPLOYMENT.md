@@ -69,10 +69,10 @@ _Note: It may take 5-10 minutes for the site to become available_
 
 ### Automatic Updates
 
-Set up GitHub Actions to automatically refresh data:
+Set up GitHub Actions to automatically refresh data weekly:
 
 1. Add API credentials as repository secrets
-2. Enable workflow triggers for scheduled updates
+2. Workflows automatically run every Monday at 5:00 AM
 3. Your kiosk stays current without manual intervention
 
 ### Multiple Campuses

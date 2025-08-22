@@ -1,13 +1,13 @@
 # GitHub Actions Automation Setup
 
-Set up automatic data updates for your timetable kiosk using GitHub Actions.
+Set up weekly automatic data updates for your timetable kiosk using GitHub Actions.
 
 ## 🎯 What This Does
 
 GitHub Actions will automatically:
 
-- Fetch fresh data from your Sentral API
-- Update the kiosk with current timetables
+- Fetch fresh data from your Sentral API every Monday at 5:00 AM
+- Update the kiosk with current timetables for the week
 - Maintain up-to-date information without manual intervention
 
 ## ⚡ Quick Setup
@@ -24,12 +24,12 @@ GitHub Actions will automatically:
 
 1. **Go to Actions tab** in your repository
 2. **Enable workflows** if prompted
-3. **Workflows are now active** and will run automatically
+3. **Workflows are now active** and will run weekly
 
 ### Step 3: Manual Data Update
 
 1. **Go to Actions tab**
-2. **Select a workflow** (e.g., "Generate LISS Info")
+2. **Select "Weekly Data Update"** workflow
 3. **Click "Run workflow"** → Run workflow
 4. **Wait for completion** (usually 1-2 minutes)
 5. **Your kiosk now has fresh data**
@@ -59,26 +59,26 @@ GitHub Actions will automatically:
 
 The following workflows are included:
 
+- **Weekly Data Update**: Updates bell times and calendar data weekly
 - **Generate LISS Info**: Updates timetable data (`generate_liss_info.py`)
-- **Generate Bell Times**: Updates period schedules (`generate_bell_times.py`)
-- **Generate Calendar**: Updates school calendar (`generate_calendar.py`)
 
 ## 📅 Automation Schedule
 
 By default, workflows run:
 
+- **Weekly**: Every Monday at 5:00 AM Sydney time (automatic)
 - **Manually**: Click "Run workflow" anytime
 - **On push**: When code is updated
-- **Scheduled**: Can be configured for automatic daily/weekly runs
 
-### Setting Up Automatic Schedule
+### Current Schedule
 
-Edit `.github/workflows/*.yml` files to add schedule triggers:
+The main data update runs weekly:
 
 ```yaml
 on:
   schedule:
-    - cron: "0 6 * * 1-5" # 6 AM, Monday-Friday
+    - cron: "0 19 * * 0" # 5:00 AM Monday Sydney (AEST)
+    - cron: "0 18 * * 0" # 5:00 AM Monday Sydney (AEDT)
   workflow_dispatch: # Manual trigger
 ```
 
@@ -113,7 +113,7 @@ on:
 To modify what data is fetched:
 
 1. Edit the Python scripts (`generate_*.py`)
-2. Update `sentral_config.json` for new endpoints
+2. Update `config.json` API settings for new endpoints
 3. Commit changes to trigger updated workflows
 
 ### Multiple School Support
@@ -136,8 +136,9 @@ All workflows use these environment variables:
 
 **Automated Updates**:
 
-- Fresh data without manual intervention
-- Consistent, reliable updates
+- Fresh data every Monday morning without manual intervention
+- Consistent, reliable weekly updates
+- Optimal timing for school week preparation
 - No need to remember to update manually
 
 **Version Control**:

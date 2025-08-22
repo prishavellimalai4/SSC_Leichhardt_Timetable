@@ -47,17 +47,20 @@ See the **[Setup Guide](docs/README.md)** for detailed implementation instructio
 ## 🔧 Technical Overview
 
 ### Architecture
+
 - **Frontend**: Pure HTML/CSS/JavaScript - no frameworks required
 - **Data Sources**: JSON files (primary) with XML fallback support
 - **API Integration**: Connects to Sentral REST API for live data
 - **Deployment**: Static files - works on any web server or GitHub Pages
 
 ### Browser Support
+
 - ✅ Chrome, Firefox, Safari, Edge (all modern versions)
 - ✅ Mobile browsers (iOS Safari, Android Chrome)
 - ✅ Kiosk mode and embedded iframe support
 
 ### System Requirements
+
 - **Server**: Any web server (Apache, Nginx, IIS) or static hosting
 - **Client**: Modern web browser with JavaScript enabled
 - **API (Optional)**: Sentral student management system with REST API access
@@ -76,12 +79,14 @@ This multi-tier approach ensures the kiosk always displays useful information, e
 ## 🛠️ Implementation
 
 ### For Non-Technical Users
+
 - Download and open `index.html` - it works immediately
 - Upload files to your school website for broader access
 - No programming or server setup required
 
 ### For Technical Staff
-- Full API integration with automated data updates
+
+- Full API integration with weekly automated data updates
 - GitHub Actions workflows for maintenance-free operation
 - Extensive configuration options for customization
 - Development tools and debugging support
@@ -119,10 +124,12 @@ This project welcomes contributions from the educational technology community:
 ## 🏫 Community
 
 **Schools Using This System:**
+
 - Tempe High School (original implementation)
-- *Your school could be listed here!*
+- _Your school could be listed here!_
 
 **Compatible Systems:**
+
 - Sentral Student Management System (primary target)
 - Any system that can export similar XML/JSON data formats
 

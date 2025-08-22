@@ -1,12 +1,12 @@
-name: Daily Data Update
+name: Weekly Data Update
 
 on:
-  # Schedule to run weekdays at 8:00 AM Sydney time
+  # Schedule to run every Monday at 5:00 AM Sydney time
   # Sydney time (AEDT/AEST) is UTC+10/UTC+11
-  # 8:00 AM Sydney = 22:00 UTC (previous day) for AEST or 21:00 UTC for AEDT
+  # 5:00 AM Monday Sydney = 19:00 UTC Sunday for AEST or 18:00 UTC Sunday for AEDT
   schedule:
-    - cron: "0 22 * * 0-4" # 22:00 UTC Sunday-Thursday = 8:00 AM Monday-Friday Sydney (AEST)
-    - cron: "0 21 * * 0-4" # 21:00 UTC Sunday-Thursday = 8:00 AM Monday-Friday Sydney (AEDT)
+    - cron: "0 19 * * 0" # 19:00 UTC Sunday = 5:00 AM Monday Sydney (AEST)
+    - cron: "0 18 * * 0" # 18:00 UTC Sunday = 5:00 AM Monday Sydney (AEDT)
 
   # Allow manual triggering
   workflow_dispatch:
@@ -15,7 +15,7 @@ env:
   PYTHON_VERSION: "3.11"
 
 jobs:
-  update-daily-data:
+  update-weekly-data:
     runs-on: ubuntu-latest
 
     permissions:
@@ -47,33 +47,69 @@ jobs:
           fi
           echo "✅ Sentral API credentials loaded from secrets"
 
-          # Replace placeholder in sentral_config.json with actual API key
-          sed -i "s/\${REST_API_KEY}/$REST_API_KEY/g" sentral_config.json
-          echo "✅ Updated sentral_config.json with API key"
+          # Replace placeholder in config.json with actual API key
+          sed -i "s/\${REST_API_KEY}/$REST_API_KEY/g" config.json
+          echo "✅ Updated config.json with API key"
 
       - name: Generate bell times data
         run: |
           echo "🔔 Generating bell times data..."
-          python3 generate_bell_times.py
 
-          if [ -f "bell_times.json" ]; then
-            echo "✅ Bell times generated successfully"
-            ls -la bell_times.json
+          # Run the generation script and capture exit code
+          if python3 generate_bell_times.py; then
+            echo "✅ Bell times generation and validation passed"
+            
+            if [ -f "bell_times.json" ]; then
+              echo "✅ Bell times file exists"
+              ls -la bell_times.json
+              
+              # Additional JSON structure validation
+              echo "🔍 Validating bell times JSON structure..."
+              if python3 -c "import json; json.load(open('bell_times.json'))" 2>/dev/null; then
+                echo "✅ Bell times JSON structure validation passed"
+              else
+                echo "❌ Bell times JSON structure validation failed - invalid JSON format"
+                echo "Generated file content (first 500 chars):"
+                head -c 500 bell_times.json
+                exit 1
+              fi
+            else
+              echo "❌ Bell times file was not created"
+              exit 1
+            fi
           else
-            echo "❌ Bell times generation failed"
+            echo "❌ Bell times generation or validation failed"
             exit 1
           fi
 
       - name: Generate calendar data
         run: |
           echo "📅 Generating calendar data..."
-          python3 generate_calendar.py
 
-          if [ -f "calendar.json" ]; then
-            echo "✅ Calendar generated successfully"
-            ls -la calendar.json
+          # Run the generation script and capture exit code
+          if python3 generate_calendar.py; then
+            echo "✅ Calendar generation and validation passed"
+            
+            if [ -f "calendar.json" ]; then
+              echo "✅ Calendar file exists"
+              ls -la calendar.json
+              
+              # Additional JSON structure validation
+              echo "🔍 Validating calendar JSON structure..."
+              if python3 -c "import json; json.load(open('calendar.json'))" 2>/dev/null; then
+                echo "✅ Calendar JSON structure validation passed"
+              else
+                echo "❌ Calendar JSON structure validation failed - invalid JSON format"
+                echo "Generated file content (first 500 chars):"
+                head -c 500 calendar.json
+                exit 1
+              fi
+            else
+              echo "❌ Calendar file was not created"
+              exit 1
+            fi
           else
-            echo "❌ Calendar generation failed"
+            echo "❌ Calendar generation or validation failed"
             exit 1
           fi
 
@@ -81,29 +117,29 @@ jobs:
         id: changes
         run: |
           # Check if any data files were updated
-          if git diff --quiet HEAD -- bell_times.json calendar.json *.log; then
+          if git diff --quiet HEAD -- bell_times.json calendar.json logs/*.log; then
             echo "changes=false" >> $GITHUB_OUTPUT
             echo "ℹ️ No changes detected in data files"
           else
             echo "changes=true" >> $GITHUB_OUTPUT
             echo "✅ Changes detected in data files"
-            git diff --name-only HEAD -- bell_times.json calendar.json *.log
+            git diff --name-only HEAD -- bell_times.json calendar.json logs/*.log
           fi
 
       - name: Commit and push changes
         if: steps.changes.outputs.changes == 'true'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "📊 Daily data update: bell times and calendar"
-          file_pattern: "bell_times.json calendar.json *_generation.log"
+          commit_message: "📊 Weekly data update: bell times and calendar"
+          file_pattern: "bell_times.json calendar.json logs/*_generation.log"
           commit_user_name: "GitHub Action"
           commit_user_email: "action@github.com"
-          commit_author: "Daily Data Bot <action@github.com>"
+          commit_author: "Weekly Data Bot <action@github.com>"
 
       - name: Create summary
         if: always()
         run: |
-          echo "## 📊 Daily Data Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Weekly Data Update Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Generated Files:**" >> $GITHUB_STEP_SUMMARY
 
@@ -136,17 +172,17 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: daily-data-${{ github.run_number }}
+          name: weekly-data-${{ github.run_number }}
           path: |
             bell_times.json
             calendar.json
-            *_generation.log
+            logs/*_generation.log
           retention-days: 7
 
       - name: Notify on failure
         if: failure()
         run: |
-          echo "❌ Daily data update failed!"
+          echo "❌ Weekly data update failed!"
           echo "Check the logs above for details."
           echo "Common issues:"
           echo "  - API credentials may have expired"
