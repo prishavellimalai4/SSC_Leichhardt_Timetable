@@ -7,6 +7,10 @@ jobs:
   generate-and-commit:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+      actions: read
+
     env:
       REST_API_KEY: ${{ secrets.REST_API_KEY }}
       LISS_PASSWORD: ${{ secrets.LISS_PASSWORD }}
