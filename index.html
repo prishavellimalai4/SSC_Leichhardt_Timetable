@@ -29,6 +29,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
     </style>
 </head>
 <body>
+    <div class="loading-indicator" id="loading-indicator"></div>
     <div id="header"></div>
     <div id="timetable"></div>
     <div id="current-time"></div>
@@ -240,6 +241,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     font-size: 0.9em;
                     color: ${c.text.primary};
                     margin: 20px 12px 10px 0;
+                    transition: opacity 0.3s ease;
                 }
                 #current-time.manual-override {
                     color: #d73502;
@@ -248,6 +250,33 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     padding: 5px 10px;
                     border-radius: 4px;
                     border: 1px solid #ffeaa7;
+                }
+                #current-time.updating {
+                    opacity: 0.5;
+                }
+                
+                /* Smooth transition for content updates */
+                #header, #timetable {
+                    transition: opacity 0.2s ease-in-out;
+                }
+                
+                /* Subtle loading indicator */
+                .loading-indicator {
+                    position: fixed;
+                    top: 10px;
+                    right: 10px;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background: ${c.primary};
+                    opacity: 0;
+                    animation: pulse 1s infinite;
+                    z-index: 1000;
+                }
+                
+                @keyframes pulse {
+                    0%, 100% { opacity: 0.3; transform: scale(1); }
+                    50% { opacity: 0.8; transform: scale(1.2); }
                 }
                 
                 /* Responsive breakpoints - will be overridden by config if specified */
@@ -1451,13 +1480,84 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
         }
 
         // ---- AUTO-RELOAD ----
-        // Refresh page based on config interval
+        // Show/hide loading indicator
+        function showLoadingIndicator() {
+            const indicator = document.getElementById('loading-indicator');
+            if (indicator) {
+                indicator.style.opacity = '1';
+            }
+        }
+        
+        function hideLoadingIndicator() {
+            const indicator = document.getElementById('loading-indicator');
+            if (indicator) {
+                indicator.style.opacity = '0';
+            }
+        }
+        
+        // Smooth data refresh without page flash
         function setupAutoReload() {
+            // Check if auto-refresh is disabled in config
+            if (CONFIG?.ui?.autoRefresh === false) {
+                debugLog('🔄 AUTO-RELOAD: Disabled by configuration');
+                return;
+            }
+            
             if (CONFIG && CONFIG.ui.refreshInterval) {
-                setInterval(() => location.replace(location.href), CONFIG.ui.refreshInterval);
+                debugLog(`🔄 AUTO-RELOAD: Setting up ${CONFIG.ui.refreshInterval / 1000}s refresh interval`);
+                setInterval(async () => {
+                    // Smooth reload: just re-run main() to refresh data
+                    await smoothDataRefresh();
+                }, CONFIG.ui.refreshInterval);
             } else {
-                // Default fallback
-                setInterval(() => location.replace(location.href), 60000);
+                // Default fallback: refresh every minute
+                debugLog('🔄 AUTO-RELOAD: Using default 60s refresh interval');
+                setInterval(async () => {
+                    await smoothDataRefresh();
+                }, 60000);
+            }
+        }
+
+        // Perform a smooth data refresh with visual feedback
+        async function smoothDataRefresh() {
+            try {
+                showLoadingIndicator();
+                
+                // Add slight fade effect to indicate update
+                const timeElement = document.getElementById('current-time');
+                if (timeElement) {
+                    timeElement.classList.add('updating');
+                }
+                
+                // Reset data to force reload
+                bellTimes = [];
+                lessonsXML = null;
+                calendarData = [];
+                
+                // Re-run main function to refresh data
+                await main();
+                
+                // Remove update indicators
+                if (timeElement) {
+                    timeElement.classList.remove('updating');
+                }
+                
+            } catch (error) {
+                console.error('Error during smooth refresh:', error);
+            } finally {
+                hideLoadingIndicator();
+            }
+        }
+
+        // Optional: Full page reload every hour to prevent memory leaks
+        function setupHourlyReload() {
+            const hourlyInterval = CONFIG?.ui?.hourlyReload !== false ? 3600000 : null; // 1 hour, can be disabled
+            
+            if (hourlyInterval) {
+                setInterval(() => {
+                    // Only do full page reload once per hour to clear any memory leaks
+                    location.replace(location.href);
+                }, hourlyInterval);
             }
         }
 
@@ -1465,6 +1565,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
         async function init() {
             await loadConfig();
             setupAutoReload();
+            setupHourlyReload(); // Optional full page reload every hour
             main();
         }
 
