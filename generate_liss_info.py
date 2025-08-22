@@ -69,12 +69,12 @@ def validate_liss_data(liss_data: List[Dict[str, Any]]) -> str:
             validation_issues.append(
                 f"Invalid day number in entry {i+1}: {day_num}")
 
-    # Check teacher codes format
+    # Check teacher codes format (surname up to 10 characters)
     for i, entry in enumerate(liss_data[:3]):
         teacher_code = entry.get('TeacherCode', '')
-        if not re.match(r'^[A-Z]{4}$', teacher_code):
+        if not re.match(r'^[A-Z]{1,10}$', teacher_code):
             validation_issues.append(
-                f"Invalid teacher code format in entry {i+1}: {teacher_code}")
+                f"Invalid teacher code format in entry {i+1}: {teacher_code} (expected 1-10 uppercase letters)")
 
     if validation_issues:
         return f"FAILED - {len(validation_issues)} issues: {', '.join(validation_issues[:3])}"
