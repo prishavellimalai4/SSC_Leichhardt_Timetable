@@ -1,43 +1,160 @@
-<!--
-Tempe High School Timetable Kiosk
-Copyright (C) 2025 TempeHS
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
--->
-
 # GitHub Pages Deployment Guide
 
-This guide provides step-by-step instructions for deploying the School Timetable Kiosk to GitHub Pages.
+Deploy your timetable kiosk to GitHub Pages for free hosting.
 
-## Why GitHub Pages?
+## 🌟 Why GitHub Pages?
 
 ✅ **Free hosting** for public repositories  
 ✅ **Automatic HTTPS** with custom domain support  
 ✅ **Global CDN** for fast worldwide access  
-✅ **No CORS issues** - serves files properly  
 ✅ **Easy updates** via Git commits  
-✅ **Perfect for school kiosks** and public displays  
+✅ **Perfect for school kiosks** and public displays
+
+## 🚀 Quick Setup
+
+### Step 1: Fork the Repository
+
+1. **Go to**: [Tempe_HS_Timetable_Kiosk repository](https://github.com/TempeHS/Tempe_HS_Timetable_Kiosk)
+2. **Click "Fork"** in the top-right corner
+3. **Choose your account** as the destination
+
+### Step 2: Enable GitHub Pages
+
+1. **Go to your forked repository**
+2. **Click Settings** tab
+3. **Scroll to "Pages"** in the left sidebar
+4. **Source**: Deploy from a branch
+5. **Branch**: Select `main`
+6. **Folder**: `/ (root)`
+7. **Click Save**
+
+### Step 3: Access Your Kiosk
+
+Your kiosk will be available at:
+`https://yourusername.github.io/Tempe_HS_Timetable_Kiosk/`
+
+_Note: It may take 5-10 minutes for the site to become available_
+
+## ⚙️ Customize for Your School
+
+### Update School Information
+
+1. **Edit `config.json`** in your repository
+2. **Change school name, term, colors**
+3. **Commit the changes**
+4. **GitHub Pages updates automatically**
+
+### Add Your School's Data
+
+**Option A: Use API (Recommended)**
+
+1. Set up repository secrets (see [GitHub Actions Setup](GITHUB_ACTIONS_SETUP.md))
+2. Run workflows to generate fresh data
+3. Your kiosk now shows current timetables
+
+**Option B: Manual XML Files**
+
+1. Download XML files from your Sentral portal
+2. Upload to replace existing XML files
+3. Commit changes to update the kiosk
+
+## 🔧 Advanced Features
+
+### Custom Domain
+
+1. **Settings** → **Pages** → **Custom domain**
+2. **Enter your domain** (e.g., `timetable.yourschool.edu`)
+3. **Set up DNS** to point to GitHub Pages
+4. **Enable HTTPS** (recommended)
+
+### Automatic Updates
+
+Set up GitHub Actions to automatically refresh data:
+
+1. Add API credentials as repository secrets
+2. Enable workflow triggers for scheduled updates
+3. Your kiosk stays current without manual intervention
+
+### Multiple Campuses
+
+For schools with multiple campuses:
+
+1. **Create separate repositories** for each campus
+2. **Customize branding** and data for each location
+3. **Use different subdomains** (e.g., `main.timetable.school.edu`, `east.timetable.school.edu`)
+
+## 🔍 Troubleshooting
+
+### Site Not Loading
+
+**Check deployment status**:
+
+1. **Repository** → **Actions** tab
+2. **Look for "pages build and deployment"** workflows
+3. **Green checkmark** = successful, **Red X** = failed
+
+**Common issues**:
+
+- Wait 10 minutes after enabling Pages
+- Ensure main branch has `index.html` file
+- Check that repository is public (or have GitHub Pro)
+
+### Updates Not Showing
+
+**Force refresh**:
+
+1. **Hard refresh** your browser (Ctrl+F5)
+2. **Check commit was successful** in repository
+3. **Wait a few minutes** for GitHub Pages to update
+
+### Wrong School Data
+
+**Update data files**:
+
+1. **Edit configuration files** in repository
+2. **Upload fresh XML/JSON files**
+3. **Use GitHub Actions** to automate data updates
+
+## 💡 Tips for Schools
+
+### Kiosk Display Setup
+
+**For dedicated kiosk displays**:
+
+1. **Bookmark the GitHub Pages URL**
+2. **Set as browser homepage**
+3. **Enable full-screen mode**
+4. **Disable browser toolbars** for clean display
+
+### Staff Access
+
+**Share the URL with staff**:
+
+- Add to school website navigation
+- Include in staff email signatures
+- Create QR codes for mobile access
+- Link from school portal/intranet
+
+### Regular Maintenance
+
+**Keep your kiosk current**:
+
+- **Weekly**: Check that data is updating
+- **Monthly**: Review display settings and branding
+- **Termly**: Update school name, term information
+- **Yearly**: Review and clean up old data files
 
 ## Step-by-Step Deployment
 
 ### 1. Prepare Your Repository
 
 **Option A: Fork this repository**
+
 1. Click "Fork" on the main repository page
 2. Clone your fork: `git clone https://github.com/yourusername/your-repo-name.git`
 
 **Option B: Create new repository**
+
 1. Create a new repository on GitHub
 2. Clone it locally: `git clone https://github.com/yourusername/your-repo-name.git`
 3. Copy the required files into the repository folder
@@ -45,6 +162,7 @@ This guide provides step-by-step instructions for deploying the School Timetable
 ### 2. Required Files
 
 Ensure these files are in your repository root:
+
 ```
 ├── index.html
 ├── config.json
@@ -60,6 +178,7 @@ Ensure these files are in your repository root:
 ### 3. Customize Configuration
 
 1. **Edit `config.json`** with your school's details:
+
    - School name and logo URL
    - Colors and styling
    - Period configurations
@@ -93,11 +212,13 @@ Ensure these files are in your repository root:
 ### Using a School Domain
 
 1. **Add a CNAME file** to your repository root:
+
    ```
    timetable.yourschool.edu.au
    ```
 
 2. **Configure DNS** at your domain provider:
+
    - Add CNAME record: `timetable` → `yourusername.github.io`
 
 3. **Update GitHub Pages settings**:
@@ -129,7 +250,7 @@ Ensure these files are in your repository root:
 
 ⚠️ **Public Repository**: All files are publicly visible  
 ⚠️ **No sensitive data**: Don't include private information  
-⚠️ **Student privacy**: Ensure compliance with privacy policies  
+⚠️ **Student privacy**: Ensure compliance with privacy policies
 
 ### Best Practices
 
@@ -143,21 +264,25 @@ Ensure these files are in your repository root:
 ### Common Issues
 
 **404 Error when accessing site:**
+
 - Check repository name matches URL
 - Ensure GitHub Pages is enabled
 - Verify files are in root directory (not in subfolder)
 
 **Site shows old data:**
+
 - Clear browser cache (Ctrl+F5)
 - Check if changes were committed and pushed
 - Verify GitHub Pages deployment completed (Actions tab)
 
 **Configuration not loading:**
+
 - Check `config.json` syntax (use JSON validator)
 - Ensure file is named exactly `config.json`
 - Check browser console for error messages (F12)
 
 **XML files not loading:**
+
 - Verify file names match configuration
 - Check XML syntax is valid
 - Ensure files are in same directory as `index.html`
@@ -175,7 +300,7 @@ Ensure these files are in your repository root:
 ✅ **Minimize XML**: Remove unnecessary whitespace  
 ✅ **Use CDN**: GitHub Pages provides global CDN  
 ✅ **Enable caching**: Configure refresh intervals appropriately  
-✅ **Monitor usage**: Check repository insights for traffic  
+✅ **Monitor usage**: Check repository insights for traffic
 
 ## Example URLs
 

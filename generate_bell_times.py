@@ -102,37 +102,73 @@ def generate_bell_times_json(output_file: str = 'bell_times.json') -> Tuple[bool
 
     response_code = 200  # Default success code
     try:
-        # Get all timetable days
+        # Get all timetable days with pagination
         print("📅 Fetching timetable days...")
-        days_response = client._make_request(
-            'GET', 'timetables/timetable-day', {'limit': 100})
-        if not days_response:
-            print("❌ Failed to fetch timetable days")
-            return False, 404, "N/A"
-
-        days = days_response.get('data', [])
+        days = []
+        offset = 0
+        limit = 100
+        
+        while True:
+            days_response = client._make_request(
+                'GET', 'timetables/timetable-day', {'limit': limit, 'offset': offset})
+            if not days_response or 'data' not in days_response:
+                break
+                
+            batch = days_response.get('data', [])
+            if not batch:
+                break
+                
+            days.extend(batch)
+            if len(batch) < limit:
+                break
+            offset += limit
+            
         print(f"✓ Found {len(days)} timetable days")
 
-        # Get all periods
+        # Get all periods with pagination
         print("⏰ Fetching timetable periods...")
-        periods_response = client._make_request(
-            'GET', 'timetables/timetable-period', {'limit': 100})
-        if not periods_response:
-            print("❌ Failed to fetch timetable periods")
-            return False, 404, "N/A"
-
-        periods = periods_response.get('data', [])
+        periods = []
+        offset = 0
+        limit = 100
+        
+        while True:
+            periods_response = client._make_request(
+                'GET', 'timetables/timetable-period', {'limit': limit, 'offset': offset})
+            if not periods_response or 'data' not in periods_response:
+                break
+                
+            batch = periods_response.get('data', [])
+            if not batch:
+                break
+                
+            periods.extend(batch)
+            if len(batch) < limit:
+                break
+            offset += limit
+            
         print(f"✓ Found {len(periods)} timetable periods")
 
-        # Get all period-in-day records
+        # Get all period-in-day records with pagination
         print("🕐 Fetching period-in-day mappings...")
-        period_in_day_response = client._make_request(
-            'GET', 'timetables/timetable-period-in-day', {'limit': 200})
-        if not period_in_day_response:
-            print("❌ Failed to fetch period-in-day mappings")
-            return False, 404, "N/A"
-
-        period_in_days = period_in_day_response.get('data', [])
+        period_in_days = []
+        offset = 0
+        limit = 200
+        
+        while True:
+            period_in_day_response = client._make_request(
+                'GET', 'timetables/timetable-period-in-day', {'limit': limit, 'offset': offset})
+            if not period_in_day_response or 'data' not in period_in_day_response:
+                break
+                
+            batch = period_in_day_response.get('data', [])
+            if not batch:
+                break
+                
+            period_in_days.extend(batch)
+            if len(batch) < limit:
+                break
+            offset += limit
+            
         print(f"✓ Found {len(period_in_days)} period-in-day mappings")
 
         # Create lookup dictionaries

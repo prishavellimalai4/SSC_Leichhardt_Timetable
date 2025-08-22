@@ -88,11 +88,29 @@ def load_day_type_mapping() -> Dict[int, str]:
         return {}
 
     try:
-        response = client._make_request(
-            'GET', 'timetables/timetable-day', params={'limit': 50})
-        if response and 'data' in response:
+        # Get day type mapping with pagination
+        day_types = []
+        offset = 0
+        limit = 50
+        
+        while True:
+            response = client._make_request(
+                'GET', 'timetables/timetable-day', params={'limit': limit, 'offset': offset})
+            if not response or 'data' not in response:
+                break
+                
+            batch = response.get('data', [])
+            if not batch:
+                break
+                
+            day_types.extend(batch)
+            if len(batch) < limit:
+                break
+            offset += limit
+        
+        if day_types:
             mapping = {}
-            for day_type in response['data']:
+            for day_type in day_types:
                 day_id = day_type.get('id')
                 name = day_type.get('attributes', {}).get('name')
                 if day_id and name:

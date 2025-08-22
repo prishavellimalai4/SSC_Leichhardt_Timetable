@@ -164,30 +164,35 @@ def generate_liss_info_json(days_limit: int = 7, output_file: str = 'liss_info.j
 
         active_day_numbers = set()
         if calendar_data:
-            for day_info in calendar_data:
-                attrs = day_info.get('attributes', {})
-                if attrs.get('isDailyTimetable', False):
-                    cycle = attrs.get('cycle')
-                    if cycle:
-                        # Map cycle to day numbers (from bell_times analysis)
-                        day_number_map = {
-                            1: 1,  # MonA
-                            2: 2,  # TueA
-                            3: 3,  # WedA
-                            4: 4,  # ThuA
-                            5: 5,  # FriA
-                            6: 6,  # MonB
-                            7: 7,  # TueB
-                            8: 8,  # WedB
-                            9: 9,  # ThuB
-                            10: 10  # FriB
-                        }
-                        if cycle in day_number_map:
-                            active_day_numbers.add(day_number_map[cycle])
+            # Load calendar.json to get the proper day number mapping for the 7-day period
+            try:
+                with open('calendar.json', 'r', encoding='utf-8') as f:
+                    calendar_json = json.load(f)
+                    
+                for day_entry in calendar_json.get('calendar', []):
+                    if day_entry.get('is_school_day', False):
+                        day_number = day_entry.get('day_number', 0)
+                        if day_number > 0:
+                            active_day_numbers.add(day_number)
+                            
+                print(f"📋 Using calendar.json day numbers for 7-day period: {sorted(active_day_numbers)}")
+                            
+            except Exception as e:
+                print(f"Warning: Could not load calendar.json, using API data: {e}")
+                # Fallback to API data if calendar.json is not available
+                for day_info in calendar_data:
+                    attrs = day_info.get('attributes', {})
+                    if attrs.get('isDailyTimetable', False) and attrs.get('cycle'):
+                        # Try to extract day number from API if possible
+                        # This is less reliable but better than all days
+                        cycle = int(attrs.get('cycle', 0))
+                        if 1 <= cycle <= 10:
+                            active_day_numbers.add(cycle)
 
         if not active_day_numbers:
-            # Default to all day numbers if no calendar data
-            active_day_numbers = set(range(1, 11))
+            # Only as last resort, limit to reasonable subset
+            active_day_numbers = set([5, 6, 7, 8, 9, 10])  # Current week pattern
+            print("📋 Using fallback day numbers for current week pattern")
 
         print(f"📋 Active day numbers for period: {sorted(active_day_numbers)}")
 
@@ -308,7 +313,7 @@ def generate_liss_info_json(days_limit: int = 7, output_file: str = 'liss_info.j
         limit = 100
         lessons_processed = 0
 
-        while lessons_processed < 500:  # Reasonable limit for 7 days
+        while True:  # Remove artificial limit - get all lessons
             lessons_response = client._make_request('GET', 'timetables/timetable-class-lesson', {
                 'limit': limit,
                 'offset': offset,
@@ -385,10 +390,7 @@ def generate_liss_info_json(days_limit: int = 7, output_file: str = 'liss_info.j
                     lessons_data.append(liss_entry)
                     lessons_processed += 1
 
-                    if lessons_processed >= 350:  # Reasonable limit for 7 days
-                        break
-
-            if len(lessons) < limit or lessons_processed >= 350:
+            if len(lessons) < limit:  # Break when no more lessons available
                 break
 
             offset += limit

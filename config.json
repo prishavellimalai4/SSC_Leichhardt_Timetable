@@ -7,6 +7,12 @@
       "size": "auto 100vh"
     }
   },
+  "api": {
+    "sync_days": 7,
+    "auto_generate": true,
+    "use_json": true,
+    "fallback_to_xml": true
+  },
   "colors": {
     "primary": "#AC0000",
     "background": "#f7f8fc",
@@ -24,17 +30,8 @@
     }
   },
   "schedule": {
-    "ignoredDays": [
-      0,
-      6
-    ],
-    "schoolDays": [
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
+    "ignoredDays": [0, 6],
+    "schoolDays": [1, 2, 3, 4, 5],
     "defaultShowMinutesBefore": 10,
     "periods": {
       "P0": {
@@ -51,47 +48,24 @@
   },
   "sportPeriods": {
     "tuesday": {
-      "periods": [
-        "P5",
-        "P6"
-      ],
+      "periods": ["P5", "P6"],
       "yearGroups": {
         "7": {
           "label": "Year 7 & 8 Sport",
-          "includesYears": [
-            7,
-            8
-          ],
-          "excludeYears": [
-            8
-          ]
+          "includesYears": [7, 8],
+          "excludeYears": [8]
         },
         "9": {
           "label": "Year 9 & 10 Sport",
-          "includesYears": [
-            9,
-            10
-          ],
-          "excludeYears": [
-            10
-          ]
+          "includesYears": [9, 10],
+          "excludeYears": [10]
         }
       }
     }
   },
   "yearGroups": {
-    "multiRowYears": [
-      7,
-      9
-    ],
-    "displayYears": [
-      7,
-      8,
-      9,
-      10,
-      11,
-      12
-    ],
+    "multiRowYears": [7, 9],
+    "displayYears": [7, 8, 9, 10, 11, 12],
     "classCodePattern": "^(\\d+)"
   },
   "ui": {
@@ -107,37 +81,22 @@
       }
     }
   },
-  "files": {
-    "bellTimes": "bell_times.xml",
-    "lessons": "liss_info.xml",
-    "calendar": "calendar.xml"
-  },
-  "calendar": {
-    "source": "api",
-    "use_api": true,
-    "fallback_to_xml": true,
-    "api_file": "calendar.json",
-    "xml_file": "calendar.xml",
-    "days_ahead": 30,
-    "auto_generate": true,
-    "generation_script": "generate_calendar.py"
-  },
-  "bell_times": {
-    "source": "api",
-    "use_api": true,
-    "fallback_to_xml": true,
-    "api_file": "bell_times.json",
-    "xml_file": "bell_times.xml",
-    "auto_generate": true,
-    "generation_script": "generate_bell_times.py"
-  },
-  "liss_info": {
-    "source": "api",
-    "use_api": true,
-    "fallback_to_xml": true,
-    "api_file": "liss_info.json",
-    "xml_file": "liss_info.xml",
-    "auto_generate": true,
-    "generation_script": "generate_liss_info.py"
+  "dataSources": {
+    "calendar": {
+      "json_file": "calendar.json",
+      "xml_file": "calendar.xml",
+      "generation_script": "generate_calendar.py",
+      "days_ahead": 30
+    },
+    "bell_times": {
+      "json_file": "bell_times.json",
+      "xml_file": "bell_times.xml",
+      "generation_script": "generate_bell_times.py"
+    },
+    "liss_info": {
+      "json_file": "liss_info.json",
+      "xml_file": "liss_info.xml",
+      "generation_script": "generate_liss_info.py"
+    }
   }
 }

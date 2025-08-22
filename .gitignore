@@ -185,6 +185,13 @@ server.log
 
 # Development folder (contains test scripts and development tools)
 /dev/
+/dev_backup/
+
+# Development and testing files
+test_*.py
+debug_*.html
+demo_*.html
+test_*.html
 
 # Keep production-ready files for GitHub Pages:
 # - index.html (main application)

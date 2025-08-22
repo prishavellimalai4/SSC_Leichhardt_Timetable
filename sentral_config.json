@@ -9,26 +9,5 @@
     "use_api": true,
     "days_ahead": 7,
     "fallback_to_xml": true
-  },
-  "endpoints": {
-    "students": "enrolments/student",
-    "timetable": "timetables/timetable-calendar-date",
-    "timetable_calendar": "timetables/timetable-calendar-date",
-    "timetable_days": "timetables/timetable-day",
-    "timetable_periods": "timetables/timetable-period",
-    "timetable_period_in_day": "timetables/timetable-period-in-day",
-    "timetable_class_lesson": "timetables/timetable-class-lesson",
-    "timetable_staff_lessons": "timetables/staff/{id}/timetable-lessons",
-    "calendar_dates": "timetables/timetable-calendar-date",
-    "staff": "staff",
-    "activities": "activities/activity",
-    "activity_vehicles": "activities/activity-vehicle",
-    "academic_periods": "academic-period",
-    "academic_years": "academic-year",
-    "rooms": "room",
-    "subjects": "subject",
-    "enrolments": "enrolments/student",
-    "classes": "class",
-    "academic_calendar": "academic-calendar"
   }
 }

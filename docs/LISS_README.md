@@ -1,53 +1,57 @@
-# LISS Integration Suite
+# LISS Integration Guide
 
-This directory contains LISS (Learning Information Systems Standard) integration tools for fetching data from both Edval and Sentral systems.
+Advanced timetable integration for schools using LISS (Learning Information Systems Standard) with Sentral.
 
-## 🚀 New: Optimized Sentral API Integration
+## 🎯 What Is LISS?
 
-### LISS Timetable Generator (`generate_liss_info.py`)
+LISS provides detailed timetable data including:
 
-**Performance-optimized generator** that creates LISS timetable data from Sentral API:
+- Individual student timetables
+- Teacher assignments
+- Room allocations
+- Subject codes and periods
+- Year group organization
+
+## ⚡ Quick Setup
+
+### Generate LISS Data
+
+Run the optimized LISS generator:
 
 ```bash
-# Generate LISS timetable data (JSON format)
 python generate_liss_info.py
 ```
 
-**Performance Improvements:**
+This creates `liss_info.json` with complete timetable data for your school.
 
-- ⚡ **20x faster**: ~1.3 seconds vs 26+ seconds
-- 📉 **95% fewer API calls**: ~10 calls vs 700+ calls
-- 🔧 **Bulk operations**: Uses include parameters for related data
-- 📊 **Full logging**: Comprehensive generation and validation logs
+### Performance Features
 
-**Output:** `liss_info.json` - Modern JSON format with metadata and validation
+- **⚡ 20x faster**: ~1.3 seconds vs 26+ seconds
+- **📉 95% fewer API calls**: ~10 calls vs 700+ calls
+- **🔧 Bulk operations**: Uses Sentral API include parameters
+- **📊 Complete logging**: Generation and validation logs
 
-## 📁 Files
+## 🔧 Configuration
 
-### Sentral API Integration
+### Basic Setup (`sentral_config.json`)
 
-- **`generate_liss_info.py`** - Optimized LISS timetable generator (Sentral API)
-- **`sentral_config.json`** - Sentral API configuration
-
-### Edval LISS Integration
-
-- **`liss_bell_times.py`** - Bell times fetcher (Edval LISS API)
-- **`liss_config.json`** - Edval LISS connection parameters
-- **`bell_times.xml`** - Example XML output from LISS (for reference)
-
-## 🚀 Sentral LISS Timetable Generator Usage
-
-### Quick Start
-
-```bash
-# Generate LISS timetable data for 7 days (default)
-python generate_liss_info.py
-
-# Check generation logs
-cat liss_info_generation.log
+```json
+{
+  "base_url": "https://<your-school-sentral>/",
+  "api_key": "your-api-key-here",
+  "endpoints": {
+    "liss_info": "restapi/v1/liss/info"
+  }
+}
 ```
 
-### Configuration
+### Advanced Options
+
+Edit `generate_liss_info.py` for customization:
+
+- **Days ahead**: How many days to fetch (default: 7)
+- **Year groups**: Which years to include (default: all)
+- **Data filtering**: Exclude specific periods or subjects
 
 Requires `sentral_config.json` with:
 

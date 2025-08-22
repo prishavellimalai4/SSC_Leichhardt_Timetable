@@ -1,361 +1,250 @@
-<!--
-Tempe High School Timetable Kiosk
-Copyright (C) 2025 TempeHS
+# Timetable Kiosk - Implementation Guide
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+This guide provides step-by-step instructions for implementing the timetable kiosk at your school.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+## 🚀 Quick Implementation
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
--->
+### Option 1: Use As-Is (Immediate Setup)
 
-# Tempe High School Timetable Kiosk - Complete Documentation
+1. **Download**: Clone or download this repository
+2. **Open**: Navigate to `index.html` in any web browser
+3. **Done**: The kiosk displays with sample data and is ready to use
 
-## Overview
+### Option 2: GitHub Pages Deployment (Free Hosting)
 
-The Tempe High School Timetable Kiosk is a modern, web-based application that displays real-time timetable information for students and staff. It features dual data source support (JSON API + XML fallback), intelligent period detection, responsive design, and comprehensive configurability for adaptation to any school.
+1. **Fork**: Fork this repository to your GitHub account
+2. **Enable Pages**: Go to Settings → Pages → Deploy from branch `main`
+3. **Access**: Your kiosk is available at `https://yourusername.github.io/Tempe_HS_Timetable_Kiosk/`
 
-## 🎯 Key Features
+### Option 3: School Website Integration
 
-- **Dual Data Sources**: Primary JSON API integration with reliable XML fallback
-- **Real-time Display**: Automatic current period detection and timetable updates
-- **Fully Configurable**: Comprehensive `config.json` for school-specific customization
-- **Responsive Design**: Height-aware layouts for various display sizes and kiosks
-- **Smart Period Logic**: Handles special periods, sport scheduling, and year group exclusions
-- **Debug Support**: Comprehensive logging and testing tools
-- **API Integration**: Modern Sentral Student Management System integration
+1. **Upload**: Copy all files to your school's web server
+2. **Link**: Create links to `index.html` from your school website
+3. **Embed**: Use in iframes or as standalone kiosk displays
 
-## 📋 Quick Start Guide
+## 🔧 Connecting Your School Data
 
-### Production Deployment (Recommended)
+### Step 1: Get Your Sentral API Key
 
-**GitHub Pages Hosting:**
+1. Login to your Sentral portal: `https://<your-school-sentral>/`
+2. Navigate to: **Admin** → **Integrations** → **REST API** → **Configure**
+3. Generate or copy your API key
 
-1. **Fork this repository** to your GitHub account
-2. **Customize configuration**:
-   - Edit `config.json` for your school settings
-   - Setup `sentral_config.json` for API access (optional)
-3. **Add your data**:
-   - Generate fresh data via API scripts, or
-   - Upload your XML files (`bell_times.xml`, `calendar.xml`, `liss_info.xml`)
-4. **Enable GitHub Pages**:
-   - Repository Settings → Pages
-   - Source: Deploy from branch `main`
-   - Root folder: `/ (root)`
-5. **Access**: `https://yourusername.github.io/repository-name`
+### Step 2: Configure API Connection
 
-📖 **Detailed deployment guide**: [GITHUB_PAGES_DEPLOYMENT.md](GITHUB_PAGES_DEPLOYMENT.md)
+Edit `sentral_config.json`:
 
-### Local Development
-
-**Requirements**: Any modern web browser + local web server (due to CORS policies)
-
-**Quick setup**:
-
-```bash
-# Python (most common)
-python -m http.server 8000
-
-# Node.js alternative
-npx http-server -p 8000
-
-# PHP alternative
-php -S localhost:8000
+```json
+{
+  "base_url": "https://<your-school-sentral>/",
+  "api_key": "your-api-key-here",
+  "endpoints": {
+    "liss_info": "restapi/v1/liss/info"
+  }
+}
 ```
 
-Then open: `http://localhost:8000`
+### Step 3: Set Up Automated Updates (Optional)
 
-**VS Code users**: Install "Live Server" extension → Right-click `index.html` → "Open with Live Server"
+For automatic data updates using GitHub Actions:
 
-## 📁 Required Files & Data Sources
+1. **Add Repository Secrets** (Settings → Secrets and variables → Actions):
 
-### Modern API Integration (Recommended)
+   - `REST_API_KEY`: Your Sentral API key
+   - `LISS_PASSWORD`: Your LISS system password (if used)
 
-The application now supports dual data sources for maximum reliability:
+2. **Enable Workflows**:
 
-**Primary: JSON API Data**
+   - Go to Actions tab in your repository
+   - Enable workflows if prompted
 
-- `calendar.json` - Generated from Sentral API via `generate_calendar.py`
-- `bell_times.json` - Generated from Sentral API via `generate_bell_times.py`
-- `liss_info.json` - Generated from Sentral API via `generate_liss_info.py` (optimized)
-- Real-time data with automatic updates
-- Structured JSON format for better performance
+3. **Manual Updates**: Use "Run workflow" button to update data anytime
 
-**Fallback: Traditional XML Files**
+## 📊 Using Your School's Data
 
-- `calendar.xml` - Academic calendar and day type information
-- `bell_times.xml` - Period schedules and timing data
-- `liss_info.xml` - Lesson assignments and class data
-- Reliable backup when API is unavailable
+### Automatic API Updates (Recommended)
 
-**Core Application Files**
+- Run the Python generation scripts to fetch live data
+- Data refreshes automatically via GitHub Actions
+- Falls back to XML files if API is unavailable
 
-- `index.html` - Main timetable application
-- `config.json` - School-specific configuration
-- `sentral_config.json` - API endpoints and credentials (optional)
+### Manual XML Files (Alternative)
 
-### Data Generation Tools
+If you prefer not to use the API:
 
-```bash
-# Generate fresh calendar data from Sentral API
-python generate_calendar.py
+1. **Download XML files** from your Sentral portal:
 
-# Generate bell times from Sentral API
-python generate_bell_times.py
+   - Bell times: `https://<your-school-sentral>/ABCDE/timetables/bell_times`
+   - Calendar: `https://<your-school-sentral>/ABCDE/timetables/calendar`
+   - Timetable: `https://<your-school-sentral>/ABCDE/timetables/liss_info`
 
-# Generate LISS timetable data from Sentral API (optimized)
-python generate_liss_info.py
+2. **Replace the included XML files** with your school's versions
 
-# Verify data compatibility
-python verify_calendar_compatibility.py
-python verify_bell_times.py
-```
+3. **The kiosk automatically detects and uses your data**
 
-## ⚙️ Configuration
+## ⚙️ Customization Options
 
-### Main Configuration File: `config.json`
-
-The application is fully configurable through a comprehensive JSON configuration file. Key areas:
-
-**School Branding**
+### Display Settings (`config.json`)
 
 ```json
 {
   "school": {
     "name": "Your School Name",
-    "logo": {
-      "url": "https://your-school.edu/logo.png",
-      "opacity": 0.15,
-      "size": "auto 100vh"
+    "term": "Current Term"
+  },
+  "display": {
+    "showCurrentPeriod": true,
+    "showUpcomingPeriod": true,
+    "defaultView": "day"
+  },
+  "api": {
+    "sync_days": 7
+  }
+}
+```
+
+### Styling and Branding
+
+- Edit CSS in `index.html` for colors and fonts
+- Replace logo images with your school branding
+- Modify layout sections for specific display requirements
+
+## 🛠️ Technical Implementation
+
+### Data Sources Priority
+
+The kiosk uses an intelligent data loading system:
+
+1. **JSON Files** (Primary): Generated from Sentral API for real-time data
+2. **XML Files** (Fallback): Used when JSON is stale (>7 days) or unavailable
+3. **Sample Data** (Backup): Ensures kiosk always displays something
+
+### File Structure
+
+```
+📦 Implementation Files
+├── 🌐 index.html              # Main application (open this!)
+├── ⚙️ config.json            # School configuration
+├── 📊 *.json                 # Live data (API generated)
+├── 📊 *.xml                  # Fallback data (manual/download)
+├── 🔌 sentral_config.json    # API settings (optional)
+└── 📖 docs/                  # Implementation guides
+```
+
+### Python Scripts (Optional)
+
+Only needed if using API automation:
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Generate current data
+python generate_liss_info.py
+python generate_bell_times.py
+python generate_calendar.py
+```
+
+## 🎨 Customization Examples
+
+### Change School Branding
+
+Edit the `school` section in `config.json`:
+
+```json
+{
+  "school": {
+    "name": "Lincoln High School",
+    "term": "Term 1 2025",
+    "colors": {
+      "primary": "#003366",
+      "secondary": "#FFD700"
     }
   }
 }
 ```
 
-**Visual Styling**
+### Adjust Display Behavior
 
-- Primary colors and branding
-- Tile appearance and hover effects
-- Text colors and typography
-- Background and overlay settings
-
-**Schedule Logic**
-
-- Ignored days (weekends, holidays)
-- School days and period timing rules
-- Special period configurations (P0 early showing)
-- Sport period handling with year group combinations
-
-**Responsive Design**
-
-- Breakpoints for different screen sizes
-- Height-aware compact layout for narrow displays
-- Multi-row vs single-row year group layouts
-
-📖 **Complete configuration guide**: [CONFIGURATION.md](CONFIGURATION.md)
-
-### API Configuration: `sentral_config.json`
-
-Optional file for Sentral Student Management System integration:
+Configure what information is shown:
 
 ```json
 {
-  "sentral_api": {
-    "base_url": "https://your-school.sentral.com.au/",
-    "tenant": "your_tenant_id",
-    "api_key": "${REST_API_KEY}"
-  },
-  "endpoints": {
-    "calendar_dates": "timetables/timetable-calendar-date",
-    "timetable_periods": "timetables/timetable-period",
-    "timetable_period_in_day": "timetables/timetable-period-in-day"
+  "display": {
+    "showCurrentPeriod": true,
+    "showUpcomingPeriod": true,
+    "showTomorrowSchedule": false,
+    "defaultView": "day",
+    "compactMode": false
   }
 }
 ```
 
-## 🔄 How It Works
+### Modify Refresh Settings
 
-### Application Flow
-
-1. **Initialization**: Load configuration and apply school-specific settings
-2. **Data Loading**: Attempt JSON API first, fallback to XML if needed
-3. **Period Detection**: Determine current or next relevant period
-4. **Schedule Analysis**: Find lessons for the current period and day
-5. **Smart Display**: Show classes organized by year groups
-6. **Auto-refresh**: Update every minute to stay current
-
-### Intelligent Period Logic
-
-- **Time-based**: Shows periods based on bell schedule and current time
-- **Look-ahead**: Displays upcoming periods when current has no classes
-- **Special handling**: P0 can show from Friday afternoon for Monday morning
-- **Sport periods**: Combines year groups and handles exclusions
-- **Fallback**: Always finds something relevant to display
-
-### Data Source Selection
-
-The application intelligently chooses data sources:
-
-```
-1. Try JSON API data (if enabled in config)
-   ↓ (if fails)
-2. Fallback to XML files (if enabled in config)
-   ↓ (if fails)
-3. Show error message with helpful troubleshooting
-```
-
-Console debug output shows exactly which source is being used.
-
-## 🎨 Customization for Other Schools
-
-### Quick Adaptation Guide
-
-1. **Basic Setup**:
-
-   - Edit school name, logo, and colors in `config.json`
-   - Adjust year groups and display preferences
-   - Configure period timing rules
-
-2. **Data Integration**:
-
-   - **Option A**: Setup Sentral API integration for real-time data
-   - **Option B**: Provide XML files with your school's data
-   - **Option C**: Use both for maximum reliability
-
-3. **Advanced Customization**:
-
-   - Configure sport period handling
-   - Setup responsive breakpoints for your displays
-   - Customize period logic and timing rules
-
-4. **Testing & Deployment**:
-   - Test locally with debug mode enabled
-   - Deploy to GitHub Pages for production
-   - Monitor console logs for any issues
-
-### Example Configurations
-
-- `config.json` - Default Tempe High School setup
-- `config-example-riverside.json` - Alternative school example
-- Various templates available in documentation
-
-## 🐛 Debugging & Troubleshooting
-
-### Debug Mode
-
-Enable comprehensive logging by setting `"debug": true` in `config.json`:
+Control how often data is checked:
 
 ```json
 {
-  "ui": {
-    "debug": true
+  "api": {
+    "sync_days": 7,
+    "refresh_minutes": 30
   }
 }
 ```
 
-Console output will show:
+## 🔍 Troubleshooting
 
-- Data source selection decisions
-- API loading attempts and results
-- Period detection logic
-- Configuration loading status
+### Kiosk Shows No Data
 
-### Common Issues
+1. **Check file presence**: Ensure `*.json` or `*.xml` files exist
+2. **Verify format**: Open data files to check they're not empty/corrupted
+3. **Browser console**: Press F12 and check for JavaScript errors
 
-**CORS Errors**
+### API Not Working
 
-- **Cause**: Opening HTML file directly in browser
-- **Solution**: Use web server (GitHub Pages, local server, VS Code Live Server)
+1. **Test API key**: Visit `https://<your-school-sentral>/restapi/v1/ping` with your key
+2. **Check config**: Verify `sentral_config.json` has correct base_url and api_key
+3. **Run manual test**: Execute `python generate_liss_info.py` to test connection
 
-**No Classes Displaying**
+### Display Issues
 
-- Check calendar data for correct dates
-- Verify period definitions in bell times
-- Ensure lesson data matches current day/period
-- Use debug mode to trace data loading
+1. **Clear browser cache**: Hard refresh with Ctrl+F5
+2. **Check CSS**: Ensure styling isn't being overridden
+3. **Test different browsers**: Try Chrome, Firefox, Safari, Edge
 
-**Configuration Not Loading**
+## 📞 Support Resources
 
-- Verify `config.json` syntax (use JSON validator)
-- Check file permissions and accessibility
-- Review browser console for error messages
+### Implementation Help
 
-**API Integration Issues**
+- **[Configuration Guide](CONFIGURATION.md)**: Detailed configuration options
+- **[GitHub Actions Setup](GITHUB_ACTIONS_SETUP.md)**: Automated data updates
+- **[LISS Integration](LISS_README.md)**: Advanced timetable features
 
-- Verify `sentral_config.json` credentials
-- Check network connectivity to Sentral instance
-- Review API endpoint configurations
-- Test individual endpoints with provided scripts
+### API Documentation
 
-📖 **Detailed troubleshooting**: [DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md)
+- **[Sentral API Guide](sentral_api_guide.pdf)**: Official API documentation
+- **[OpenAPI Spec](openapi.json)**: Technical API reference
 
-## 📚 Documentation Index
+### Quick References
 
-| Document                                                        | Purpose                               | Audience       |
-| --------------------------------------------------------------- | ------------------------------------- | -------------- |
-| **[📖 README.md](README.md)**                                   | Complete overview and setup guide     | Everyone       |
-| **[⚙️ CONFIGURATION.md](CONFIGURATION.md)**                     | Detailed configuration reference      | Administrators |
-| **[🚀 GITHUB_PAGES_DEPLOYMENT.md](GITHUB_PAGES_DEPLOYMENT.md)** | Production deployment guide           | IT Staff       |
-| **[📊 CALENDAR_API_GUIDE.md](CALENDAR_API_GUIDE.md)**           | Calendar & Bell Times API integration | Developers     |
-| **[🐛 DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md)**                 | Troubleshooting and debug tools       | Support Staff  |
-| **[� GITHUB_ACTIONS_SETUP.md](GITHUB_ACTIONS_SETUP.md)**        | CI/CD automation setup                | DevOps         |
-| **[📚 LISS_README.md](LISS_README.md)**                         | LISS integration specifics            | LISS Users     |
+- **[Stale Data Fallback](STALE_DATA_FALLBACK.md)**: How automatic fallback works
+- **[Debugging Guide](DEBUGGING_GUIDE.md)**: Troubleshooting techniques
 
-## 🏗️ Development & Contributing
+## 🎯 Production Checklist
 
-### Project Structure
+Before deploying to your school:
 
-```
-/
-├── index.html                 # Main application
-├── config.json              # School configuration
-├── sentral_config.json      # API configuration
-├── generate_calendar.py     # Calendar data generator
-├── generate_bell_times.py   # Bell times data generator
-├── generate_liss_info.py    # LISS timetable generator (optimized)
-├── verify_*.py              # Data verification tools
-├── test_*.py               # Testing utilities
-└── docs/                   # Documentation
-    ├── README.md           # This file
-    ├── CONFIGURATION.md    # Configuration guide
-    └── *.md               # Other documentation
-```
+- [ ] **Test locally**: Open `index.html` and verify display
+- [ ] **Add your data**: Either via API scripts or manual XML files
+- [ ] **Customize branding**: Update school name, colors, logo
+- [ ] **Configure display**: Set appropriate periods and views
+- [ ] **Test on target devices**: Verify on actual kiosk hardware/browsers
+- [ ] **Set up monitoring**: Consider automated health checks
+- [ ] **Document for staff**: Create simple user guide for your school
 
-### Testing Tools
+## 📄 License & Credits
 
-- **Integration tests**: Verify overall functionality
-- **Compatibility tests**: Check JSON/XML equivalence
-- **Fallback tests**: Ensure reliable data source switching
-- **Debug utilities**: Comprehensive logging and diagnostics
+This timetable kiosk is open source software released under the MIT License. It was originally developed for Tempe High School but is designed to work with any school using Sentral Student Management System.
 
-### API Integration
-
-- **Sentral REST API**: Modern JSON endpoints
-- **Automatic generation**: Fresh data from live systems
-- **Verification tools**: Ensure data accuracy and completeness
-- **Fallback support**: Graceful degradation to XML sources
-
-## 📄 License
-
-GNU General Public License v3.0
-
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
-See [LICENSE](../LICENSE) file for complete terms.
-
-## 🏫 Support & Community
-
-Originally developed for Tempe High School, this application is now available for any school to use and adapt. The modular design and comprehensive configuration system make it suitable for various educational environments.
-
-**For questions, issues, or contributions**: Please use the GitHub repository's issue tracking and discussion features.
-
----
-
-**🎓 Empowering schools with modern, reliable timetable display technology.**
+Free to use, modify, and distribute for educational purposes.

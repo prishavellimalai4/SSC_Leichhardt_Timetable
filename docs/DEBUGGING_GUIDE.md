@@ -1,53 +1,116 @@
-# Debugging Guide
+# Troubleshooting Guide
 
-## Overview
+Quick solutions for common issues with the timetable kiosk.
 
-The Tempe HS Timetable Kiosk includes a comprehensive debugging system for both calendar and bell times data sources. This guide covers how to enable, use, and interpret debug output for troubleshooting and development.
+## 🔍 Quick Diagnostics
 
-## ✅ Debug Configuration System
+### Kiosk Not Loading
 
-### Configuration in config.json
+**Check the basics**:
+
+1. Open browser console (F12)
+2. Look for red error messages
+3. Refresh the page (Ctrl+F5 for hard refresh)
+
+**Common causes**:
+
+- Missing data files (`*.json` or `*.xml`)
+- JavaScript errors (check console)
+- Network connectivity issues
+
+### No Data Showing
+
+**Verify data files exist**:
+
+```bash
+# Check for data files
+ls -la *.json *.xml
+```
+
+**Files needed**:
+
+- `bell_times.json` or `bell_times.xml`
+- `calendar.json` or `calendar.xml`
+- `liss_info.json` or `liss_info.xml`
+
+### Wrong School Data
+
+**Update configuration**:
+
+1. Edit `config.json` for school name/settings
+2. Edit `sentral_config.json` for API connection
+3. Run data generation scripts to fetch fresh data
+
+## 🔧 Enable Debug Mode
+
+### Turn On Detailed Logging
+
+Edit `config.json`:
 
 ```json
 {
   "ui": {
-    "refreshInterval": 60000,
-    "cacheBusting": false,
-    "debug": false,
-    "responsive": {
-      // ... other settings
-    }
+    "debug": true
   }
 }
 ```
 
-- **Default**: `"debug": false` (production-ready, clean console)
-- **Development**: Set `"debug": true` to enable detailed logging
+### View Debug Information
 
-### Smart Debug Functions
+1. **Open browser console** (F12)
+2. **Refresh the page**
+3. **Look for detailed logs** about data loading and processing
 
-```javascript
-// Conditional debug logging - only outputs when CONFIG.ui.debug is true
-function debugLog(message, ...args) {
-  if (CONFIG && CONFIG.ui && CONFIG.ui.debug) {
-    console.log(message, ...args);
-  }
-}
+Debug output shows:
 
-function debugWarn(message, ...args) {
-  if (CONFIG && CONFIG.ui && CONFIG.ui.debug) {
-    console.warn(message, ...args);
-  }
-}
+- Which data files are being loaded
+- API connection status
+- Data processing steps
+- Error details
 
-function debugError(message, ...args) {
-  if (CONFIG && CONFIG.ui && CONFIG.ui.debug) {
-    console.error(message, ...args);
-  }
+## 📊 Data Issues
+
+### API Not Working
+
+**Test your API key**:
+
+1. Visit: `https://<your-school-sentral>/restapi/v1/ping`
+2. Include your API key in request headers
+3. Should return successful response
+
+**Check configuration**:
+
+```json
+{
+  "base_url": "https://<your-school-sentral>/",
+  "api_key": "your-actual-api-key"
 }
 ```
 
-## 🔧 Data Source Debugging
+### Stale Data Warning
+
+**What it means**: Data is older than configured threshold (default: 7 days)
+
+**Solutions**:
+
+- Run `python generate_*.py` scripts to refresh data
+- Use GitHub Actions to automate updates
+- Download fresh XML files from Sentral portal
+
+### Generation Script Errors
+
+**Common Python issues**:
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Check Python version (needs 3.6+)
+python --version
+
+# Test API connection
+python generate_liss_info.py
+```
 
 The debug system provides detailed logging for both calendar and bell times data sources.
 

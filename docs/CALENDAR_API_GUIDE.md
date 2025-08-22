@@ -189,7 +189,7 @@ python verify_bell_times.py
 ```json
 {
   "sentral_api": {
-    "base_url": "https://your-school.sentral.com.au/",
+    "base_url": "https://<your-school-sentral>/",
     "tenant": "your_tenant_id",
     "api_key": "${REST_API_KEY}",
     "api_path": "/api/v1"
@@ -641,7 +641,7 @@ Ensure your `sentral_config.json` includes the calendar endpoint:
 ```json
 {
   "sentral_api": {
-    "base_url": "https://your-school.sentral.com.au/s-XXXXX",
+    "base_url": "https://<your-school-sentral>/s-XXXXX",
     "tenant": "XXXXX",
     "api_key": "${REST_API_KEY}"
   },

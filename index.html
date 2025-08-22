@@ -337,7 +337,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
         const USE_MANUAL_OVERRIDE = false;
         
         // Manual date/time settings (only used when USE_MANUAL_OVERRIDE is true)
-        const MANUAL_DATE = new Date(2025, 7, 12); // August 12, 2025 (month is 0-indexed)
+        const MANUAL_DATE = new Date(2025, 8, 25); // August 12, 2025 (month is 0-indexed)
         const MANUAL_TIME_HOURS = 8; // 1 PM
         const MANUAL_TIME_MINUTES = 20; // 25 minutes
         
@@ -439,6 +439,37 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
             return null;
         }
 
+        // Helper function to check if JSON data is stale (older than 7 days)
+        function isDataStale(metadata, maxAgeDays = 7) {
+            if (!metadata) return true;
+            
+            // Try different metadata timestamp formats
+            const timestamp = metadata.generated_at || metadata.generated || metadata.timestamp;
+            if (!timestamp) {
+                debugWarn('⚠️  STALE CHECK: No timestamp found in metadata');
+                return true;
+            }
+            
+            try {
+                const generatedDate = new Date(timestamp);
+                const now = new Date();
+                const ageInDays = (now - generatedDate) / (1000 * 60 * 60 * 24);
+                
+                debugLog(`🕐 STALE CHECK: Data generated at ${timestamp}, age: ${ageInDays.toFixed(1)} days`);
+                
+                if (ageInDays > maxAgeDays) {
+                    debugWarn(`⚠️  STALE CHECK: Data is ${ageInDays.toFixed(1)} days old (exceeds ${maxAgeDays} day limit)`);
+                    return true;
+                }
+                
+                debugLog(`✅ STALE CHECK: Data is fresh (${ageInDays.toFixed(1)} days old)`);
+                return false;
+            } catch (error) {
+                debugError('❌ STALE CHECK: Error parsing timestamp:', error.message);
+                return true;
+            }
+        }
+
         // Load bell times data from JSON or XML based on configuration
         async function loadBellTimesData() {
             debugLog('🔧 BELL TIMES DEBUG: Starting bell times data loading...');
@@ -448,18 +479,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                 return null;
             }
             
-            const bellTimesConfig = CONFIG.bell_times || {};
-            const useAPI = bellTimesConfig.use_api !== false; // Default to true
-            const fallbackToXML = bellTimesConfig.fallback_to_xml !== false; // Default to true
-            const apiFile = bellTimesConfig.api_file || 'bell_times.json';
-            const xmlFile = bellTimesConfig.xml_file || CONFIG.files.bellTimes || 'bell_times.xml';
+            // Use centralized API configuration and data source specific settings
+            const apiConfig = CONFIG.api || {};
+            const bellTimesConfig = CONFIG.dataSources?.bell_times || {};
+            const useAPI = apiConfig.use_json !== false; // Default to true
+            const fallbackToXML = apiConfig.fallback_to_xml !== false; // Default to true
+            const apiFile = bellTimesConfig.json_file || 'bell_times.json';
+            const xmlFile = bellTimesConfig.xml_file || 'bell_times.xml';
+            const staleDataThreshold = apiConfig.sync_days || 7; // Use centralized sync_days
             
             // Debug configuration
             debugLog('🔧 BELL TIMES DEBUG: Configuration:', {
-                'use_api': useAPI,
+                'use_json': useAPI,
                 'fallback_to_xml': fallbackToXML,
-                'api_file': apiFile,
+                'json_file': apiFile,
                 'xml_file': xmlFile,
+                'sync_days': staleDataThreshold,
                 'cache_busting': CONFIG.ui.cacheBusting
             });
             
@@ -482,6 +517,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                         const jsonData = await response.json();
                         debugLog('✅ BELL TIMES DEBUG: Successfully loaded bell times from JSON API source');
                         debugLog(`📈 BELL TIMES DEBUG: JSON contains ${jsonData.bell_times?.length || 0} bell time entries`);
+                        
+                        // Check if JSON data is stale using centralized sync_days
+                        if (isDataStale(jsonData.metadata, staleDataThreshold)) {
+                            debugWarn(`⚠️  BELL TIMES DEBUG: JSON data is stale (older than ${staleDataThreshold} days), falling back to XML`);
+                            throw new Error('JSON data is stale');
+                        }
+                        
                         const result = parseBellTimesJSON(jsonData);
                         debugLog('🎯 BELL TIMES DEBUG: Final decision - USING JSON BELL TIMES');
                         return result;
@@ -631,18 +673,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                 return null;
             }
             
-            const calendarConfig = CONFIG.calendar || {};
-            const useAPI = calendarConfig.use_api !== false; // Default to true
-            const fallbackToXML = calendarConfig.fallback_to_xml !== false; // Default to true
-            const apiFile = calendarConfig.api_file || 'calendar.json';
-            const xmlFile = calendarConfig.xml_file || CONFIG.files.calendar || 'calendar.xml';
+            // Use centralized API configuration and data source specific settings
+            const apiConfig = CONFIG.api || {};
+            const calendarConfig = CONFIG.dataSources?.calendar || {};
+            const useAPI = apiConfig.use_json !== false; // Default to true
+            const fallbackToXML = apiConfig.fallback_to_xml !== false; // Default to true
+            const apiFile = calendarConfig.json_file || 'calendar.json';
+            const xmlFile = calendarConfig.xml_file || 'calendar.xml';
+            const staleDataThreshold = apiConfig.sync_days || 7; // Use centralized sync_days
             
             // Debug configuration
             debugLog('🔧 CALENDAR DEBUG: Configuration:', {
-                'use_api': useAPI,
+                'use_json': useAPI,
                 'fallback_to_xml': fallbackToXML,
-                'api_file': apiFile,
+                'json_file': apiFile,
                 'xml_file': xmlFile,
+                'sync_days': staleDataThreshold,
                 'cache_busting': CONFIG.ui.cacheBusting
             });
             
@@ -665,6 +711,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                         const jsonData = await response.json();
                         debugLog('✅ CALENDAR DEBUG: Successfully loaded calendar from JSON API source');
                         debugLog(`📈 CALENDAR DEBUG: JSON contains ${jsonData.calendar?.length || 0} calendar entries`);
+                        
+                        // Check if JSON data is stale using centralized sync_days
+                        if (isDataStale(jsonData.metadata, staleDataThreshold)) {
+                            debugWarn(`⚠️  CALENDAR DEBUG: JSON data is stale (older than ${staleDataThreshold} days), falling back to XML`);
+                            throw new Error('JSON data is stale');
+                        }
+                        
                         const result = parseCalendarJSON(jsonData);
                         debugLog('🎯 CALENDAR DEBUG: Final decision - USING JSON CALENDAR');
                         return result;
@@ -794,18 +847,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                 return null;
             }
             
-            const lissConfig = CONFIG.liss_info || {};
-            const useAPI = lissConfig.use_api !== false; // Default to true
-            const fallbackToXML = lissConfig.fallback_to_xml !== false; // Default to true
-            const apiFile = lissConfig.api_file || 'liss_info.json';
-            const xmlFile = lissConfig.xml_file || CONFIG.files.lessons || 'liss_info.xml';
+            // Use centralized API configuration and data source specific settings
+            const apiConfig = CONFIG.api || {};
+            const lissConfig = CONFIG.dataSources?.liss_info || {};
+            const useAPI = apiConfig.use_json !== false; // Default to true
+            const fallbackToXML = apiConfig.fallback_to_xml !== false; // Default to true
+            const apiFile = lissConfig.json_file || 'liss_info.json';
+            const xmlFile = lissConfig.xml_file || 'liss_info.xml';
+            const staleDataThreshold = apiConfig.sync_days || 7; // Use centralized sync_days
             
             // Debug configuration
             debugLog('🔧 LISS DEBUG: Configuration:', {
-                'use_api': useAPI,
+                'use_json': useAPI,
                 'fallback_to_xml': fallbackToXML,
-                'api_file': apiFile,
+                'json_file': apiFile,
                 'xml_file': xmlFile,
+                'sync_days': staleDataThreshold,
                 'cache_busting': CONFIG.ui.cacheBusting
             });
             
@@ -829,6 +886,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                         debugLog('✅ LISS DEBUG: Successfully loaded LISS data from JSON API source');
                         debugLog(`📈 LISS DEBUG: JSON contains ${jsonData.timetable_data?.length || 0} LISS entries`);
                         debugLog('📋 LISS DEBUG: JSON metadata:', jsonData.metadata);
+                        
+                        // Check if JSON data is stale using centralized sync_days
+                        if (isDataStale(jsonData.metadata, staleDataThreshold)) {
+                            debugWarn(`⚠️  LISS DEBUG: JSON data is stale (older than ${staleDataThreshold} days), falling back to XML`);
+                            throw new Error('JSON data is stale');
+                        }
                         
                         const result = await parseLissJSON(jsonData);
                         debugLog('🎯 LISS DEBUG: Final decision - USING JSON LISS DATA');
@@ -1297,8 +1360,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     await loadConfig();
                 }
                 
-                // Get file paths from config
-                const lessonsFile = CONFIG.files.lessons;
+                // Load data files
                 
                 // Load data files
                 Promise.all([

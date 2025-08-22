@@ -1,52 +1,40 @@
-<!--
-Tempe High School Timetable Kiosk
-Copyright (C) 2025 TempeHS
+# Timetable Kiosk Configuration Guide
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+Complete reference for configuring the timetable kiosk for your school.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+## 🎯 Quick Configuration
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
--->
+### Essential Settings
 
-# School Timetable Kiosk Configuration Guide
+The minimum configuration requires updating just a few settings in `config.json`:
 
-This guide explains how to configure the Tempe High School Timetable Kiosk for use by other schools.
+```json
+{
+  "school": {
+    "name": "Your School Name",
+    "term": "Term 1 2025"
+  },
+  "api": {
+    "sync_days": 7
+  }
+}
+```
 
-## Setup Instructions
+### For GitHub Pages Deployment
 
-### For GitHub Pages Deployment (Recommended):
+1. **Fork this repository** to your GitHub account
+2. **Edit `config.json`** with your school's settings (see below)
+3. **Enable GitHub Pages**: Settings → Pages → Deploy from branch `main`
+4. **Access your kiosk**: `https://yourusername.github.io/repository-name`
 
-1. **Fork or create a repository** with the timetable files
-2. **Customize `config.json`** with your school's settings (see options below)
-3. **Add your XML data files** (`bell_times.xml`, `liss_info.xml`, `calendar.xml`)
-4. **Enable GitHub Pages**:
-   - Go to repository Settings → Pages
-   - Source: "Deploy from a branch"
-   - Branch: "main", Folder: "/ (root)"
-   - Save and wait for deployment
-5. **Access your timetable** at: `https://yourusername.github.io/repository-name`
+### For School Website Deployment
 
-### For Local Development:
+1. **Download all files** from this repository
+2. **Customize `config.json`** with your school settings
+3. **Upload to web server** (any directory accessible via web browser)
+4. **Link to `index.html`** from your school website
 
-1. **Copy the base files**: `index.html`, `config.json`, and your XML data files
-2. **Customize config.json**: Update all settings for your school  
-3. **Update XML files**: Ensure your bell times, lessons, and calendar data are in the correct format
-4. **Test locally**: Use a local web server to test the configuration
-5. **Deploy**: Upload all files to your web server or use GitHub Pages
-
-## Configuration File Structure
-
-The app uses a `config.json` file to store all school-specific settings. This file must be placed in the same directory as `index.html`.
-
-## Configuration Options
+## 📝 Configuration Reference
 
 ### School Information
 
@@ -144,7 +132,7 @@ The app uses a `config.json` file to store all school-specific settings. This fi
           "excludeYears": [8]
         },
         "9": {
-          "label": "Year 9 & 10 Sport", 
+          "label": "Year 9 & 10 Sport",
           "includesYears": [9, 10],
           "excludeYears": [10]
         }
@@ -208,17 +196,20 @@ Configure special periods like sport where year groups are combined:
 The timetable automatically adapts to different screen heights using the `compactHeight` breakpoint:
 
 **Tall Screens (above compactHeight):**
+
 - Traditional layout with year labels positioned above the class tiles
 - More spacious margins and padding
 - Suitable for desktop displays and large screens
 
 **Short Screens (at or below compactHeight):**
+
 - Compact layout with year labels positioned to the left of class tiles
 - Reduced margins and tighter spacing
 - Optimized for tablets, laptops, and shorter displays
 - Year labels become right-aligned next to the tiles
 
 **Configuration Example:**
+
 ```json
 {
   "ui": {
@@ -232,6 +223,7 @@ The timetable automatically adapts to different screen heights using the `compac
 ```
 
 With `compactHeight: 800`:
+
 - Screens with height > 800px: Traditional layout (labels above)
 - Screens with height ≤ 800px: Compact layout (labels left)
 
@@ -250,7 +242,7 @@ This ensures optimal viewing experience across different display types commonly 
 ```
 
 - **bellTimes**: Filename for bell times XML
-- **lessons**: Filename for lessons XML  
+- **lessons**: Filename for lessons XML
 - **calendar**: Filename for calendar XML
 
 ## Example Configurations
@@ -341,6 +333,7 @@ This ensures optimal viewing experience across different display types commonly 
 The app includes a manual override feature for testing different times and dates. Set `USE_MANUAL_OVERRIDE = true` in the JavaScript section and configure the test date/time.
 
 **For GitHub Pages testing:**
+
 - Make changes to your repository
 - Commit and push changes
 - GitHub Pages will automatically update (may take a few minutes)
@@ -368,17 +361,20 @@ school-timetable/
 ## GitHub Pages Considerations
 
 **File Access:**
+
 - All files must be in the repository
 - File names are case-sensitive
 - No special server configuration needed
 - Automatic HTTPS and global CDN
 
 **Updates:**
+
 - Changes take effect after Git commit/push
 - Usually updates within 1-5 minutes
 - Check GitHub Pages deployment status in repository Actions tab
 
 **Security:**
+
 - All files are publicly accessible
 - Don't include sensitive information in configuration files
 - Consider using environment variables for sensitive data if needed
@@ -388,8 +384,9 @@ school-timetable/
 The configuration system is designed to be flexible and support various school structures. If you need additional configuration options, you can extend the `config.json` file and modify the JavaScript code accordingly.
 
 **Common Customizations:**
+
 - Additional sport periods for different days
-- More complex year group arrangements  
+- More complex year group arrangements
 - Custom period naming schemes
 - Different timing rules for various periods
 - School-specific color schemes and branding
