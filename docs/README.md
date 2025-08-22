@@ -62,6 +62,7 @@ To connect your Sentral API for automated live data updates:
 ```
 
 3. **Add Repository Secret** (Settings → Secrets and variables → Actions):
+
    - Name: `REST_API_KEY`
    - Value: Your actual Sentral API key
 
@@ -74,10 +75,12 @@ To connect your Sentral API for automated live data updates:
 For weekly automatic data updates using GitHub Actions:
 
 1. **Add Repository Secrets** (Settings → Secrets and variables → Actions):
-   - `REST_API_KEY`: Your Sentral API key  
+
+   - `REST_API_KEY`: Your Sentral API key
    - `LISS_PASSWORD`: Your LISS system password (if used)
 
 2. **Enable Workflows**:
+
    - Go to Actions tab in your repository
    - Enable workflows if prompted
    - Data will automatically update every Monday at 5:00 AM

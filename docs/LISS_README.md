@@ -7,7 +7,7 @@ Advanced timetable integration using Sentral REST API with LISS-compatible outpu
 This implementation uses the **Sentral REST API** (documented at https://development.sentral.com.au/) to generate LISS-compatible JSON data including:
 
 - Individual student timetables
-- Teacher assignments  
+- Teacher assignments
 - Room allocations
 - Subject codes and periods
 - Year group organization
@@ -36,7 +36,7 @@ This creates `liss_info.json` with complete timetable data using Sentral REST AP
 ### Performance Features
 
 - **⚡ 20x faster**: ~1.3 seconds vs 26+ seconds
-- **📉 95% fewer API calls**: ~10 calls vs 700+ calls  
+- **📉 95% fewer API calls**: ~10 calls vs 700+ calls
 - **🔧 Bulk operations**: Uses Sentral REST API include parameters
 - **📊 Complete logging**: Generation and validation logs
 - **🎯 LISS format**: Compatible with LISS standard for future migration
@@ -67,7 +67,7 @@ Add your Sentral configuration to the `api.sentral` section in `config.json`:
 Edit `generate_liss_info.py` for customization:
 
 - **Days ahead**: How many days to fetch (default: 7)
-- **Year groups**: Which years to include (default: all)  
+- **Year groups**: Which years to include (default: all)
 - **Data filtering**: Exclude specific periods or subjects
 
 ### Output Format
@@ -77,7 +77,7 @@ Creates `liss_info.json` with LISS-compatible structure using Sentral REST API d
 ```json
 {
   "metadata": {
-    "school": "TEMPE", 
+    "school": "TEMPE",
     "generated_at": "2025-08-22T04:43:26.856133",
     "source": "sentral_rest_api",
     "format": "liss_compatible",
@@ -89,7 +89,7 @@ Creates `liss_info.json` with LISS-compatible structure using Sentral REST API d
   "timetable_data": [
     {
       "DayNumber": 1,
-      "Period": "P1", 
+      "Period": "P1",
       "ClassCode": "9MU1",
       "EdvalClassCode": "9MU1",
       "TeacherCode": "LADO",
@@ -112,7 +112,7 @@ Creates `liss_info.json` with LISS-compatible structure using Sentral REST API d
 
 ### Basic Usage
 
-```bash
+````bash
 # Fetch bell times using default config
 python3 liss_bell_times.py
 
@@ -137,7 +137,7 @@ python3 generate_liss_info.py
 
 # Check output
 ls -la liss_info.json .logs/liss_info_generation.log
-```
+````
 
 ## 🔍 Output Format
 
@@ -147,7 +147,7 @@ The generated `liss_info.json` follows LISS standard format:
 {
   "metadata": {
     "school": "TEMPE",
-    "generated_at": "2025-08-22T04:43:26.856133", 
+    "generated_at": "2025-08-22T04:43:26.856133",
     "source": "sentral_rest_api",
     "format": "liss_compatible",
     "total_lessons": 350,
@@ -157,7 +157,7 @@ The generated `liss_info.json` follows LISS standard format:
     {
       "DayNumber": 1,
       "Period": "P1",
-      "ClassCode": "9MU1", 
+      "ClassCode": "9MU1",
       "EdvalClassCode": "9MU1",
       "TeacherCode": "LADO",
       "TeacherId": "12345",
@@ -186,7 +186,7 @@ The generated `liss_info.json` follows LISS standard format:
 The generated `liss_info.json` automatically integrates with the timetable kiosk:
 
 - **Automatic detection**: Kiosk loads LISS data when available
-- **Fallback support**: Falls back to standard data if LISS unavailable  
+- **Fallback support**: Falls back to standard data if LISS unavailable
 - **Real-time updates**: GitHub Actions keep data fresh during school hours
 
 ## 🎯 Future LISS Integration
