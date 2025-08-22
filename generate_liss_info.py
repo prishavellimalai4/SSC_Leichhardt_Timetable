@@ -374,10 +374,9 @@ def generate_liss_info_json(days_limit: int = 7, output_file: str = 'liss_info.j
 
                         if teacher_info:
                             teacher_attrs = teacher_info.get('attributes', {})
-                            first_name = teacher_attrs.get('firstName', '')
                             last_name = teacher_attrs.get('lastName', '')
-                            if first_name and last_name:
-                                teacher_code = f"{first_name[:2].upper()}{last_name[:2].upper()}"
+                            if last_name:
+                                teacher_code = last_name[:10].upper()
 
                     # Create LISS entry
                     liss_entry = {
