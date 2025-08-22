@@ -1568,11 +1568,39 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
             }
         }
 
+        // Daily full page reload at 7:30am to start fresh each morning
+        function setupDailyReload() {
+            const now = new Date();
+            const target = new Date();
+            target.setHours(7, 30, 0, 0); // 7:30:00 AM
+            
+            // If 7:30am has already passed today, schedule for tomorrow
+            if (now > target) {
+                target.setDate(target.getDate() + 1);
+            }
+            
+            const timeUntilReload = target.getTime() - now.getTime();
+            
+            debugLog(`🔄 DAILY RELOAD: Scheduled for ${target.toLocaleString()}`);
+            
+            setTimeout(() => {
+                debugLog('🌅 DAILY RELOAD: Executing 7:30am fresh start');
+                location.replace(location.href);
+            }, timeUntilReload);
+            
+            // Also set up recurring daily reloads (every 24 hours)
+            setInterval(() => {
+                debugLog('🌅 DAILY RELOAD: Executing recurring 7:30am fresh start');
+                location.replace(location.href);
+            }, 24 * 60 * 60 * 1000); // 24 hours
+        }
+
         // Initialize the application
         async function init() {
             await loadConfig();
             setupAutoReload();
             setupHourlyReload(); // Optional full page reload every hour
+            setupDailyReload(); // Daily full page reload at 7:30am
             main();
         }
 
