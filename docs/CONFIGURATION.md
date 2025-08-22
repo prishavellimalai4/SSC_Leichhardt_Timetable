@@ -172,6 +172,8 @@ Configure special periods like sport where year groups are combined:
 {
   "ui": {
     "refreshInterval": 60000,
+    "autoRefresh": true,
+    "hourlyReload": true,
     "cacheBusting": true,
     "responsive": {
       "breakpoints": {
@@ -185,7 +187,33 @@ Configure special periods like sport where year groups are combined:
 }
 ```
 
-- **refreshInterval**: How often to refresh the page (milliseconds)
+#### Refresh & Reload Settings
+
+- **refreshInterval**: How often to refresh data (milliseconds, default: 60000 = 1 minute)
+- **autoRefresh**: Enable/disable automatic data refresh (default: true)
+- **hourlyReload**: Enable/disable full page reload every hour to prevent memory leaks (default: true)
+
+#### Automatic Reload Schedule
+
+The kiosk has multiple reload strategies for optimal performance:
+
+1. **Data Refresh**: Every minute (configurable via `refreshInterval`)
+   - Smooth data updates without page flash
+   - Updates timetable content seamlessly
+   - Controlled by `autoRefresh` setting
+
+2. **Hourly Reload**: Every hour (configurable via `hourlyReload`)
+   - Full page reload to clear memory leaks
+   - Can be disabled by setting `hourlyReload: false`
+   - Helps maintain long-term stability
+
+3. **Daily Fresh Start**: Every morning at 7:30am (automatic)
+   - Full page reload before school hours
+   - Ensures optimal performance each school day
+   - Cannot be disabled (essential for kiosk reliability)
+
+#### Other UI Settings
+
 - **cacheBusting**: Whether to add timestamps to prevent caching
 - **responsive.breakpoints**: Screen size breakpoints for responsive design
   - **large**, **medium**, **small**: Width breakpoints for general responsive design

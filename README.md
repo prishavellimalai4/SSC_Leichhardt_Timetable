@@ -11,7 +11,7 @@ A modern, web-based timetable display system designed for schools using Sentral 
 - **Real-time Display**: Shows current day's schedule with live period highlighting
 - **Multi-source Data**: Uses JSON API data with automatic XML fallback
 - **Responsive Design**: Works on any device - from large displays to mobile phones
-- **Zero Maintenance**: Automatically handles data updates and error recovery
+- **Zero Maintenance**: Automatic refresh system with daily 7:30am fresh starts
 - **Plug-and-Play**: Works immediately with included sample data
 - **Highly Configurable**: Extensive customization options for any school
 

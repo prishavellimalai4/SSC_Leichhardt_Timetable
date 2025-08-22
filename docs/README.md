@@ -92,8 +92,12 @@ For weekly automatic data updates using GitHub Actions:
 ### For Kiosk Displays
 
 - Open in full-screen mode (F11)
-- Set browser to auto-refresh every hour
+- **Automatic refresh system**: No manual setup required!
+  - Data updates every minute (smooth, no page flash)
+  - Hourly full reload for memory management
+  - Daily 7:30am fresh start for optimal performance
 - Use on tablets, monitors, or touch screens
+- Perfect for continuous display in hallways, offices, or student areas
 
 ### For School Websites
 
@@ -244,16 +248,23 @@ Configure what information is shown:
 
 ### Modify Refresh Settings
 
-Control how often data is checked:
+Control automatic refresh behavior:
 
 ```json
 {
-  "api": {
-    "sync_days": 7,
-    "refresh_minutes": 30
+  "ui": {
+    "refreshInterval": 60000,
+    "autoRefresh": true,
+    "hourlyReload": true
   }
 }
 ```
+
+**Refresh Options:**
+- **refreshInterval**: Data refresh frequency in milliseconds (60000 = 1 minute)
+- **autoRefresh**: Enable/disable automatic data updates (true/false)
+- **hourlyReload**: Enable/disable hourly full page reload (true/false)
+- **Daily 7:30am reload**: Always enabled for optimal kiosk performance
 
 ## 🔍 Troubleshooting
 
