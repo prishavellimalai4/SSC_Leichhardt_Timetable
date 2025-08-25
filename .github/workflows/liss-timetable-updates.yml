@@ -103,6 +103,7 @@ jobs:
           echo "✅ Updated config.json with API key"
 
       - name: Generate LISS timetable data
+        if: steps.time_check.outputs.within_hours == 'true'
         run: |
           echo "🏫 Generating LISS timetable data..."
 

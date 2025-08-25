@@ -165,7 +165,8 @@ class SentralAPIClient:
             if not base_url:
                 missing.append("api.sentral.base_url")
             if not api_key:
-                missing.append("api.sentral.api_key (REST_API_KEY environment variable)")
+                missing.append(
+                    "api.sentral.api_key (REST_API_KEY environment variable)")
             if not tenant:
                 missing.append("api.sentral.tenant")
             print(f"❌ Missing configuration: {', '.join(missing)}")
@@ -174,7 +175,7 @@ class SentralAPIClient:
         # Check if the API key still contains unresolved environment variable pattern
         if '${' in str(api_key):
             print("❌ API key environment variable was not resolved properly")
-            print("❌ Please ensure 'LISS_PASSWORD' environment variable is set")
+            print("❌ Please ensure 'REST_API_KEY' environment variable is set")
             return None
 
         if api_key == "your-sentral-rest-api-key-here":
