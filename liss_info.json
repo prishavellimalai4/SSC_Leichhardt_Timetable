@@ -1,7 +1,7 @@
 {
   "metadata": {
     "school": "TEMPE",
-    "generated_at": "2025-08-26T00:01:29.010957",
+    "generated_at": "2025-08-26T21:32:19.868694",
     "source": "sentral_api",
     "total_lessons": 1711,
     "date_range": "2025-08-26 to 2025-09-02",
@@ -561,8 +561,8 @@
       "Period": "P3",
       "ClassCode": "8SCIG",
       "EdvalClassCode": "8SCI G",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "E2"
     },
     {
@@ -804,8 +804,8 @@
       "Period": "P2",
       "ClassCode": "10SCIB",
       "EdvalClassCode": "10SCI B",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "D12"
     },
     {
@@ -1488,8 +1488,8 @@
       "Period": "P1",
       "ClassCode": "7SCIW",
       "EdvalClassCode": "7SCI W",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "BBLAB"
     },
     {
@@ -1497,8 +1497,8 @@
       "Period": "P5",
       "ClassCode": "7SCIW",
       "EdvalClassCode": "7SCI W",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "E2"
     },
     {
@@ -2028,8 +2028,8 @@
       "Period": "P6",
       "ClassCode": "7SCIW",
       "EdvalClassCode": "7SCI W",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "E2"
     },
     {
@@ -2388,8 +2388,8 @@
       "Period": "P1",
       "ClassCode": "9SCIW",
       "EdvalClassCode": "9SCI W",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "LIB_CLASS"
     },
     {
@@ -2559,8 +2559,8 @@
       "Period": "P2",
       "ClassCode": "7SCIM",
       "EdvalClassCode": "7SCI M",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "E1"
     },
     {
@@ -2568,8 +2568,8 @@
       "Period": "P4",
       "ClassCode": "7SCIM",
       "EdvalClassCode": "7SCI M",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "BBLAB"
     },
     {
@@ -2577,8 +2577,8 @@
       "Period": "P3",
       "ClassCode": "7SCIM",
       "EdvalClassCode": "7SCI M",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "E2"
     },
     {
@@ -3009,8 +3009,8 @@
       "Period": "P2",
       "ClassCode": "8SCIG",
       "EdvalClassCode": "8SCI G",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "F3"
     },
     {
@@ -3828,8 +3828,8 @@
       "Period": "P6",
       "ClassCode": "8SCIG",
       "EdvalClassCode": "8SCI G",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "D12"
     },
     {
@@ -3927,8 +3927,8 @@
       "Period": "P2",
       "ClassCode": "7SCIR",
       "EdvalClassCode": "7SCI R",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "D11"
     },
     {
@@ -3936,8 +3936,8 @@
       "Period": "P1",
       "ClassCode": "7SCIW",
       "EdvalClassCode": "7SCI W",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "E2"
     },
     {
@@ -4647,8 +4647,8 @@
       "Period": "P3",
       "ClassCode": "9SCIW",
       "EdvalClassCode": "9SCI W",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "P3"
     },
     {
@@ -5142,8 +5142,8 @@
       "Period": "P6",
       "ClassCode": "10SCIB",
       "EdvalClassCode": "10SCI B",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "D12"
     },
     {
@@ -5295,8 +5295,8 @@
       "Period": "Lunch",
       "ClassCode": "Duty.JrToiletsL",
       "EdvalClassCode": "Duty.JrToiletsL ",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": ""
     },
     {
@@ -5313,8 +5313,8 @@
       "Period": "Lunch",
       "ClassCode": "Duty.JrToiletsL",
       "EdvalClassCode": "Duty.JrToiletsL ",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": ""
     },
     {
@@ -6024,8 +6024,8 @@
       "Period": "P5",
       "ClassCode": "8SCIG",
       "EdvalClassCode": "8SCI G",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "BBLAB"
     },
     {
@@ -6987,8 +6987,8 @@
       "Period": "P4",
       "ClassCode": "7SCIR",
       "EdvalClassCode": "7SCI R",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "D11"
     },
     {
@@ -6996,8 +6996,8 @@
       "Period": "P6",
       "ClassCode": "7SCIR",
       "EdvalClassCode": "7SCI R",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "D11"
     },
     {
@@ -7005,8 +7005,8 @@
       "Period": "P3",
       "ClassCode": "7SCIW",
       "EdvalClassCode": "7SCI W",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "E2"
     },
     {
@@ -7302,8 +7302,8 @@
       "Period": "P5",
       "ClassCode": "7SCIM",
       "EdvalClassCode": "7SCI M",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "D12"
     },
     {
@@ -7311,8 +7311,8 @@
       "Period": "P4",
       "ClassCode": "7SCIM",
       "EdvalClassCode": "7SCI M",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "BBLAB"
     },
     {
@@ -8688,8 +8688,8 @@
       "Period": "P3",
       "ClassCode": "10SCIB",
       "EdvalClassCode": "10SCI B",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "BBLAB"
     },
     {
@@ -8697,8 +8697,8 @@
       "Period": "P3",
       "ClassCode": "10SCIB",
       "EdvalClassCode": "10SCI B",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "E2"
     },
     {
@@ -8706,8 +8706,8 @@
       "Period": "P5",
       "ClassCode": "10SCIB",
       "EdvalClassCode": "10SCI B",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "E2"
     },
     {
@@ -12126,8 +12126,8 @@
       "Period": "P2",
       "ClassCode": "9SCIW",
       "EdvalClassCode": "9SCI W",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "D11"
     },
     {
@@ -12135,8 +12135,8 @@
       "Period": "P1",
       "ClassCode": "9SCIW",
       "EdvalClassCode": "9SCI W",
-      "TeacherId": "1292",
-      "TeacherCode": "SCIENCE",
+      "TeacherId": "1296",
+      "TeacherCode": "BATTERS",
       "RoomCode": "D11"
     },
     {
