@@ -106,6 +106,26 @@ on:
 3. Read error messages in logs
 4. Fix issues and re-run workflow
 
+### Git Conflict Issues (Fixed in v2.1)
+
+If you see errors like:
+
+```
+error: Your local changes to the following files would be overwritten by merge:
+    .logs/liss_info_generation.log
+    liss_info.json
+Please commit your changes or stash them before you merge.
+```
+
+**This has been resolved** in version 2.1 of the workflows. The actions now automatically:
+
+- Stash local changes before pulling updates
+- Apply the latest changes from remote
+- Restore the generated files
+- Commit and push successfully
+
+If you're still experiencing this issue, ensure your workflows are up to date.
+
 ## ⚙️ Advanced Configuration
 
 ### Custom Data Update Scripts

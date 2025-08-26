@@ -14,6 +14,8 @@ A modern, web-based timetable display system designed for schools using Sentral 
 - **Zero Maintenance**: Automatic refresh system with daily 7:30am fresh starts
 - **Plug-and-Play**: Works immediately with included sample data
 - **Highly Configurable**: Extensive customization options for any school
+- **Automated Updates**: GitHub Actions for hands-free data synchronization
+- **Robust Error Handling**: Intelligent fallback systems ensure continuous operation
 
 ### What It Shows
 
@@ -51,7 +53,16 @@ See the **[Setup Guide](docs/README.md)** for detailed implementation instructio
 - **Frontend**: Pure HTML/CSS/JavaScript - no frameworks required
 - **Data Sources**: JSON files (primary) with XML fallback support
 - **API Integration**: Connects to Sentral REST API for live data
+- **Automation**: GitHub Actions for scheduled data updates
 - **Deployment**: Static files - works on any web server or GitHub Pages
+
+### Recent Improvements (v2.1)
+
+- **Fixed GitHub Actions conflicts**: Workflows now handle git merge conflicts automatically
+- **Enhanced error handling**: Better fallback mechanisms for data loading
+- **Improved scheduling**: Optimized LISS updates during school hours only
+- **Better logging**: Comprehensive debug information for troubleshooting
+- **Performance optimizations**: Faster data loading and processing
 
 ### Browser Support
 
@@ -151,6 +162,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - **Configuration Help**: Check [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for all options
 - **Technical Issues**: Review [docs/DEBUGGING_GUIDE.md](docs/DEBUGGING_GUIDE.md) for troubleshooting
 - **Feature Requests**: Open an issue on GitHub
+- **Recent Changes**: See [CHANGELOG.md](CHANGELOG.md) for version history and updates
+
+## 📋 Version Information
+
+**Current Version**: 2.1.0
+
+**Recent Updates**:
+
+- ✅ Fixed GitHub Actions git conflict issues
+- 🚀 Enhanced automation and error handling
+- 📚 Updated all documentation
+- 🔧 Improved workflow reliability
+
+See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 
 ## 🎖️ Credits
 

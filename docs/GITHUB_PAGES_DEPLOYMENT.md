@@ -255,10 +255,9 @@ Ensure these files are in your repository root:
 ### Best Practices
 
 - Use generic class codes rather than student names
-- Review teacher surname display policy (current format shows full surnames up to 10 characters)
+- Consider abbreviating teacher names if privacy is a concern
 - Regularly review what data is publicly accessible
 - Use private repositories if handling sensitive data (requires GitHub Pro)
-- Consider manual editing of teacher codes in generated JSON files if privacy requires it
 
 ## Troubleshooting
 

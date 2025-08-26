@@ -415,3 +415,90 @@ When enabled, the debug system shows:
 - **Maintainability**: Debug can be toggled without code changes
 
 This comprehensive debugging system makes it clear whether the kiosk is using the new JSON data from the Sentral API or falling back to the traditional XML files for both calendar and bell times data sources.
+
+## 🤖 GitHub Actions Issues
+
+### Git Conflict Errors (Fixed in v2.1)
+
+If GitHub Actions fail with errors like:
+
+```
+error: Your local changes to the following files would be overwritten by merge:
+    .logs/liss_info_generation.log
+    liss_info.json
+Please commit your changes or stash them before you merge.
+```
+
+**This issue has been resolved** in version 2.1 of the workflows. The actions now:
+
+1. **Automatically stash** local changes before pulling updates
+2. **Pull latest changes** from the remote repository
+3. **Restore stashed files** with the newly generated data
+4. **Commit and push** successfully without conflicts
+
+### Updating to Fixed Workflows
+
+If you're still experiencing git conflicts:
+
+1. **Check your workflow files** are up to date
+2. **Compare with the latest versions** in the repository
+3. **Update the workflow files** if needed:
+   - `.github/workflows/liss-timetable-updates.yml`
+   - `.github/workflows/weekly-data-update.yml`
+
+### Workflow Debugging
+
+**Check workflow status**:
+
+1. Go to **Actions** tab in your GitHub repository
+2. Click on the failed workflow run
+3. Expand the failing step to see detailed logs
+
+**Common workflow issues**:
+
+- **Invalid API key**: Check `REST_API_KEY` secret is set correctly
+- **Network timeouts**: Retry the workflow manually
+- **Permissions**: Ensure workflow has `contents: write` permission
+- **File conflicts**: Should be automatically resolved in v2.1+
+
+### Manual Recovery
+
+If workflows are still failing after updating:
+
+1. **Clear any stale data**:
+
+   ```bash
+   git stash clear
+   git reset --hard origin/main
+   ```
+
+2. **Re-run the workflow** manually from the Actions tab
+
+3. **Check the logs** for any remaining issues
+
+## 🔄 Data Update Scheduling
+
+### Current Schedule
+
+**LISS Timetable Updates**: Every 15 minutes during school hours (7:30 AM - 3:30 PM Sydney time, weekdays only)
+
+**Weekly Data Updates**: Every Monday at 5:00 AM Sydney time
+
+### Time Zone Handling
+
+The workflows automatically handle Sydney time zone changes:
+
+- **AEST (Standard Time)**: UTC+10
+- **AEDT (Daylight Saving Time)**: UTC+11
+
+Both schedules are included in the cron expressions to ensure consistent operation year-round.
+
+### Manual Triggers
+
+You can trigger any workflow manually:
+
+1. Go to **Actions** tab
+2. Select the workflow
+3. Click **Run workflow**
+4. Choose the branch (usually `main`)
+5. Click **Run workflow**

@@ -72,7 +72,9 @@ To connect your Sentral API for automated live data updates:
 
 ## 🤖 Automated Data Updates
 
-For weekly automatic data updates using GitHub Actions:
+### GitHub Actions Workflows (v2.1 - Enhanced)
+
+For hands-free operation with weekly automatic data updates:
 
 1. **Add Repository Secrets** (Settings → Secrets and variables → Actions):
 
@@ -83,9 +85,17 @@ For weekly automatic data updates using GitHub Actions:
 
    - Go to Actions tab in your repository
    - Enable workflows if prompted
-   - Data will automatically update every Monday at 5:00 AM
+   - **Weekly Data Update**: Runs every Monday at 5:00 AM Sydney time
+   - **LISS Timetable Update**: Runs every 15 minutes during school hours (7:30 AM - 3:30 PM weekdays)
 
-3. **Manual Updates**: Use "Run workflow" button to update data anytime
+3. **Enhanced Features** (v2.1):
+
+   - **Automatic git conflict resolution**: No more merge errors
+   - **Smart scheduling**: LISS updates only during school hours
+   - **Robust error handling**: Automatic stashing and recovery
+   - **Time zone awareness**: Handles Sydney AEST/AEDT automatically
+
+4. **Manual Updates**: Use "Run workflow" button to update data anytime
 
 ## 📱 Usage
 
@@ -112,6 +122,7 @@ For weekly automatic data updates using GitHub Actions:
 - **[GitHub Pages Deployment](GITHUB_PAGES_DEPLOYMENT.md)** - Detailed hosting setup
 - **[LISS Integration](LISS_README.md)** - Advanced timetable features
 - **[Troubleshooting](DEBUGGING_GUIDE.md)** - Common issues and solutions
+- **[Version History](../CHANGELOG.md)** - Recent updates and fixes
 
 ## 🆘 Support
 
