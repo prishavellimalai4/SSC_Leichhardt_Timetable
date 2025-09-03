@@ -130,21 +130,24 @@ def get_staff_code_mapping(client: SentralAPIClient) -> Dict[str, str]:
         return {}
 
 
-def generate_liss_info_json(days_limit: int = 7, output_file: str = 'liss_info.json') -> Tuple[bool, int, str]:
+def generate_liss_info_json(days_limit: int = 7, output_file: str = 'liss_info.json', debug: bool = False) -> Tuple[bool, int, str]:
     """
     Generate liss_info.json from Sentral API data for the specified number of days.
 
     Args:
         days_limit (int): Number of days of data to generate (default 7)
         output_file (str): Output JSON file path
+        debug (bool): Enable debug logging for API diagnostics
 
     Returns:
         Tuple of (success, response_code, date_range)
     """
     print(f"🗓️  Generating LISS info JSON for {days_limit} days...")
+    if debug:
+        print("🐛 Debug mode enabled - detailed API diagnostics will be shown")
 
-    # Initialize API client
-    client = SentralAPIClient.from_config('config.json')
+    # Initialize API client with debug mode
+    client = SentralAPIClient.from_config('config.json', debug=debug)
     if not client:
         print("❌ Failed to initialize API client")
         return False, 0, "N/A"
@@ -265,14 +268,40 @@ def generate_liss_info_json(days_limit: int = 7, output_file: str = 'liss_info.j
         period_in_days = period_in_day_response.get('data', [])
 
         # Get days and periods for lookup
+        print("📅 Fetching timetable days...")
         days_response = client._make_request(
             'GET', 'timetables/timetable-day', {'limit': 50})
+        if not days_response:
+            print("❌ Failed to fetch timetable days - cannot continue")
+            print("🔍 This is required for period-in-day mapping")
+            return False, 404, date_range
+            
+        print("⏰ Fetching timetable periods...")
         periods_response = client._make_request(
             'GET', 'timetables/timetable-period', {'limit': 50})
+        if not periods_response:
+            print("❌ Failed to fetch timetable periods - cannot continue")
+            print("🔍 This is required for period-in-day mapping")
+            return False, 404, date_range
 
-        day_lookup = {day['id']: day for day in days_response.get('data', [])}
-        period_lookup = {
-            period['id']: period for period in periods_response.get('data', [])}
+        # Validate response structure
+        days_data = days_response.get('data', [])
+        periods_data = periods_response.get('data', [])
+        
+        if not days_data:
+            print("⚠️  Warning: No timetable days found in response")
+            print(f"🔍 Days response structure: {list(days_response.keys())}")
+        else:
+            print(f"✅ Found {len(days_data)} timetable days")
+            
+        if not periods_data:
+            print("⚠️  Warning: No timetable periods found in response")
+            print(f"🔍 Periods response structure: {list(periods_response.keys())}")
+        else:
+            print(f"✅ Found {len(periods_data)} timetable periods")
+
+        day_lookup = {day['id']: day for day in days_data}
+        period_lookup = {period['id']: period for period in periods_data}
 
         # Create period-in-day lookup
         period_day_lookup = {}
@@ -437,10 +466,25 @@ def generate_liss_info_json(days_limit: int = 7, output_file: str = 'liss_info.j
             print(
                 f"   {i+1}. Day {entry['DayNumber']} {entry['Period']}: {entry['ClassCode']} - {entry['TeacherCode']} in {entry['RoomCode']}")
 
+        # Print API statistics for debugging
+        client.print_request_stats()
+
         return True, response_code, date_range
 
     except Exception as e:
         print(f"❌ Error generating LISS info JSON: {e}")
+        print(f"🔍 Exception type: {type(e).__name__}")
+        print(f"🔍 Exception details: {str(e)}")
+        
+        # Print API statistics even on failure
+        if 'client' in locals():
+            client.print_request_stats()
+            
+        # Import traceback for more detailed error info
+        import traceback
+        print(f"🐛 Full traceback:")
+        traceback.print_exc()
+        
         return False, 500, "N/A"
 
 
@@ -449,8 +493,16 @@ def main():
     print("SENTRAL API LISS INFO JSON GENERATOR")
     print("="*50)
 
+    # Check for debug mode from environment or command line
+    debug_mode = os.getenv('LISS_DEBUG', 'false').lower() == 'true'
+    if len(sys.argv) > 1 and '--debug' in sys.argv:
+        debug_mode = True
+        
+    if debug_mode:
+        print("🐛 Debug mode enabled")
+
     # Generate for 7 days as requested
-    success, response_code, date_range = generate_liss_info_json(days_limit=7)
+    success, response_code, date_range = generate_liss_info_json(days_limit=7, debug=debug_mode)
 
     # Validate generated data if successful
     validation_result = "FAILED - Generation failed"

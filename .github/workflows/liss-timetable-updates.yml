@@ -104,33 +104,106 @@ jobs:
 
       - name: Generate LISS timetable data
         if: steps.time_check.outputs.within_hours == 'true'
+        env:
+          LISS_DEBUG: "true"  # Enable debug mode for better diagnostics
         run: |
           echo "🏫 Generating LISS timetable data..."
+          echo "🐛 Debug mode enabled for enhanced API diagnostics"
 
-          # Run the generation script and capture exit code
-          if python3 generate_liss_info.py; then
-            echo "✅ LISS generation and validation passed"
+          # Show system info for debugging
+          echo "🖥️ System Information:"
+          echo "   - OS: $(uname -a)"
+          echo "   - Python: $(python3 --version)"
+          echo "   - Current time: $(date)"
+          echo "   - UTC time: $(date -u)"
+          echo "   - Sydney time: $(TZ='Australia/Sydney' date)"
+          echo "   - Memory: $(free -h | head -2)"
+          echo "   - Disk space: $(df -h . | tail -1)"
+          echo ""
+
+          # Check network connectivity
+          echo "🌐 Network Connectivity Check:"
+          if ping -c 3 tempe-h.sentral.com.au; then
+            echo "✅ Can reach Sentral server"
+          else
+            echo "❌ Cannot reach Sentral server"
+          fi
+          
+          # Test DNS resolution
+          echo "🔍 DNS Resolution:"
+          nslookup tempe-h.sentral.com.au || echo "❌ DNS resolution failed"
+          echo ""
+
+          # Run the generation script with enhanced error capture
+          echo "🚀 Starting LISS generation with debug mode..."
+          start_time=$(date +%s)
+          
+          if timeout 300s python3 generate_liss_info.py --debug 2>&1 | tee liss_generation.log; then
+            end_time=$(date +%s)
+            duration=$((end_time - start_time))
+            echo "✅ LISS generation completed successfully in ${duration} seconds"
             
             if [ -f "liss_info.json" ]; then
               echo "✅ LISS info file exists"
+              file_size=$(stat -c%s liss_info.json)
+              echo "📊 File size: ${file_size} bytes"
+              echo "📋 File details:"
               ls -la liss_info.json
+              
+              # Show structure preview
+              echo "🔍 JSON structure preview (first 10 lines):"
+              head -10 liss_info.json
               
               # Additional JSON structure validation
               echo "🔍 Validating LISS info JSON structure..."
-              if python3 -c "import json; json.load(open('liss_info.json'))" 2>/dev/null; then
+              if python3 -c "
+import json
+import sys
+try:
+    with open('liss_info.json', 'r') as f:
+        data = json.load(f)
+    print(f'✅ Valid JSON with {len(data.get(\"timetable_data\", []))} timetable entries')
+    print(f'✅ Metadata keys: {list(data.get(\"metadata\", {}).keys())}')
+    sys.exit(0)
+except Exception as e:
+    print(f'❌ JSON validation failed: {e}')
+    sys.exit(1)
+              " 2>&1; then
                 echo "✅ LISS info JSON structure validation passed"
               else
-                echo "❌ LISS info JSON structure validation failed - invalid JSON format"
-                echo "Generated file content (first 500 chars):"
-                head -c 500 liss_info.json
+                echo "❌ LISS info JSON structure validation failed"
+                echo "Generated file content (first 1000 chars):"
+                head -c 1000 liss_info.json
                 exit 1
               fi
             else
               echo "❌ LISS info file was not created"
+              echo "🔍 Current directory contents:"
+              ls -la
               exit 1
             fi
           else
-            echo "❌ LISS generation or validation failed"
+            end_time=$(date +%s)
+            duration=$((end_time - start_time))
+            echo "❌ LISS generation failed after ${duration} seconds"
+            
+            # Show the captured log for debugging
+            if [ -f "liss_generation.log" ]; then
+              echo "🔍 Generation log contents:"
+              cat liss_generation.log
+            fi
+            
+            # Show any error files that might have been created
+            echo "🔍 Error diagnosis:"
+            echo "Current directory contents:"
+            ls -la
+            
+            # Check for any Python errors in the system
+            if command -v journalctl &> /dev/null; then
+              echo "🔍 Recent system errors:"
+              journalctl --since "1 minute ago" --no-pager | grep -i python || echo "No Python errors in system log"
+            fi
+            
             exit 1
           fi
 
@@ -258,17 +331,51 @@ jobs:
           path: |
             liss_info.json
             .logs/liss_info_generation.log
-          retention-days: 3
+            liss_generation.log
+          retention-days: 7
 
       - name: Notify on failure
         if: failure() && steps.time_check.outputs.within_hours == 'true'
         run: |
           echo "❌ LISS timetable update failed!"
-          echo "Check the logs above for details."
-          echo "Common issues:"
-          echo "  - API credentials may have expired"
-          echo "  - Sentral server may be unreachable"
-          echo "  - Network connectivity issues"
-          echo "  - LISS data structure changes"
           echo ""
-          echo "Contact IT support if the issue persists."
+          echo "🔍 Diagnostic Information:"
+          echo "   - Workflow run: ${{ github.run_number }}"
+          echo "   - Commit: ${{ github.sha }}"
+          echo "   - Time: $(date)"
+          echo "   - Sydney time: $(TZ='Australia/Sydney' date)"
+          echo ""
+          
+          # Show recent logs if available
+          if [ -f "liss_generation.log" ]; then
+            echo "📋 Generation Log (last 50 lines):"
+            tail -50 liss_generation.log
+            echo ""
+          fi
+          
+          if [ -f ".logs/liss_info_generation.log" ]; then
+            echo "📋 Recent Generation History:"
+            tail -10 .logs/liss_info_generation.log
+            echo ""
+          fi
+          
+          echo "🛠️ Troubleshooting Steps:"
+          echo "1. Check the logs above for specific error messages"
+          echo "2. Verify the artifacts uploaded for this run contain detailed logs"
+          echo "3. Check if Sentral API is accessible from GitHub Actions"
+          echo "4. Verify API credentials are valid and not expired"
+          echo "5. Look for network connectivity or timeout issues"
+          echo ""
+          echo "📞 Common Issues:"
+          echo "  - API timeout (30s limit per request with 3 retries)"
+          echo "  - Sentral server overload or maintenance"
+          echo "  - Network connectivity from GitHub Actions to Sentral"
+          echo "  - API rate limiting (15-minute intervals should be safe)"
+          echo "  - Changes in Sentral API response structure"
+          echo ""
+          echo "💡 Quick Checks:"
+          echo "  - Manual workflow run: Can trigger manually to test immediately"
+          echo "  - Check Sentral status: Visit Sentral directly to verify service"
+          echo "  - Review artifacts: Download logs from failed runs for analysis"
+          echo ""
+          echo "Contact IT support if the issue persists for more than 1 hour."
