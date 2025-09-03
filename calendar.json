@@ -1,47 +1,14 @@
 {
   "metadata": {
-    "generated": "2025-08-31T19:06:11.326700",
+    "generated": "2025-09-03T00:08:16.057261",
     "source": "sentral_api",
     "total_days": 8,
     "date_range": {
-      "from": "2025-08-31",
-      "to": "2025-09-07"
+      "from": "2025-09-03",
+      "to": "2025-09-10"
     }
   },
   "calendar": [
-    {
-      "date": "2025-08-31",
-      "day_name": "weekend",
-      "day_number": 0,
-      "day_type": "school",
-      "cycle": null,
-      "interval": "1",
-      "is_daily_timetable": true,
-      "is_school_day": false,
-      "source": "sentral_api"
-    },
-    {
-      "date": "2025-09-01",
-      "day_name": "MonA",
-      "day_number": 1,
-      "day_type": "school",
-      "cycle": "14",
-      "interval": "1",
-      "is_daily_timetable": true,
-      "is_school_day": true,
-      "source": "sentral_api"
-    },
-    {
-      "date": "2025-09-02",
-      "day_name": "TueA",
-      "day_number": 2,
-      "day_type": "school",
-      "cycle": "14",
-      "interval": "1",
-      "is_daily_timetable": true,
-      "is_school_day": true,
-      "source": "sentral_api"
-    },
     {
       "date": "2025-09-03",
       "day_name": "WedA",
@@ -95,6 +62,39 @@
       "interval": "1",
       "is_daily_timetable": true,
       "is_school_day": false,
+      "source": "sentral_api"
+    },
+    {
+      "date": "2025-09-08",
+      "day_name": "MonB",
+      "day_number": 6,
+      "day_type": "school",
+      "cycle": "14",
+      "interval": "1",
+      "is_daily_timetable": true,
+      "is_school_day": true,
+      "source": "sentral_api"
+    },
+    {
+      "date": "2025-09-09",
+      "day_name": "TueB",
+      "day_number": 7,
+      "day_type": "school",
+      "cycle": "14",
+      "interval": "1",
+      "is_daily_timetable": true,
+      "is_school_day": true,
+      "source": "sentral_api"
+    },
+    {
+      "date": "2025-09-10",
+      "day_name": "WedB",
+      "day_number": 8,
+      "day_type": "school",
+      "cycle": "14",
+      "interval": "1",
+      "is_daily_timetable": true,
+      "is_school_day": true,
       "source": "sentral_api"
     }
   ]
