@@ -57,26 +57,9 @@
       }
     }
   },
-  "sportPeriods": {
-    "tuesday": {
-      "periods": ["P5", "P6"],
-      "yearGroups": {
-        "7": {
-          "label": "Year 7 & 8 Sport",
-          "includesYears": [7, 8],
-          "excludeYears": [8]
-        },
-        "9": {
-          "label": "Year 9 & 10 Sport",
-          "includesYears": [9, 10],
-          "excludeYears": [10]
-        }
-      }
-    }
-  },
   "yearGroups": {
     "multiRowYears": [7, 9],
-    "displayYears": [7, 8, 9, 10, 11, 12],
+    "displayYears": ["S", 7, 8, 9, 10],
     "classCodePattern": "^(\\d+)"
   },
   "ui": {
