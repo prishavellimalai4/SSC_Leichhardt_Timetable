@@ -4,7 +4,7 @@ A modern, web-based timetable display system designed for schools using Sentral 
 
 ## 📱 About This App
 
-**Timetable Kiosk** is a lightweight web application that displays school timetable information in an attractive, easy-to-read format. Originally developed for Tempe High School, it's designed to work with any school using Sentral student management systems.
+**Timetable Kiosk** is a lightweight web application that displays school timetable information in an attractive, easy-to-read format. Originally developed for Tempe High School, it's designed to work with any school using Sentral student management systems. To access the timetable web application, go to this link: https://prishavellimalai4.github.io/SSC_Leichhardt_Timetable/. 
 
 ### Key Features
 
