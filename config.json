@@ -14,7 +14,7 @@
     "fallback_to_xml": true,
     "sentral": {
       "base_url": "https://leichhardt-h.sentral.com.au/",
-      "tenant": "9Rl4Rn",
+      "tenant": "s-9Rl4Rn",
       "api_key": "76678e655294425baf684d6512fde8a4",
       "api_path": "/api/v1"
     },
