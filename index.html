@@ -103,23 +103,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                         }
                     }
                 },
-                "sportPeriods": {
-                    "tuesday": {
-                        "periods": ["P5", "P6"],
-                        "yearGroups": {
-                            "7": {
-                                "label": "Year 7 & 8 Sport",
-                                "includesYears": [7, 8],
-                                "excludeYears": [8]
-                            },
-                            "9": {
-                                "label": "Year 9 & 10 Sport", 
-                                "includesYears": [9, 10],
-                                "excludeYears": [10]
-                            }
-                        }
-                    }
-                },
+                // "sportPeriods": {
+                //     "tuesday": {
+                //         "periods": ["P5", "P6"],
+                //         "yearGroups": {
+                //             "7": {
+                //                 "label": "Year 7 & 8 Sport",
+                //                 "includesYears": [7, 8],
+                //                 "excludeYears": [8]
+                //             },
+                //             "9": {
+                //                 "label": "Year 9 & 10 Sport", 
+                //                 "includesYears": [9, 10],
+                //                 "excludeYears": [10]
+                //             }
+                //         }
+                //     }
+                // },
                 "yearGroups": {
                     "multiRowYears": ['S', 7, 8, 9, 10],
                     "displayYears": ['S', 7, 8, 9, 10],
@@ -213,10 +213,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                     background: ${c.tile.background};
                     border: 1px solid ${c.tile.border};
                     border-radius: 11px;
-                    min-width: 300px;
-                    max-width: 320px;
+                    min-width: 220px;
+                    max-width: 260px;
                     min-height: 56px;
-                    padding: 6px 3px;
+                    padding: 4px 6px;
                     box-shadow: 2px 2px 6px ${c.tile.shadow};
                     display: flex;
                     flex-direction: column;
@@ -227,9 +227,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
                 .tile:hover {
                     box-shadow: 2px 6px 16px ${c.tile.hover};
                 }
-                .classcode { font-weight: bold; font-size: 2em; color: ${c.text.classCode}; margin-bottom: 2px; }
-                .room { font-size: 1em; color: ${c.text.primary}; margin-bottom: 2px; }
-                .teacher { font-size: 1em; color: ${c.text.primary}; }
+                .classcode { font-weight: bold; font-size: 1.9em; color: ${c.text.classCode}; margin-bottom: 2px; }
+                .room { font-size: 1.5em; color: ${c.text.primary}; margin-bottom: 2px; }
+                .teacher { font-size: 1.5em; color: ${c.text.primary}; }
                 .empty-row {
                     color: ${c.text.secondary};
                     font-style: italic;
