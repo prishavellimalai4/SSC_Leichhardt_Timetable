@@ -17,12 +17,12 @@
       "tenant": "9Rl4Rn",
       "api_key": "76678e655294425baf684d6512fde8a4",
       "api_path": "/api/v1"
-    },
+      },
     "calendar_source": {
       "use_api": true,
       "days_ahead": 7,
       "fallback_to_xml": true
-    }
+      }
   },
   "colors": {
     "primary": "#AC0000",
@@ -41,26 +41,26 @@
     }
   },
   "schedule": {
-    "ignoredDays": [0, 6],
-    "schoolDays": [1, 2, 3, 4, 5],
-    "defaultShowMinutesBefore": 10,
-    "periods": {
-      "P0": {
-        "showFromDay": 5,
-        "showFromTime": "15:05",
-        "showUntilStart": true,
-        "description": "Period 0"
-      },
-      "P1": {
-        "showFromTime": "08:20",
-        "description": "Period 1"
+      "ignoredDays": [0, 6],
+      "schoolDays": [1, 2, 3, 4, 5],
+      "defaultShowMinutesBefore": 10,
+      "periods": {
+          "P0": {
+              "showFromDay": 5,
+              "showFromTime": "15:15",
+              "showUntilStart": true,
+              "description": "Period 0"
+          },
+          "P1": {
+              "showFromTime": "08:00",
+              "description": "Period 1"
+          }
       }
-    }
   },
   "yearGroups": {
-    "multiRowYears": [7, 9],
-    "displayYears": ["S", 7, 8, 9, 10],
-    "classCodePattern": "^(\\d+)"
+      "multiRowYears": ['S', 7, 8, 9, 10],
+      "displayYears": ['S', 7, 8, 9, 10],
+      "classCodePattern": "^(\\d+)"
   },
   "ui": {
     "refreshInterval": 60000,
